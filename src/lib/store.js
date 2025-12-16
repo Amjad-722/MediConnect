@@ -21,9 +21,22 @@ if (browser) {
 }
 
 export function login(email, userDetails = {}) {
+    const defaultDoctorFields = userDetails.role === 'doctor' ? {
+        bio: "",
+        education: "",
+        clinicAddress: "",
+        about: "",
+        availability: [
+            { day: "Mon", slots: ["09:00 AM", "02:00 PM"] },
+            { day: "Wed", slots: ["09:00 AM", "02:00 PM"] },
+            { day: "Fri", slots: ["09:00 AM", "02:00 PM"] },
+        ]
+    } : {};
+
     user.set({
         email,
         name: userDetails.name || email.split('@')[0],
+        ...defaultDoctorFields,
         ...userDetails
     });
 }

@@ -10,6 +10,7 @@
   import Register from "./routes/Register.svelte";
   import DoctorProfile from "./routes/DoctorProfile.svelte";
   import DoctorRegister from "./routes/DoctorRegister.svelte";
+  import DoctorDashboard from "./routes/DoctorDashboard.svelte";
 
   // Handle routing location
   export let url = "";
@@ -26,6 +27,7 @@
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/doctor-register" component={DoctorRegister} />
+      <Route path="/doctor-dashboard" component={DoctorDashboard} />
     </main>
     <Footer />
   </div>
