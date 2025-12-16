@@ -1,11 +1,19 @@
 <script>
-  import Link from "../lib/Link.svelte";
-  import Button from "./Button.svelte";
+  import Link from "$lib/Link.svelte";
+  import Button from "$components/Button.svelte";
+  import { user, logout } from "$lib/store";
+  import { navigate } from "$lib/router.js";
 
   let isMenuOpen = false;
 
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;
+  }
+
+  function handleLogout() {
+    logout();
+    navigate("/", { replace: true });
+    isMenuOpen = false;
   }
 </script>
 
@@ -39,12 +47,33 @@
     </div>
 
     <div class="hidden md:flex items-center gap-4">
-      <Link
-        to="/login"
-        class="font-medium text-primary hover:text-primary-dark transition-colors"
-        >Login</Link
-      >
-      <Button variant="primary" href="/register">Get Started</Button>
+      {#if $user && $user.role === "doctor"}
+        <Link
+          to="/doctor-dashboard"
+          class="text-sm font-medium text-primary hover:text-primary-dark transition-colors"
+          >Dashboard</Link
+        >
+      {:else if !$user}
+        <Link
+          to="/doctor-register"
+          class="text-sm font-medium text-gray-500 hover:text-primary transition-colors"
+          >For Doctors</Link
+        >
+      {/if}
+      {#if $user}
+        <div class="flex items-center gap-4">
+          <span class="text-sm font-medium text-gray-700">Hi, {$user.name}</span
+          >
+          <Button variant="outline" onClick={handleLogout}>Logout</Button>
+        </div>
+      {:else}
+        <Link
+          to="/login"
+          class="font-medium text-primary hover:text-primary-dark transition-colors"
+          >Login</Link
+        >
+        <Button variant="primary" href="/register">Get Started</Button>
+      {/if}
     </div>
 
     <!-- Mobile Menu Button -->
@@ -94,17 +123,28 @@
         on:click={toggleMenu}>About</Link
       >
       <div class="flex flex-col gap-3 mt-2 pt-4 border-t border-gray-100">
-        <Link
-          to="/login"
-          class="text-center font-medium text-primary hover:text-primary-dark py-2"
-          on:click={toggleMenu}>Login</Link
-        >
-        <Button
-          variant="primary"
-          href="/register"
-          fullWidth
-          onClick={toggleMenu}>Get Started</Button
-        >
+        {#if $user}
+          <div
+            class="py-2 text-center font-medium text-gray-900 bg-gray-50 rounded"
+          >
+            Signed in as {$user.name}
+          </div>
+          <Button variant="outline" fullWidth onClick={handleLogout}
+            >Logout</Button
+          >
+        {:else}
+          <Link
+            to="/login"
+            class="text-center font-medium text-primary hover:text-primary-dark py-2"
+            on:click={toggleMenu}>Login</Link
+          >
+          <Button
+            variant="primary"
+            href="/register"
+            fullWidth
+            onClick={toggleMenu}>Get Started</Button
+          >
+        {/if}
       </div>
     </div>
   {/if}

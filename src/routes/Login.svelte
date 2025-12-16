@@ -1,6 +1,22 @@
 <script>
-    import Button from "../components/Button.svelte";
-    import Link from "../lib/Link.svelte";
+    import Button from "$components/Button.svelte";
+    import Link from "$lib/Link.svelte";
+    import { login } from "$lib/store";
+    import { navigate } from "$lib/router.js";
+
+    let email = "";
+    let password = "";
+    let isLoading = false;
+
+    async function handleLogin() {
+        isLoading = true;
+        // Simulate network delay
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
+        login(email);
+        navigate("/", { replace: true });
+        isLoading = false;
+    }
 </script>
 
 <div
@@ -21,7 +37,7 @@
                 </Link>
             </p>
         </div>
-        <form class="mt-8 space-y-6" on:submit|preventDefault={() => {}}>
+        <form class="mt-8 space-y-6" on:submit|preventDefault={handleLogin}>
             <div class="space-y-4">
                 <div>
                     <label
@@ -33,6 +49,7 @@
                         id="email"
                         name="email"
                         type="email"
+                        bind:value={email}
                         autocomplete="email"
                         required
                         class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
@@ -49,6 +66,7 @@
                         id="password"
                         name="password"
                         type="password"
+                        bind:value={password}
                         autocomplete="current-password"
                         required
                         class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
@@ -84,9 +102,14 @@
             </div>
 
             <div>
-                <Button variant="primary" fullWidth type="submit"
-                    >Sign in</Button
+                <Button
+                    variant="primary"
+                    fullWidth
+                    type="submit"
+                    disabled={isLoading}
                 >
+                    {isLoading ? "Signing in..." : "Sign in"}
+                </Button>
             </div>
 
             <div class="relative my-6">
