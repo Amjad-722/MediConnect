@@ -2,7 +2,7 @@
   import Link from "$lib/Link.svelte";
   import Button from "$components/Button.svelte";
   import { user, logout } from "$lib/store";
-  import { navigate } from "svelte-routing";
+  import { navigate } from "$lib/router.js";
 
   let isMenuOpen = false;
 

@@ -2,7 +2,7 @@
     import Button from "$components/Button.svelte";
     import Link from "$lib/Link.svelte";
     import { login } from "$lib/store";
-    import { navigate } from "svelte-routing";
+    import { navigate } from "$lib/router.js";
 
     let email = "";
     let password = "";

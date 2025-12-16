@@ -1,4 +1,6 @@
 <script>
+    // @ts-nocheck
+
     import { currentPath } from "./router.js";
     export let path;
     export let component = null;
