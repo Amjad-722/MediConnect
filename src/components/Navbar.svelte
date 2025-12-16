@@ -47,6 +47,11 @@
     </div>
 
     <div class="hidden md:flex items-center gap-4">
+      <Link
+        to="/doctor-register"
+        class="text-sm font-medium text-gray-500 hover:text-primary transition-colors"
+        >For Doctors</Link
+      >
       {#if $user}
         <div class="flex items-center gap-4">
           <span class="text-sm font-medium text-gray-700">Hi, {$user.name}</span

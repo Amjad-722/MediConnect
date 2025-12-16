@@ -8,6 +8,8 @@
   import About from "./routes/About.svelte";
   import Login from "./routes/Login.svelte";
   import Register from "./routes/Register.svelte";
+  import DoctorProfile from "./routes/DoctorProfile.svelte";
+  import DoctorRegister from "./routes/DoctorRegister.svelte";
 
   // Handle routing location
   export let url = "";
@@ -19,9 +21,11 @@
     <main class="flex-1">
       <Route path="/" component={Landing} />
       <Route path="/doctors" component={Doctors} />
+      <Route path="/doctor/:id" component={DoctorProfile} />
       <Route path="/about" component={About} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/doctor-register" component={DoctorRegister} />
     </main>
     <Footer />
   </div>

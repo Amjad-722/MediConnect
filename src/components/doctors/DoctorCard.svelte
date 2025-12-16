@@ -1,5 +1,6 @@
 <script>
     import Button from "$components/Button.svelte";
+    import Link from "$lib/Link.svelte";
     export let doctor;
 </script>
 
@@ -16,36 +17,43 @@
         </div>
     </div>
     <div class="p-6">
-        <div class="flex justify-between items-start mb-2">
+        <div class="flex justify-between items-start mb-4">
             <div>
                 <h3
                     class="text-xl font-bold text-gray-900 group-hover:text-primary transition-colors"
                 >
                     {doctor.name}
                 </h3>
-                <p class="text-primary font-medium">
-                    {doctor.specialty}
-                </p>
+                <p class="text-primary font-medium">{doctor.specialty}</p>
             </div>
-            <div
-                class="flex items-center bg-yellow-50 px-2.5 py-1 rounded-full border border-yellow-100"
+            <span
+                class="flex items-center gap-1 text-sm font-medium text-amber-500 bg-amber-50 px-2 py-1 rounded"
             >
-                <span class="text-yellow-400 mr-1 text-sm">★</span>
-                <span class="font-bold text-gray-700 text-sm"
-                    >{doctor.rating}</span
-                >
-                <span class="text-gray-400 text-xs ml-1"
-                    >({doctor.reviews})</span
-                >
+                ⭐ {doctor.rating}
+            </span>
+        </div>
+
+        <div class="space-y-2 mb-6">
+            <div class="flex items-center gap-2 text-gray-500 text-sm">
+                <span>📍</span>
+                {doctor.location}
+            </div>
+            <div class="flex items-center gap-2 text-gray-500 text-sm">
+                <span>💬</span>
+                {doctor.reviews} Reviews
             </div>
         </div>
-        <p class="text-gray-500 text-sm mb-6 flex items-center gap-1">
-            <span>📍</span>
-            {doctor.location}
-        </p>
+
         <div class="grid grid-cols-2 gap-3">
-            <Button variant="outline" fullWidth>Profile</Button>
-            <Button variant="primary" fullWidth>Book</Button>
+            <Link
+                to="/doctor/{doctor.id}"
+                class="flex items-center justify-center px-4 py-2 border border-blue-200 text-primary rounded-lg hover:bg-blue-50 transition-colors font-medium text-sm"
+            >
+                View Profile
+            </Link>
+            <Button variant="primary" href="/doctor/{doctor.id}" size="sm"
+                >Book Now</Button
+            >
         </div>
     </div>
 </div>
