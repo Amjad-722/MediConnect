@@ -1,6 +1,23 @@
 <script>
-    import Button from "../components/Button.svelte";
-    import Link from "../lib/Link.svelte";
+    import Button from "$components/Button.svelte";
+    import Link from "$lib/Link.svelte";
+    import { login } from "$lib/store";
+    import { navigate } from "svelte-routing";
+
+    let firstName = "";
+    let lastName = "";
+    let email = "";
+    let password = "";
+    let isLoading = false;
+
+    async function handleRegister() {
+        isLoading = true;
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
+        login(email, { name: `${firstName} ${lastName}` });
+        navigate("/", { replace: true });
+        isLoading = false;
+    }
 </script>
 
 <div
@@ -21,7 +38,7 @@
                 </Link>
             </p>
         </div>
-        <form class="mt-8 space-y-6" on:submit|preventDefault={() => {}}>
+        <form class="mt-8 space-y-6" on:submit|preventDefault={handleRegister}>
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -34,6 +51,7 @@
                             id="first-name"
                             name="first-name"
                             type="text"
+                            bind:value={firstName}
                             required
                             class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
                             placeholder="John"
@@ -49,6 +67,7 @@
                             id="last-name"
                             name="last-name"
                             type="text"
+                            bind:value={lastName}
                             required
                             class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
                             placeholder="Doe"
@@ -65,6 +84,7 @@
                         id="email"
                         name="email"
                         type="email"
+                        bind:value={email}
                         autocomplete="email"
                         required
                         class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
@@ -81,6 +101,7 @@
                         id="password"
                         name="password"
                         type="password"
+                        bind:value={password}
                         autocomplete="new-password"
                         required
                         class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
@@ -113,9 +134,14 @@
             </div>
 
             <div>
-                <Button variant="primary" fullWidth type="submit"
-                    >Create Account</Button
+                <Button
+                    variant="primary"
+                    fullWidth
+                    type="submit"
+                    disabled={isLoading}
                 >
+                    {isLoading ? "Creating Account..." : "Create Account"}
+                </Button>
             </div>
         </form>
     </div>

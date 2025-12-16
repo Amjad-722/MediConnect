@@ -1,9 +1,9 @@
 <script>
-  import Router from "./lib/Router.svelte";
-  import Route from "./lib/Route.svelte";
-  import Navbar from "./components/Navbar.svelte";
-  import Footer from "./components/Footer.svelte";
-  import Landing from "./routes/Landing.svelte";
+  import Router from "$lib/Router.svelte";
+  import Route from "$lib/Route.svelte";
+  import Navbar from "$components/Navbar.svelte";
+  import Footer from "$components/Footer.svelte";
+  import Landing from "./routes/Landing.svelte"; // Routes are usually kept relative or having their own alias
   import Doctors from "./routes/Doctors.svelte";
   import About from "./routes/About.svelte";
   import Login from "./routes/Login.svelte";
