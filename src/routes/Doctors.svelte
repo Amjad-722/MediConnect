@@ -1,6 +1,10 @@
 <script>
     import DoctorCard from "$components/doctors/DoctorCard.svelte";
     import { doctors } from "$lib/data.js";
+    import Card from "$components/reusable/Card.svelte";
+    import Input from "$components/reusable/Input.svelte";
+    import Select from "$components/reusable/Select.svelte";
+    import Icon from "$components/reusable/Icon.svelte";
 
     import { user } from "$lib/store";
 
@@ -61,49 +65,23 @@
         </div>
 
         <!-- Search & Filter -->
-        <div
-            class="max-w-4xl mx-auto mb-12 bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col md:flex-row gap-4 animate-fade-in-up"
-            style="animation-delay: 0.1s; opacity: 0; animation-fill-mode: forwards;"
+        <Card
+            className="max-w-4xl mx-auto mb-12 flex flex-col md:flex-row gap-4 animate-fade-in-up"
+            padding="p-4"
+            hoverEffect={false}
         >
-            <div class="flex-1 relative">
-                <span
-                    class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                    >🔍</span
-                >
-                <input
-                    type="text"
-                    bind:value={searchQuery}
-                    placeholder="Search doctors, location..."
-                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-gray-700"
-                />
-            </div>
-            <div class="w-full md:w-48 relative">
-                <select
-                    bind:value={selectedSpecialty}
-                    class="w-full appearance-none px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer text-gray-700 pr-10"
-                >
-                    {#each specialties as specialty}
-                        <option value={specialty}>{specialty}</option>
-                    {/each}
-                </select>
-                <div
-                    class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500"
-                >
-                    <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        ><path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M19 9l-7 7-7-7"
-                        ></path></svg
-                    >
-                </div>
-            </div>
-        </div>
+            <Input
+                bind:value={searchQuery}
+                icon="search"
+                placeholder="Search doctors, location..."
+                className="flex-1"
+            />
+            <Select
+                bind:value={selectedSpecialty}
+                options={specialties}
+                className="w-full md:w-48"
+            />
+        </Card>
 
         {#if filteredDoctors.length > 0}
             <div
@@ -116,7 +94,9 @@
             </div>
         {:else}
             <div class="text-center py-20 animate-fade-in-up">
-                <div class="text-6xl mb-4">🤷‍♂️</div>
+                <div class="text-6xl mb-4 text-gray-300 flex justify-center">
+                    <Icon name="search" size={64} />
+                </div>
                 <h3 class="text-xl font-bold text-gray-900 mb-2">
                     No doctors found
                 </h3>

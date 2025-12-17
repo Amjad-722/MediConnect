@@ -1,12 +1,12 @@
 <script>
-    import Button from "$components/Button.svelte";
+    import Button from "$components/reusable/Button.svelte";
     import Link from "$lib/Link.svelte";
+    import Card from "$components/reusable/Card.svelte";
+    import Icon from "$components/reusable/Icon.svelte";
     export let doctor;
 </script>
 
-<div
-    class="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"
->
+<Card padding="p-0" className="group h-full flex flex-col">
     <div
         class="h-48 bg-gradient-to-br from-blue-50 to-blue-100 relative flex items-center justify-center overflow-hidden"
     >
@@ -18,13 +18,13 @@
             />
         {:else}
             <div
-                class="text-6xl transform group-hover:scale-110 transition-transform duration-300"
+                class="text-primary/40 transform group-hover:scale-110 transition-transform duration-300"
             >
-                👨‍⚕️
+                <Icon name="user-md" size={64} />
             </div>
         {/if}
     </div>
-    <div class="p-6">
+    <div class="p-6 flex-1 flex flex-col">
         <div class="flex justify-between items-start mb-4">
             <div>
                 <h3
@@ -37,17 +37,23 @@
             <span
                 class="flex items-center gap-1 text-sm font-medium text-amber-500 bg-amber-50 px-2 py-1 rounded"
             >
-                ⭐ {doctor.rating}
+                <Icon
+                    name="star"
+                    size={16}
+                    fill="currentColor"
+                    className="text-amber-500"
+                />
+                {doctor.rating}
             </span>
         </div>
 
-        <div class="space-y-2 mb-6">
+        <div class="space-y-2 mb-6 flex-1">
             <div class="flex items-center gap-2 text-gray-500 text-sm">
-                <span>📍</span>
+                <Icon name="map-pin" size={16} />
                 {doctor.location}
             </div>
             <div class="flex items-center gap-2 text-gray-500 text-sm">
-                <span>💬</span>
+                <Icon name="message-circle" size={16} />
                 {doctor.reviews} Reviews
             </div>
         </div>
@@ -64,4 +70,4 @@
             >
         </div>
     </div>
-</div>
+</Card>

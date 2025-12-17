@@ -1,5 +1,5 @@
 <script>
-    import Button from "$components/Button.svelte";
+    import Button from "$components/reusable/Button.svelte";
     import Link from "$lib/Link.svelte";
     import { login } from "$lib/store";
     import { navigate } from "$lib/router.js";

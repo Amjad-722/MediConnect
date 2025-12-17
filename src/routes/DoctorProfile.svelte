@@ -1,6 +1,7 @@
 <script>
     import { doctors } from "$lib/data.js";
-    import Button from "$components/Button.svelte";
+    import Button from "$components/reusable/Button.svelte";
+    import Icon from "$components/reusable/Icon.svelte";
     import { user } from "$lib/store";
     import { navigate } from "$lib/router.js";
 
@@ -82,9 +83,9 @@
                                 />
                             {:else}
                                 <div
-                                    class="w-32 h-32 bg-blue-50 rounded-xl flex items-center justify-center text-6xl"
+                                    class="w-32 h-32 bg-blue-50 rounded-xl flex items-center justify-center text-primary/40"
                                 >
-                                    👨‍⚕️
+                                    <Icon name="user-md" size={64} />
                                 </div>
                             {/if}
                         </div>
@@ -104,13 +105,21 @@
                         </p>
                         <div class="flex flex-wrap gap-6 text-gray-600">
                             <span class="flex items-center gap-2">
-                                📍 {doctor.location}
+                                <Icon name="map-pin" size={18} />
+                                {doctor.location}
                             </span>
                             <span class="flex items-center gap-2">
-                                ⭐ {doctor.rating} ({doctor.reviews} reviews)
+                                <Icon
+                                    name="star"
+                                    size={18}
+                                    fill="currentColor"
+                                    className="text-amber-500"
+                                />
+                                {doctor.rating} ({doctor.reviews} reviews)
                             </span>
                             <span class="flex items-center gap-2">
-                                💼 {doctor.experience} Exp.
+                                <Icon name="briefcase" size={18} />
+                                {doctor.experience} Exp.
                             </span>
                         </div>
                     </div>

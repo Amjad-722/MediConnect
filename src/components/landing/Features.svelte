@@ -1,5 +1,6 @@
 <script>
     import { features } from "$lib/data.js";
+    import Icon from "$components/reusable/Icon.svelte";
 </script>
 
 <section class="py-24 bg-white">
@@ -23,7 +24,15 @@
                     <div
                         class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center mb-6 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-primary-light group-hover:to-secondary group-hover:rotate-[10deg] group-hover:scale-110"
                     >
-                        <div class="text-4xl">{feature.icon}</div>
+                        <div
+                            class="text-primary group-hover:text-white transition-colors duration-300"
+                        >
+                            <Icon
+                                name={feature.icon}
+                                size={40}
+                                strokeWidth={1.5}
+                            />
+                        </div>
                     </div>
                     <h3 class="text-xl font-semibold text-primary mb-4">
                         {feature.title}

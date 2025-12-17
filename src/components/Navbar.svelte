@@ -1,6 +1,7 @@
 <script>
   import Link from "$lib/Link.svelte";
-  import Button from "$components/Button.svelte";
+  import Button from "$components/reusable/Button.svelte";
+  import Icon from "$components/reusable/Icon.svelte";
   import { user, logout } from "$lib/store";
   import { navigate } from "$lib/router.js";
 
@@ -95,22 +96,13 @@
                 {$user.name.charAt(0).toUpperCase()}
               </div>
             {/if}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="text-gray-500 transition-transform duration-200 {isProfileMenuOpen
+            <Icon
+              name="chevron-down"
+              size={16}
+              className="text-gray-500 transition-transform duration-200 {isProfileMenuOpen
                 ? 'rotate-180'
                 : ''}"
-            >
-              <path d="m6 9 6 6 6-6" />
-            </svg>
+            />
           </button>
 
           {#if isProfileMenuOpen}
@@ -133,20 +125,7 @@
                   class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary"
                   on:click={closeProfileMenu}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
+                  <Icon name="user" size={16} />
                   Profile
                 </Link>
                 <Link
@@ -154,22 +133,7 @@
                   class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary"
                   on:click={closeProfileMenu}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1 1-1.72v-.51a2 2 0 0 1-1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
-                    />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
+                  <Icon name="settings" size={16} />
                   Settings
                 </Link>
               </div>
@@ -179,21 +143,7 @@
                   on:click={handleLogout}
                   class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16 17 21 12 16 7" />
-                    <line x1="21" x2="9" y1="12" y2="12" />
-                  </svg>
+                  <Icon name="log-out" size={16} />
                   Logout
                 </button>
               </div>
@@ -216,23 +166,7 @@
       on:click={toggleMenu}
       aria-label="Toggle menu"
     >
-      <div class="w-6 h-5 relative flex flex-col justify-between">
-        <span
-          class="w-full h-0.5 bg-current rounded-full transition-all duration-300 {isMenuOpen
-            ? 'rotate-45 translate-y-2'
-            : ''}"
-        ></span>
-        <span
-          class="w-full h-0.5 bg-current rounded-full transition-all duration-300 {isMenuOpen
-            ? 'opacity-0'
-            : ''}"
-        ></span>
-        <span
-          class="w-full h-0.5 bg-current rounded-full transition-all duration-300 {isMenuOpen
-            ? '-rotate-45 -translate-y-2.5'
-            : ''}"
-        ></span>
-      </div>
+      <Icon name={isMenuOpen ? "x" : "menu"} size={24} />
     </button>
   </div>
 

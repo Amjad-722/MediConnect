@@ -7,7 +7,7 @@
   export let href = null;
   export let onClick = null;
 
-  import { navigate } from "../lib/router.js";
+  import { navigate } from "$lib/router.js";
 
   function handleClick(e) {
     if (disabled) {
