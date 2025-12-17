@@ -30,7 +30,9 @@ export function login(email, userDetails = {}) {
             { day: "Mon", slots: ["09:00 AM", "02:00 PM"] },
             { day: "Wed", slots: ["09:00 AM", "02:00 PM"] },
             { day: "Fri", slots: ["09:00 AM", "02:00 PM"] },
-        ]
+        ],
+        profilePic: "",
+        bannerImage: ""
     } : {};
 
     user.set({

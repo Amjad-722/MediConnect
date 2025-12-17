@@ -6,7 +6,12 @@
 
     export let id;
 
-    $: doctor = doctors.find((d) => d.id == id);
+    let doctor;
+    $: if (id === "me" && $user && $user.role === "doctor") {
+        doctor = $user;
+    } else {
+        doctor = doctors.find((d) => d.id == id);
+    }
 
     let showModal = false;
     let selectedDate = "";
@@ -51,19 +56,37 @@
             <div
                 class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8"
             >
-                <div
-                    class="h-48 bg-gradient-to-r from-blue-600 to-blue-400"
-                ></div>
+                <div class="h-48 bg-gray-100 relative overflow-hidden">
+                    {#if doctor.bannerImage}
+                        <img
+                            src={doctor.bannerImage}
+                            alt="Banner"
+                            class="w-full h-full object-cover"
+                        />
+                    {:else}
+                        <div
+                            class="w-full h-full bg-gradient-to-r from-blue-600 to-blue-400"
+                        ></div>
+                    {/if}
+                </div>
                 <div class="px-8 pb-8">
                     <div
                         class="relative flex justify-between items-end -mt-16 mb-6"
                     >
                         <div class="p-2 bg-white rounded-2xl shadow-lg">
-                            <div
-                                class="w-32 h-32 bg-blue-50 rounded-xl flex items-center justify-center text-6xl"
-                            >
-                                👨‍⚕️
-                            </div>
+                            {#if doctor.profilePic}
+                                <img
+                                    src={doctor.profilePic}
+                                    alt={doctor.name}
+                                    class="w-32 h-32 bg-blue-50 rounded-xl object-cover"
+                                />
+                            {:else}
+                                <div
+                                    class="w-32 h-32 bg-blue-50 rounded-xl flex items-center justify-center text-6xl"
+                                >
+                                    👨‍⚕️
+                                </div>
+                            {/if}
                         </div>
                         <div class="mb-4">
                             <Button variant="primary" onClick={openBookingModal}

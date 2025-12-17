@@ -41,6 +41,17 @@
             dayIndex
         ].slots.filter((_, i) => i !== slotIndex);
     }
+
+    function handleFileSelect(event, field) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                $user[field] = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
 </script>
 
 {#if $user}
@@ -62,6 +73,62 @@
                     class="p-8 space-y-8"
                     on:submit|preventDefault={handleSave}
                 >
+                    <!-- Profile Images -->
+                    {#if $user.role === "doctor"}
+                        <div
+                            class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-gray-100"
+                        >
+                            <div>
+                                <label
+                                    for="profilePic"
+                                    class="block text-sm font-medium text-gray-700 mb-2"
+                                    >Profile Picture</label
+                                >
+                                <div class="flex items-center gap-4">
+                                    {#if $user.profilePic}
+                                        <img
+                                            src={$user.profilePic}
+                                            alt="Profile"
+                                            class="w-16 h-16 rounded-full object-cover border border-gray-200"
+                                        />
+                                    {/if}
+                                    <input
+                                        id="profilePic"
+                                        type="file"
+                                        accept="image/*"
+                                        on:change={(e) =>
+                                            handleFileSelect(e, "profilePic")}
+                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label
+                                    for="bannerImage"
+                                    class="block text-sm font-medium text-gray-700 mb-2"
+                                    >Banner Image</label
+                                >
+                                <div class="space-y-2">
+                                    {#if $user.bannerImage}
+                                        <img
+                                            src={$user.bannerImage}
+                                            alt="Banner"
+                                            class="w-full h-20 object-cover rounded-lg border border-gray-200"
+                                        />
+                                    {/if}
+                                    <input
+                                        id="bannerImage"
+                                        type="file"
+                                        accept="image/*"
+                                        on:change={(e) =>
+                                            handleFileSelect(e, "bannerImage")}
+                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    {/if}
+
                     <!-- Basic Info -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
