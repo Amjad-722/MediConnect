@@ -4,6 +4,7 @@
     import Icon from "$components/reusable/Icon.svelte";
     import { user } from "$lib/store";
     import { navigate } from "$lib/router.js";
+    import { createAppointment } from "$lib/appointments.js";
 
     export let id;
 
@@ -17,11 +18,19 @@
     let showModal = false;
     let selectedDate = "";
     let selectedSlot = "";
+    let appointmentType = "Video";
+    let reason = "";
+    let notes = "";
     let bookingSuccess = false;
+    let bookedAppointment = null;
 
     function openBookingModal() {
         if (!$user) {
             navigate("/login");
+            return;
+        }
+        if ($user.role === "doctor") {
+            alert("Doctors cannot book appointments for themselves");
             return;
         }
         showModal = true;
@@ -32,13 +41,37 @@
         bookingSuccess = false;
         selectedDate = "";
         selectedSlot = "";
+        appointmentType = "Video";
+        reason = "";
+        notes = "";
+        bookedAppointment = null;
     }
 
     function confirmBooking() {
+        if (!selectedDate || !selectedSlot || !reason.trim()) {
+            alert("Please fill in all required fields");
+            return;
+        }
+
+        // Create the appointment
+        bookedAppointment = createAppointment({
+            doctorId: doctor.id,
+            doctorName: doctor.name,
+            patientName: $user.name,
+            patientEmail: $user.email,
+            day: selectedDate,
+            time: selectedSlot,
+            type: appointmentType,
+            reason: reason.trim(),
+            notes: notes.trim(),
+        });
+
         bookingSuccess = true;
+
+        // Auto-close after 3 seconds
         setTimeout(() => {
             closeBookingModal();
-        }, 2000);
+        }, 3000);
     }
 </script>
 
@@ -253,9 +286,35 @@
                         <h3 class="text-2xl font-bold text-gray-900 mb-2">
                             Booking Confirmed!
                         </h3>
-                        <p class="text-gray-600">
+                        <p class="text-gray-600 mb-4">
                             Your appointment with {doctor.name} has been booked.
                         </p>
+                        {#if bookedAppointment}
+                            <div
+                                class="bg-blue-50 p-4 rounded-lg text-left space-y-2"
+                            >
+                                <p class="text-sm text-gray-700">
+                                    <span class="font-semibold"
+                                        >Appointment ID:</span
+                                    >
+                                    <span class="text-primary font-mono text-xs"
+                                        >{bookedAppointment.id}</span
+                                    >
+                                </p>
+                                <p class="text-sm text-gray-700">
+                                    <span class="font-semibold">Date:</span>
+                                    {bookedAppointment.date}
+                                </p>
+                                <p class="text-sm text-gray-700">
+                                    <span class="font-semibold">Time:</span>
+                                    {bookedAppointment.time}
+                                </p>
+                                <p class="text-sm text-gray-700">
+                                    <span class="font-semibold">Type:</span>
+                                    {bookedAppointment.type}
+                                </p>
+                            </div>
+                        {/if}
                     </div>
                 {:else}
                     <h3 class="text-2xl font-bold text-gray-900 mb-6">
@@ -263,11 +322,58 @@
                     </h3>
 
                     <div class="space-y-6">
+                        <!-- Appointment Type -->
                         <div>
-                            <span
+                            <label
                                 class="block text-sm font-medium text-gray-700 mb-2"
-                                >Select Day</span
                             >
+                                Appointment Type <span class="text-red-500"
+                                    >*</span
+                                >
+                            </label>
+                            <div class="flex gap-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        bind:group={appointmentType}
+                                        value="Video"
+                                        class="mr-2 text-primary focus:ring-primary"
+                                    />
+                                    <Icon
+                                        name="video"
+                                        size={16}
+                                        className="mr-1"
+                                    />
+                                    <span class="text-gray-700"
+                                        >Video Consultation</span
+                                    >
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        bind:group={appointmentType}
+                                        value="In-Person"
+                                        class="mr-2 text-primary focus:ring-primary"
+                                    />
+                                    <Icon
+                                        name="user"
+                                        size={16}
+                                        className="mr-1"
+                                    />
+                                    <span class="text-gray-700"
+                                        >In-Person Visit</span
+                                    >
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Select Day -->
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-gray-700 mb-2"
+                            >
+                                Select Day <span class="text-red-500">*</span>
+                            </label>
                             <div class="flex flex-wrap gap-2">
                                 {#each doctor.availability as slot}
                                     <button
@@ -286,12 +392,16 @@
                             </div>
                         </div>
 
+                        <!-- Select Time -->
                         {#if selectedDate}
                             <div>
-                                <span
+                                <label
                                     class="block text-sm font-medium text-gray-700 mb-2"
-                                    >Select Time</span
                                 >
+                                    Select Time <span class="text-red-500"
+                                        >*</span
+                                    >
+                                </label>
                                 <div class="grid grid-cols-3 gap-2">
                                     {#each doctor.availability.find((d) => d.day === selectedDate)?.slots || [] as time}
                                         <button
@@ -309,10 +419,48 @@
                             </div>
                         {/if}
 
+                        <!-- Reason for Visit -->
+                        <div>
+                            <label
+                                for="reason"
+                                class="block text-sm font-medium text-gray-700 mb-2"
+                            >
+                                Reason for Visit <span class="text-red-500"
+                                    >*</span
+                                >
+                            </label>
+                            <input
+                                id="reason"
+                                type="text"
+                                bind:value={reason}
+                                placeholder="e.g., General Checkup, Follow-up, Consultation"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                            />
+                        </div>
+
+                        <!-- Additional Notes -->
+                        <div>
+                            <label
+                                for="notes"
+                                class="block text-sm font-medium text-gray-700 mb-2"
+                            >
+                                Additional Notes (Optional)
+                            </label>
+                            <textarea
+                                id="notes"
+                                bind:value={notes}
+                                rows="3"
+                                placeholder="Any specific concerns or information you'd like to share..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                            ></textarea>
+                        </div>
+
                         <Button
                             variant="primary"
                             fullWidth
-                            disabled={!selectedDate || !selectedSlot}
+                            disabled={!selectedDate ||
+                                !selectedSlot ||
+                                !reason.trim()}
                             onClick={confirmBooking}
                         >
                             Confirm Booking
