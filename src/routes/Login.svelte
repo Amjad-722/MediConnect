@@ -93,7 +93,7 @@
 
                 <div class="text-sm">
                     <a
-                        href="#"
+                        href="/forgot-password"
                         class="font-medium text-primary hover:text-primary-dark transition-colors"
                     >
                         Forgot password?

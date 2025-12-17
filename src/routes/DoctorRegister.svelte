@@ -199,11 +199,13 @@
                     class="ml-2 block text-sm text-gray-700 cursor-pointer"
                 >
                     I agree to the <a
-                        href="#"
+                        href="/provider-terms"
                         class="text-primary hover:underline">Provider Terms</a
                     >
                     and
-                    <a href="#" class="text-primary hover:underline"
+                    <a
+                        href="/hipaa-compliance"
+                        class="text-primary hover:underline"
                         >HIPAA Compliance Policy</a
                     >
                 </label>

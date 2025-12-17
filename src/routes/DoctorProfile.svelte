@@ -192,9 +192,14 @@
 
     <!-- Booking Modal -->
     {#if showModal}
+        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
         <div
+            role="dialog"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
             on:click|self={closeBookingModal}
+            on:keydown={(e) => e.key === "Escape" && closeBookingModal()}
+            tabindex="-1"
+            aria-modal="true"
         >
             <div
                 class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative"
@@ -227,9 +232,9 @@
 
                     <div class="space-y-6">
                         <div>
-                            <label
+                            <span
                                 class="block text-sm font-medium text-gray-700 mb-2"
-                                >Select Day</label
+                                >Select Day</span
                             >
                             <div class="flex flex-wrap gap-2">
                                 {#each doctor.availability as slot}
@@ -251,9 +256,9 @@
 
                         {#if selectedDate}
                             <div>
-                                <label
+                                <span
                                     class="block text-sm font-medium text-gray-700 mb-2"
-                                    >Select Time</label
+                                    >Select Time</span
                                 >
                                 <div class="grid grid-cols-3 gap-2">
                                     {#each doctor.availability.find((d) => d.day === selectedDate)?.slots || [] as time}

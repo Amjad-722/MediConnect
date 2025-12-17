@@ -123,11 +123,11 @@
                     class="ml-2 block text-sm text-gray-700 cursor-pointer"
                 >
                     I agree to the <a
-                        href="#"
+                        href="/terms"
                         class="text-primary hover:underline">Terms of Service</a
                     >
                     and
-                    <a href="#" class="text-primary hover:underline"
+                    <a href="/privacy" class="text-primary hover:underline"
                         >Privacy Policy</a
                     >
                 </label>

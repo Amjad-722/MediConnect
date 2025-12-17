@@ -2,6 +2,7 @@
     import { onMount } from "svelte";
     import { currentPath } from "./router.js";
 
+    // svelte-ignore export_let_unused
     export let url = undefined; // Compatibility prop
 
     onMount(() => {
