@@ -13,8 +13,13 @@
         // Simulate network delay
         await new Promise((resolve) => setTimeout(resolve, 800));
 
-        login(email);
-        navigate("/", { replace: true });
+        if (email.includes("doctor")) {
+            login(email, { role: "doctor" });
+            navigate("/doctor-dashboard", { replace: true });
+        } else {
+            login(email);
+            navigate("/", { replace: true });
+        }
         isLoading = false;
     }
 </script>
