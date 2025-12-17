@@ -1,7 +1,12 @@
 <script>
   import Link from "$lib/Link.svelte";
   import Button from "$components/reusable/Button.svelte";
-  import Icon from "$components/reusable/Icon.svelte";
+  import menuIcon from "../assets/icons/menu.svg";
+  import xIcon from "../assets/icons/x.svg";
+  import userIcon from "../assets/icons/user.svg";
+  import chevronDownIcon from "../assets/icons/chevron-down.svg";
+  import settingsIcon from "../assets/icons/settings.svg";
+  import logOutIcon from "../assets/icons/log-out.svg";
   import { user, logout } from "$lib/store";
   import { navigate } from "$lib/router.js";
 
@@ -96,10 +101,10 @@
                 {$user.name.charAt(0).toUpperCase()}
               </div>
             {/if}
-            <Icon
-              name="chevron-down"
-              size={16}
-              className="text-gray-500 transition-transform duration-200 {isProfileMenuOpen
+            <img
+              src={chevronDownIcon}
+              alt=""
+              class="w-4 h-4 text-gray-500 transition-transform duration-200 {isProfileMenuOpen
                 ? 'rotate-180'
                 : ''}"
             />
@@ -125,7 +130,7 @@
                   class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary"
                   on:click={closeProfileMenu}
                 >
-                  <Icon name="user" size={16} />
+                  <img src={userIcon} alt="" class="w-4 h-4" />
                   Profile
                 </Link>
                 <Link
@@ -133,7 +138,7 @@
                   class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary"
                   on:click={closeProfileMenu}
                 >
-                  <Icon name="settings" size={16} />
+                  <img src={settingsIcon} alt="" class="w-4 h-4" />
                   Settings
                 </Link>
               </div>
@@ -143,7 +148,7 @@
                   on:click={handleLogout}
                   class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                 >
-                  <Icon name="log-out" size={16} />
+                  <img src={logOutIcon} alt="" class="w-4 h-4" />
                   Logout
                 </button>
               </div>
@@ -166,7 +171,7 @@
       on:click={toggleMenu}
       aria-label="Toggle menu"
     >
-      <Icon name={isMenuOpen ? "x" : "menu"} size={24} />
+      <img src={isMenuOpen ? xIcon : menuIcon} alt="" class="w-6 h-6" />
     </button>
   </div>
 

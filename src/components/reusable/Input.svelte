@@ -1,6 +1,4 @@
 <script>
-    import Icon from "./Icon.svelte";
-
     export let type = "text";
     export let value = "";
     export let placeholder = "";
@@ -20,9 +18,9 @@
     <div class="relative">
         {#if icon}
             <span
-                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 flex items-center justify-center"
             >
-                <Icon name={icon} size={20} />
+                <img src={icon} alt="" class="w-5 h-5" />
             </span>
         {/if}
         <input

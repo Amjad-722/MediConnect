@@ -4,7 +4,7 @@
     import Card from "$components/reusable/Card.svelte";
     import Input from "$components/reusable/Input.svelte";
     import Select from "$components/reusable/Select.svelte";
-    import Icon from "$components/reusable/Icon.svelte";
+    import searchIcon from "../assets/icons/search.svg";
 
     import { user } from "$lib/store";
 
@@ -72,7 +72,7 @@
         >
             <Input
                 bind:value={searchQuery}
-                icon="search"
+                icon={searchIcon}
                 placeholder="Search doctors, location..."
                 className="flex-1"
             />
@@ -94,8 +94,8 @@
             </div>
         {:else}
             <div class="text-center py-20 animate-fade-in-up">
-                <div class="text-6xl mb-4 text-gray-300 flex justify-center">
-                    <Icon name="search" size={64} />
+                <div class="mb-4 text-gray-300 flex justify-center">
+                    <img src={searchIcon} alt="" class="w-16 h-16" />
                 </div>
                 <h3 class="text-xl font-bold text-gray-900 mb-2">
                     No doctors found

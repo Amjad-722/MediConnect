@@ -1,5 +1,5 @@
 <script>
-    import Icon from "./Icon.svelte";
+    import chevronDown from "../../assets/icons/chevron-down.svg";
 
     export let value = "";
     export let options = []; // Array of {value, label} or strings
@@ -37,7 +37,7 @@
         <div
             class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500"
         >
-            <Icon name="chevron-down" size={20} />
+            <img src={chevronDown} alt="" class="w-5 h-5" />
         </div>
     </div>
 </div>
