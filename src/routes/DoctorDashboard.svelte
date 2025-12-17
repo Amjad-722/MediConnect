@@ -5,6 +5,7 @@
     import { navigate } from "$lib/router.js";
     import { onMount } from "svelte";
     import Link from "$lib/Link.svelte";
+    import AppointmentDetailsModal from "$components/AppointmentDetailsModal.svelte";
     import {
         appointments,
         updateAppointmentStatus,
@@ -398,169 +399,13 @@
         </div>
     </div>
 
-    <!-- View Appointment Modal -->
-    {#if showViewModal && selectedAppointment}
-        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-        <div
-            role="dialog"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-            on:click|self={closeViewModal}
-            on:keydown={(e) => e.key === "Escape" && closeViewModal()}
-            tabindex="-1"
-            aria-modal="true"
-        >
-            <div
-                class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative max-h-[90vh] overflow-y-auto"
-            >
-                <button
-                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-                    on:click={closeViewModal}
-                >
-                    ✕
-                </button>
-
-                <h3 class="text-2xl font-bold text-gray-900 mb-6">
-                    Appointment Details
-                </h3>
-
-                <div class="space-y-4">
-                    <!-- Appointment ID -->
-                    <div class="bg-blue-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600">Appointment ID</p>
-                        <p class="font-mono text-xs text-primary font-semibold">
-                            {selectedAppointment.id}
-                        </p>
-                    </div>
-
-                    <!-- Status -->
-                    <div>
-                        <p class="text-sm text-gray-600 mb-1">Status</p>
-                        <span
-                            class={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(selectedAppointment.status)}`}
-                        >
-                            {selectedAppointment.status}
-                        </span>
-                    </div>
-
-                    <!-- Patient Info -->
-                    <div>
-                        <p class="text-sm text-gray-600 mb-1">Patient</p>
-                        <p class="font-medium text-gray-900">
-                            {selectedAppointment.patientName}
-                        </p>
-                        <p class="text-sm text-gray-500">
-                            {selectedAppointment.patientEmail}
-                        </p>
-                    </div>
-
-                    <!-- Date & Time -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-sm text-gray-600 mb-1">Date</p>
-                            <p class="font-medium text-gray-900">
-                                {selectedAppointment.date}
-                            </p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600 mb-1">Time</p>
-                            <p class="font-medium text-gray-900">
-                                {selectedAppointment.time}
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Type -->
-                    <div>
-                        <p class="text-sm text-gray-600 mb-1">
-                            Appointment Type
-                        </p>
-                        <span
-                            class="inline-flex items-center gap-2 text-gray-900"
-                        >
-                            {#if selectedAppointment.type === "Video"}
-                                <Icon name="video" size={16} /> Video Consultation
-                            {:else}
-                                <Icon name="user" size={16} /> In-Person Visit
-                            {/if}
-                        </span>
-                    </div>
-
-                    <!-- Reason -->
-                    <div>
-                        <p class="text-sm text-gray-600 mb-1">
-                            Reason for Visit
-                        </p>
-                        <p class="text-gray-900">
-                            {selectedAppointment.reason}
-                        </p>
-                    </div>
-
-                    <!-- Notes -->
-                    {#if selectedAppointment.notes}
-                        <div>
-                            <p class="text-sm text-gray-600 mb-1">
-                                Additional Notes
-                            </p>
-                            <p class="text-gray-900 bg-gray-50 p-3 rounded-lg">
-                                {selectedAppointment.notes}
-                            </p>
-                        </div>
-                    {/if}
-
-                    <!-- Created At -->
-                    <div>
-                        <p class="text-sm text-gray-600 mb-1">Booked On</p>
-                        <p class="text-gray-900">
-                            {new Date(
-                                selectedAppointment.createdAt,
-                            ).toLocaleString()}
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex gap-3 mt-6">
-                    {#if selectedAppointment.status === "Pending"}
-                        <Button
-                            variant="primary"
-                            onClick={() => {
-                                confirmAppointment(selectedAppointment.id);
-                                closeViewModal();
-                            }}
-                        >
-                            Confirm Appointment
-                        </Button>
-                    {/if}
-                    {#if selectedAppointment.status === "Confirmed"}
-                        <Button
-                            variant="primary"
-                            onClick={() => {
-                                completeAppointment(selectedAppointment.id);
-                                closeViewModal();
-                            }}
-                        >
-                            Mark as Completed
-                        </Button>
-                    {/if}
-                    {#if selectedAppointment.status === "Pending" || selectedAppointment.status === "Confirmed"}
-                        <button
-                            class="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 font-medium"
-                            on:click={() => {
-                                cancelAppointment(selectedAppointment.id);
-                                closeViewModal();
-                            }}
-                        >
-                            Cancel Appointment
-                        </button>
-                    {/if}
-                    <button
-                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
-                        on:click={closeViewModal}
-                    >
-                        Close
-                    </button>
-                </div>
-            </div>
-        </div>
-    {/if}
+    <!-- Appointment Details Modal Component -->
+    <AppointmentDetailsModal
+        appointment={selectedAppointment}
+        isOpen={showViewModal}
+        onClose={closeViewModal}
+        onConfirm={confirmAppointment}
+        onComplete={completeAppointment}
+        onCancel={cancelAppointment}
+    />
 {/if}
