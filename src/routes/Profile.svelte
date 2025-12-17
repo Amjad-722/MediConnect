@@ -6,6 +6,11 @@
 
     let isLoading = false;
     let successMessage = "";
+    let showProfilePicModal = false;
+
+    function triggerFileInput(elementId) {
+        document.getElementById(elementId).click();
+    }
 
     onMount(() => {
         if (!$user) {
@@ -73,60 +78,92 @@
                     class="p-8 space-y-8"
                     on:submit|preventDefault={handleSave}
                 >
-                    <!-- Profile Images -->
+                    <!-- Profile Header Redesign -->
                     {#if $user.role === "doctor"}
-                        <div
-                            class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-gray-100"
-                        >
-                            <div>
-                                <label
-                                    for="profilePic"
-                                    class="block text-sm font-medium text-gray-700 mb-2"
-                                    >Profile Picture</label
+                        <div class="mb-10 relative group">
+                            <!-- Hidden Inputs -->
+                            <input
+                                id="profilePicInput"
+                                type="file"
+                                accept="image/*"
+                                class="hidden"
+                                on:change={(e) =>
+                                    handleFileSelect(e, "profilePic")}
+                            />
+                            <input
+                                id="bannerInput"
+                                type="file"
+                                accept="image/*"
+                                class="hidden"
+                                on:change={(e) =>
+                                    handleFileSelect(e, "bannerImage")}
+                            />
+
+                            <!-- Banner -->
+                            <div
+                                class="relative h-48 rounded-t-2xl overflow-hidden bg-gray-100 group-hover:opacity-95 transition-opacity"
+                            >
+                                {#if $user.bannerImage}
+                                    <img
+                                        src={$user.bannerImage}
+                                        alt="Banner"
+                                        class="w-full h-full object-cover"
+                                    />
+                                {:else}
+                                    <div
+                                        class="w-full h-full bg-gradient-to-r from-blue-600 to-blue-400"
+                                    ></div>
+                                {/if}
+
+                                <!-- Banner Edit Button -->
+                                <button
+                                    type="button"
+                                    class="absolute top-4 right-4 bg-white/90 p-2 rounded-full shadow-sm hover:bg-white transition-colors"
+                                    on:click={() =>
+                                        triggerFileInput("bannerInput")}
+                                    title="Edit Banner"
                                 >
-                                <div class="flex items-center gap-4">
+                                    ✏️
+                                </button>
+                            </div>
+
+                            <!-- Profile Pic -->
+                            <div class="absolute -bottom-16 left-8">
+                                <button
+                                    type="button"
+                                    class="relative w-32 h-32 rounded-full border-4 border-white shadow-md overflow-hidden bg-white group hover:grayscale-[30%] transition-all"
+                                    on:click={() =>
+                                        (showProfilePicModal = true)}
+                                >
                                     {#if $user.profilePic}
                                         <img
                                             src={$user.profilePic}
                                             alt="Profile"
-                                            class="w-16 h-16 rounded-full object-cover border border-gray-200"
+                                            class="w-full h-full object-cover"
                                         />
+                                    {:else}
+                                        <div
+                                            class="w-full h-full bg-gray-100 flex items-center justify-center text-4xl"
+                                        >
+                                            👨‍⚕️
+                                        </div>
                                     {/if}
-                                    <input
-                                        id="profilePic"
-                                        type="file"
-                                        accept="image/*"
-                                        on:change={(e) =>
-                                            handleFileSelect(e, "profilePic")}
-                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label
-                                    for="bannerImage"
-                                    class="block text-sm font-medium text-gray-700 mb-2"
-                                    >Banner Image</label
-                                >
-                                <div class="space-y-2">
-                                    {#if $user.bannerImage}
-                                        <img
-                                            src={$user.bannerImage}
-                                            alt="Banner"
-                                            class="w-full h-20 object-cover rounded-lg border border-gray-200"
-                                        />
-                                    {/if}
-                                    <input
-                                        id="bannerImage"
-                                        type="file"
-                                        accept="image/*"
-                                        on:change={(e) =>
-                                            handleFileSelect(e, "bannerImage")}
-                                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
-                                    />
-                                </div>
+
+                                    <!-- Hover Overlay -->
+                                    <div
+                                        class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <span
+                                            class="text-white text-xs font-bold uppercase tracking-wider"
+                                            >Change</span
+                                        >
+                                    </div>
+                                </button>
                             </div>
                         </div>
+
+                        <!-- Spacing -->
+                        <div class="mt-20 mb-8 border-b border-gray-100"></div>
                     {/if}
 
                     <!-- Basic Info -->
@@ -301,4 +338,45 @@
             </div>
         </div>
     </div>
+
+    <!-- Profile Picture Modal -->
+    {#if showProfilePicModal}
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <div
+            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            on:click|self={() => (showProfilePicModal = false)}
+        >
+            <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
+                <h3 class="text-lg font-bold mb-4">Change Profile Photo</h3>
+                <div class="space-y-3">
+                    <button
+                        type="button"
+                        class="w-full py-3 px-4 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 transition-colors text-left flex items-center gap-3"
+                        on:click={() => {
+                            triggerFileInput("profilePicInput");
+                            showProfilePicModal = false;
+                        }}
+                    >
+                        <span>📁</span> Upload Photo
+                    </button>
+                    <button
+                        type="button"
+                        class="w-full py-3 px-4 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 transition-colors text-left flex items-center gap-3"
+                        on:click={() => {
+                            $user.profilePic = "";
+                            showProfilePicModal = false;
+                        }}
+                    >
+                        <span>🗑️</span> Remove Photo
+                    </button>
+                </div>
+                <button
+                    class="mt-6 w-full py-2 text-gray-500 hover:text-gray-700 font-medium"
+                    on:click={() => (showProfilePicModal = false)}
+                    >Cancel</button
+                >
+            </div>
+        </div>
+    {/if}
 {/if}
