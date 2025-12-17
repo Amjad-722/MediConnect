@@ -110,12 +110,6 @@
                     <p class="text-gray-600">Welcome back, Dr. {$user.name}</p>
                 </div>
                 <div class="flex gap-4">
-                    <Link
-                        to="/profile"
-                        class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 flex items-center gap-2"
-                    >
-                        <Icon name="user" size={16} /> Edit Profile
-                    </Link>
                     <Button variant="primary" href="/doctor/me"
                         >View Public Profile</Button
                     >
