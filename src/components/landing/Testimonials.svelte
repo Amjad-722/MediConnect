@@ -1,5 +1,6 @@
 <script>
     import { testimonials } from "$lib/data.js";
+    import Icon from "$components/reusable/Icon.svelte";
 </script>
 
 <section class="py-24 bg-white">
@@ -17,7 +18,11 @@
                 <div
                     class="p-10 bg-white rounded-2xl shadow-md border-2 border-gray-200 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,80,157,0.15)] hover:border-secondary"
                 >
-                    <div class="text-xl mb-6">⭐⭐⭐⭐⭐</div>
+                    <div class="flex gap-1 mb-6 text-amber-400">
+                        {#each Array(5) as _}
+                            <Icon name="star" size={20} fill="currentColor" />
+                        {/each}
+                    </div>
                     <p
                         class="text-lg leading-relaxed text-gray-900 italic mb-8"
                     >

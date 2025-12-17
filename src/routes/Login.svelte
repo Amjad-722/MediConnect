@@ -1,5 +1,5 @@
 <script>
-    import Button from "$components/Button.svelte";
+    import Button from "$components/reusable/Button.svelte";
     import Link from "$lib/Link.svelte";
     import { login } from "$lib/store";
     import { navigate } from "$lib/router.js";
@@ -13,8 +13,13 @@
         // Simulate network delay
         await new Promise((resolve) => setTimeout(resolve, 800));
 
-        login(email);
-        navigate("/", { replace: true });
+        if (email.includes("doctor")) {
+            login(email, { role: "doctor" });
+            navigate("/doctor-dashboard", { replace: true });
+        } else {
+            login(email);
+            navigate("/", { replace: true });
+        }
         isLoading = false;
     }
 </script>
@@ -93,7 +98,7 @@
 
                 <div class="text-sm">
                     <a
-                        href="#"
+                        href="/forgot-password"
                         class="font-medium text-primary hover:text-primary-dark transition-colors"
                     >
                         Forgot password?

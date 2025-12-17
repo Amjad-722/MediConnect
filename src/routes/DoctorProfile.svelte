@@ -1,12 +1,18 @@
 <script>
     import { doctors } from "$lib/data.js";
-    import Button from "$components/Button.svelte";
+    import Button from "$components/reusable/Button.svelte";
+    import Icon from "$components/reusable/Icon.svelte";
     import { user } from "$lib/store";
     import { navigate } from "$lib/router.js";
 
     export let id;
 
-    $: doctor = doctors.find((d) => d.id == id);
+    let doctor;
+    $: if (id === "me" && $user && $user.role === "doctor") {
+        doctor = $user;
+    } else {
+        doctor = doctors.find((d) => d.id == id);
+    }
 
     let showModal = false;
     let selectedDate = "";
@@ -51,19 +57,37 @@
             <div
                 class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8"
             >
-                <div
-                    class="h-48 bg-gradient-to-r from-blue-600 to-blue-400"
-                ></div>
+                <div class="h-48 bg-gray-100 relative overflow-hidden">
+                    {#if doctor.bannerImage}
+                        <img
+                            src={doctor.bannerImage}
+                            alt="Banner"
+                            class="w-full h-full object-cover"
+                        />
+                    {:else}
+                        <div
+                            class="w-full h-full bg-gradient-to-r from-blue-600 to-blue-400"
+                        ></div>
+                    {/if}
+                </div>
                 <div class="px-8 pb-8">
                     <div
                         class="relative flex justify-between items-end -mt-16 mb-6"
                     >
                         <div class="p-2 bg-white rounded-2xl shadow-lg">
-                            <div
-                                class="w-32 h-32 bg-blue-50 rounded-xl flex items-center justify-center text-6xl"
-                            >
-                                👨‍⚕️
-                            </div>
+                            {#if doctor.profilePic}
+                                <img
+                                    src={doctor.profilePic}
+                                    alt={doctor.name}
+                                    class="w-32 h-32 bg-blue-50 rounded-xl object-cover"
+                                />
+                            {:else}
+                                <div
+                                    class="w-32 h-32 bg-blue-50 rounded-xl flex items-center justify-center text-primary/40"
+                                >
+                                    <Icon name="user-md" size={64} />
+                                </div>
+                            {/if}
                         </div>
                         <div class="mb-4">
                             <Button variant="primary" onClick={openBookingModal}
@@ -81,13 +105,21 @@
                         </p>
                         <div class="flex flex-wrap gap-6 text-gray-600">
                             <span class="flex items-center gap-2">
-                                📍 {doctor.location}
+                                <Icon name="map-pin" size={18} />
+                                {doctor.location}
                             </span>
                             <span class="flex items-center gap-2">
-                                ⭐ {doctor.rating} ({doctor.reviews} reviews)
+                                <Icon
+                                    name="star"
+                                    size={18}
+                                    fill="currentColor"
+                                    className="text-amber-500"
+                                />
+                                {doctor.rating} ({doctor.reviews} reviews)
                             </span>
                             <span class="flex items-center gap-2">
-                                💼 {doctor.experience} Exp.
+                                <Icon name="briefcase" size={18} />
+                                {doctor.experience} Exp.
                             </span>
                         </div>
                     </div>
@@ -192,9 +224,14 @@
 
     <!-- Booking Modal -->
     {#if showModal}
+        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
         <div
+            role="dialog"
             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
             on:click|self={closeBookingModal}
+            on:keydown={(e) => e.key === "Escape" && closeBookingModal()}
+            tabindex="-1"
+            aria-modal="true"
         >
             <div
                 class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative"
@@ -227,9 +264,9 @@
 
                     <div class="space-y-6">
                         <div>
-                            <label
+                            <span
                                 class="block text-sm font-medium text-gray-700 mb-2"
-                                >Select Day</label
+                                >Select Day</span
                             >
                             <div class="flex flex-wrap gap-2">
                                 {#each doctor.availability as slot}
@@ -251,9 +288,9 @@
 
                         {#if selectedDate}
                             <div>
-                                <label
+                                <span
                                     class="block text-sm font-medium text-gray-700 mb-2"
-                                    >Select Time</label
+                                    >Select Time</span
                                 >
                                 <div class="grid grid-cols-3 gap-2">
                                     {#each doctor.availability.find((d) => d.day === selectedDate)?.slots || [] as time}

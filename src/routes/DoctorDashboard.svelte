@@ -1,5 +1,6 @@
 <script>
-    import Button from "$components/Button.svelte";
+    import Button from "$components/reusable/Button.svelte";
+    import Icon from "$components/reusable/Icon.svelte";
     import { user } from "$lib/store";
     import { navigate } from "$lib/router.js";
     import { onMount } from "svelte";
@@ -80,7 +81,7 @@
                         to="/profile"
                         class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 flex items-center gap-2"
                     >
-                        <span>✏️</span> Edit Profile
+                        <Icon name="user" size={16} /> Edit Profile
                     </Link>
                     <Button variant="primary" href="/doctor/me"
                         >View Public Profile</Button
@@ -130,7 +131,11 @@
                         Rating
                     </div>
                     <div class="text-3xl font-bold text-gray-900">4.9</div>
-                    <div class="text-yellow-600 text-sm mt-2">⭐⭐⭐⭐⭐</div>
+                    <div class="flex text-amber-500 text-sm mt-2">
+                        {#each Array(5) as _}
+                            <Icon name="star" size={14} fill="currentColor" />
+                        {/each}
+                    </div>
                 </div>
             </div>
 
@@ -216,9 +221,9 @@
                                             class="inline-flex items-center gap-1 text-sm text-gray-700"
                                         >
                                             {#if patient.type === "Video"}
-                                                📹 Video
+                                                <Icon name="video" size={14} /> Video
                                             {:else}
-                                                🏥 In-Person
+                                                <Icon name="user" size={14} /> In-Person
                                             {/if}
                                         </span>
                                     </td>

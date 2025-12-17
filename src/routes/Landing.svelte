@@ -1,5 +1,5 @@
 <script>
-  import Button from "$components/Button.svelte";
+  import Button from "$components/reusable/Button.svelte";
   import Hero from "$components/landing/Hero.svelte";
   import Features from "$components/landing/Features.svelte";
   import HowItWorks from "$components/landing/HowItWorks.svelte";

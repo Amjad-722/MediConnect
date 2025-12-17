@@ -1,13 +1,47 @@
 <script>
     import DoctorCard from "$components/doctors/DoctorCard.svelte";
     import { doctors } from "$lib/data.js";
+    import Card from "$components/reusable/Card.svelte";
+    import Input from "$components/reusable/Input.svelte";
+    import Select from "$components/reusable/Select.svelte";
+    import searchIcon from "../assets/icons/search.svg";
+
+    import { user } from "$lib/store";
 
     let searchQuery = "";
     let selectedSpecialty = "All";
 
-    $: specialties = ["All", ...new Set(doctors.map((d) => d.specialty))];
+    // Create a combined list of doctors including the logged-in user if they are a doctor
+    $: allDoctors = (() => {
+        /** @type {any[]} */
+        let list = [...doctors];
+        if ($user && $user.role === "doctor") {
+            const userAsDoctor = {
+                id: "me", // Special ID for the logged-in user
+                name: $user.name,
+                specialty: $user.specialty || "General",
+                location: $user.clinicAddress || "Unknown Location",
+                rating: 5.0, // New doctors start with a perfect score!
+                reviews: 0,
+                bio: $user.bio || "",
+                education: $user.education || "",
+                experience: "New",
+                languages: ["English"], // Default
+                about: $user.about || "",
+                clinicAddress: $user.clinicAddress || "",
+                availability: $user.availability || [],
+                profilePic: $user.profilePic,
+                bannerImage: $user.bannerImage,
+            };
+            // Place the logged-in user first for visibility
+            list = [userAsDoctor, ...list];
+        }
+        return list;
+    })();
 
-    $: filteredDoctors = doctors.filter((doctor) => {
+    $: specialties = ["All", ...new Set(allDoctors.map((d) => d.specialty))];
+
+    $: filteredDoctors = allDoctors.filter((doctor) => {
         const matchesSearch =
             doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             doctor.location.toLowerCase().includes(searchQuery.toLowerCase());
@@ -31,49 +65,23 @@
         </div>
 
         <!-- Search & Filter -->
-        <div
-            class="max-w-4xl mx-auto mb-12 bg-white p-4 rounded-xl shadow-md border border-gray-100 flex flex-col md:flex-row gap-4 animate-fade-in-up"
-            style="animation-delay: 0.1s; opacity: 0; animation-fill-mode: forwards;"
+        <Card
+            className="max-w-4xl mx-auto mb-12 flex flex-col md:flex-row gap-4 animate-fade-in-up"
+            padding="p-4"
+            hoverEffect={false}
         >
-            <div class="flex-1 relative">
-                <span
-                    class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                    >🔍</span
-                >
-                <input
-                    type="text"
-                    bind:value={searchQuery}
-                    placeholder="Search doctors, location..."
-                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-gray-700"
-                />
-            </div>
-            <div class="w-full md:w-48 relative">
-                <select
-                    bind:value={selectedSpecialty}
-                    class="w-full appearance-none px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer text-gray-700 pr-10"
-                >
-                    {#each specialties as specialty}
-                        <option value={specialty}>{specialty}</option>
-                    {/each}
-                </select>
-                <div
-                    class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500"
-                >
-                    <svg
-                        class="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        ><path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M19 9l-7 7-7-7"
-                        ></path></svg
-                    >
-                </div>
-            </div>
-        </div>
+            <Input
+                bind:value={searchQuery}
+                icon={searchIcon}
+                placeholder="Search doctors, location..."
+                className="flex-1"
+            />
+            <Select
+                bind:value={selectedSpecialty}
+                options={specialties}
+                className="w-full md:w-48"
+            />
+        </Card>
 
         {#if filteredDoctors.length > 0}
             <div
@@ -86,7 +94,9 @@
             </div>
         {:else}
             <div class="text-center py-20 animate-fade-in-up">
-                <div class="text-6xl mb-4">🤷‍♂️</div>
+                <div class="mb-4 text-gray-300 flex justify-center">
+                    <img src={searchIcon} alt="" class="w-16 h-16" />
+                </div>
                 <h3 class="text-xl font-bold text-gray-900 mb-2">
                     No doctors found
                 </h3>

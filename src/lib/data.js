@@ -120,32 +120,32 @@ export const stats = [
 
 export const features = [
     {
-        icon: "🔍",
+        icon: "search",
         title: "Find Doctors",
         desc: "Search by specialty, location, or availability to find the right care for you.",
     },
     {
-        icon: "📹",
+        icon: "video",
         title: "Video Consults",
         desc: "Consult with doctors from the comfort of your home via secure video calls.",
     },
     {
-        icon: "📋",
+        icon: "clipboard",
         title: "Digital Records",
         desc: "Keep all your medical history, prescriptions, and reports centralized.",
     },
     {
-        icon: "📅",
+        icon: "calendar",
         title: "Easy Scheduling",
         desc: "Book appointments instantly with real-time availability updates.",
     },
     {
-        icon: "💊",
+        icon: "activity", // Using activity/pill icon
         title: "E-Prescriptions",
         desc: "Receive digital prescriptions and order medications online.",
     },
     {
-        icon: "🔔",
+        icon: "bell",
         title: "Smart Reminders",
         desc: "Never miss an appointment or medication with automated notifications.",
     },
