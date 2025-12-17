@@ -2,12 +2,42 @@
     import DoctorCard from "$components/doctors/DoctorCard.svelte";
     import { doctors } from "$lib/data.js";
 
+    import { user } from "$lib/store";
+
     let searchQuery = "";
     let selectedSpecialty = "All";
 
-    $: specialties = ["All", ...new Set(doctors.map((d) => d.specialty))];
+    // Create a combined list of doctors including the logged-in user if they are a doctor
+    $: allDoctors = (() => {
+        /** @type {any[]} */
+        let list = [...doctors];
+        if ($user && $user.role === "doctor") {
+            const userAsDoctor = {
+                id: "me", // Special ID for the logged-in user
+                name: $user.name,
+                specialty: $user.specialty || "General",
+                location: $user.clinicAddress || "Unknown Location",
+                rating: 5.0, // New doctors start with a perfect score!
+                reviews: 0,
+                bio: $user.bio || "",
+                education: $user.education || "",
+                experience: "New",
+                languages: ["English"], // Default
+                about: $user.about || "",
+                clinicAddress: $user.clinicAddress || "",
+                availability: $user.availability || [],
+                profilePic: $user.profilePic,
+                bannerImage: $user.bannerImage,
+            };
+            // Place the logged-in user first for visibility
+            list = [userAsDoctor, ...list];
+        }
+        return list;
+    })();
 
-    $: filteredDoctors = doctors.filter((doctor) => {
+    $: specialties = ["All", ...new Set(allDoctors.map((d) => d.specialty))];
+
+    $: filteredDoctors = allDoctors.filter((doctor) => {
         const matchesSearch =
             doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             doctor.location.toLowerCase().includes(searchQuery.toLowerCase());

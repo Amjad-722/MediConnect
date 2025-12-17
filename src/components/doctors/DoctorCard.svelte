@@ -10,11 +10,19 @@
     <div
         class="h-48 bg-gradient-to-br from-blue-50 to-blue-100 relative flex items-center justify-center overflow-hidden"
     >
-        <div
-            class="text-6xl transform group-hover:scale-110 transition-transform duration-300"
-        >
-            👨‍⚕️
-        </div>
+        {#if doctor.profilePic}
+            <img
+                src={doctor.profilePic}
+                alt={doctor.name}
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+        {:else}
+            <div
+                class="text-6xl transform group-hover:scale-110 transition-transform duration-300"
+            >
+                👨‍⚕️
+            </div>
+        {/if}
     </div>
     <div class="p-6">
         <div class="flex justify-between items-start mb-4">

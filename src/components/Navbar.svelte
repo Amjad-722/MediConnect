@@ -82,11 +82,19 @@
             on:click={toggleProfileMenu}
             class="flex items-center gap-2 focus:outline-none"
           >
-            <div
-              class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg border-2 border-transparent hover:border-primary/20 transition-all"
-            >
-              {$user.name.charAt(0).toUpperCase()}
-            </div>
+            {#if $user.profilePic}
+              <img
+                src={$user.profilePic}
+                alt={$user.name}
+                class="w-10 h-10 rounded-full object-cover border-2 border-transparent hover:border-primary/20 transition-all"
+              />
+            {:else}
+              <div
+                class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg border-2 border-transparent hover:border-primary/20 transition-all"
+              >
+                {$user.name.charAt(0).toUpperCase()}
+              </div>
+            {/if}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
