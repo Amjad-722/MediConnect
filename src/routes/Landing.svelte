@@ -5,6 +5,7 @@
   import HowItWorks from "$components/landing/HowItWorks.svelte";
   import Stats from "$components/landing/Stats.svelte";
   import Testimonials from "$components/landing/Testimonials.svelte";
+  import { isSignupModalOpen } from "$lib/store";
 </script>
 
 <div class="overflow-x-hidden">
@@ -31,7 +32,9 @@
           needs.
         </p>
         <div class="flex flex-wrap gap-4 justify-center">
-          <Button variant="primary" href="/signup">Get Started Free</Button>
+          <Button variant="primary" onClick={() => isSignupModalOpen.set(true)}
+            >Get Started Free</Button
+          >
           <Button variant="outline" href="/doctors">Browse Doctors</Button>
         </div>
       </div>

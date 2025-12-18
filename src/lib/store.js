@@ -8,6 +8,7 @@ const storedUser = browser ? localStorage.getItem('user') : null;
 const initialUser = storedUser ? JSON.parse(storedUser) : null;
 
 export const user = writable(initialUser);
+export const isSignupModalOpen = writable(false);
 
 // Subscribe to store changes and update localStorage
 if (browser) {

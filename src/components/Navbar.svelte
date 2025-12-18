@@ -7,7 +7,7 @@
   import chevronDownIcon from "../assets/icons/chevron-down.svg";
   import settingsIcon from "../assets/icons/settings.svg";
   import logOutIcon from "../assets/icons/log-out.svg";
-  import { user, logout } from "$lib/store";
+  import { user, logout, isSignupModalOpen } from "$lib/store";
   import { navigate } from "$lib/router.js";
 
   let isMenuOpen = false;
@@ -74,12 +74,6 @@
           to="/doctor-dashboard"
           class="text-sm font-medium text-primary hover:text-primary-dark transition-colors"
           >Dashboard</Link
-        >
-      {:else if !$user}
-        <Link
-          to="/doctor-register"
-          class="text-sm font-medium text-gray-500 hover:text-primary transition-colors"
-          >For Doctors</Link
         >
       {/if}
       {#if $user}
@@ -161,7 +155,9 @@
           class="font-medium text-primary hover:text-primary-dark transition-colors"
           >Login</Link
         >
-        <Button variant="primary" href="/register">Get Started</Button>
+        <Button variant="primary" onClick={() => isSignupModalOpen.set(true)}
+          >Get Started</Button
+        >
       {/if}
     </div>
 
@@ -213,9 +209,11 @@
           >
           <Button
             variant="primary"
-            href="/register"
             fullWidth
-            onClick={toggleMenu}>Get Started</Button
+            onClick={() => {
+              toggleMenu();
+              isSignupModalOpen.set(true);
+            }}>Get Started</Button
           >
         {/if}
       </div>

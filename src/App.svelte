@@ -12,6 +12,7 @@
   import DoctorRegister from "./routes/DoctorRegister.svelte";
   import DoctorDashboard from "./routes/DoctorDashboard.svelte";
   import Profile from "./routes/Profile.svelte";
+  import SignupTypeModal from "$components/SignupTypeModal.svelte";
 
   // Handle routing location
   export let url = "";
@@ -20,6 +21,7 @@
 <Router url={url || undefined}>
   <div class="flex flex-col min-h-screen bg-slate-50">
     <Navbar />
+    <SignupTypeModal />
     <main class="flex-1">
       <Route path="/" component={Landing} />
       <Route path="/doctors" component={Doctors} />
