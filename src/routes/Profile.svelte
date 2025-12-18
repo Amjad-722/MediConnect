@@ -4,6 +4,7 @@
     import { user } from "$lib/store";
     import { navigate } from "$lib/router.js";
     import { onMount } from "svelte";
+    import Modal from "$components/reusable/Modal.svelte";
 
     let isLoading = false;
     let successMessage = "";
@@ -285,7 +286,7 @@
                                                 width="100%"
                                                 height="100%"
                                                 style="border:0;"
-                                                allowfullscreen=""
+                                                allowfullscreen={true}
                                                 loading="lazy"
                                             ></iframe>
                                         </div>
@@ -501,42 +502,38 @@
 
     <!-- Profile Picture Modal -->
     {#if showProfilePicModal}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <div
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-            on:click|self={() => (showProfilePicModal = false)}
+        <Modal
+            isOpen={true}
+            title="Change Profile Photo"
+            maxWidth="max-w-sm"
+            on:close={() => (showProfilePicModal = false)}
         >
-            <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
-                <h3 class="text-lg font-bold mb-4">Change Profile Photo</h3>
-                <div class="space-y-3">
-                    <button
-                        type="button"
-                        class="w-full py-3 px-4 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 transition-colors text-left flex items-center gap-3"
-                        on:click={() => {
-                            triggerFileInput("profilePicInput");
-                            showProfilePicModal = false;
-                        }}
-                    >
-                        <Icon name="folder" size={20} /> Upload Photo
-                    </button>
-                    <button
-                        type="button"
-                        class="w-full py-3 px-4 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 transition-colors text-left flex items-center gap-3"
-                        on:click={() => {
-                            $user.profilePic = "";
-                            showProfilePicModal = false;
-                        }}
-                    >
-                        <Icon name="trash" size={20} /> Remove Photo
-                    </button>
-                </div>
+            <div class="space-y-3">
                 <button
-                    class="mt-6 w-full py-2 text-gray-500 hover:text-gray-700 font-medium"
-                    on:click={() => (showProfilePicModal = false)}
-                    >Cancel</button
+                    type="button"
+                    class="w-full py-3 px-4 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 transition-colors text-left flex items-center gap-3"
+                    on:click={() => {
+                        triggerFileInput("profilePicInput");
+                        showProfilePicModal = false;
+                    }}
                 >
+                    <Icon name="folder" size={20} /> Upload Photo
+                </button>
+                <button
+                    type="button"
+                    class="w-full py-3 px-4 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 transition-colors text-left flex items-center gap-3"
+                    on:click={() => {
+                        $user.profilePic = "";
+                        showProfilePicModal = false;
+                    }}
+                >
+                    <Icon name="trash" size={20} /> Remove Photo
+                </button>
             </div>
-        </div>
+            <button
+                class="mt-6 w-full py-2 text-gray-500 hover:text-gray-700 font-medium"
+                on:click={() => (showProfilePicModal = false)}>Cancel</button
+            >
+        </Modal>
     {/if}
 {/if}

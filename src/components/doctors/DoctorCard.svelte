@@ -3,7 +3,15 @@
     import Link from "$lib/Link.svelte";
     import Card from "$components/reusable/Card.svelte";
     import Icon from "$components/reusable/Icon.svelte";
+    import { getDoctorRatingStats } from "$lib/reviews.js";
+
     export let doctor;
+
+    $: ratingStats = getDoctorRatingStats(
+        doctor.id,
+        doctor.rating,
+        doctor.reviews,
+    );
 </script>
 
 <Card padding="p-0" className="group h-full flex flex-col">
@@ -43,7 +51,7 @@
                     fill="currentColor"
                     className="text-amber-500"
                 />
-                {doctor.rating}
+                {ratingStats.rating}
             </span>
         </div>
 
@@ -54,7 +62,7 @@
             </div>
             <div class="flex items-center gap-2 text-gray-500 text-sm">
                 <Icon name="message-circle" size={16} />
-                {doctor.reviews} Reviews
+                {ratingStats.count} Reviews
             </div>
         </div>
 
