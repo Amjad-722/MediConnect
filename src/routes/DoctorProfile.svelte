@@ -5,6 +5,10 @@
     import { user } from "$lib/store";
     import { navigate } from "$lib/router.js";
     import { createAppointment } from "$lib/appointments.js";
+    import { getDoctorRatingStats } from "$lib/reviews.js";
+    import ReviewForm from "$components/doctors/ReviewForm.svelte";
+    import ReviewList from "$components/doctors/ReviewList.svelte";
+    import Modal from "$components/reusable/Modal.svelte";
 
     export let id;
 
@@ -23,6 +27,12 @@
     let notes = "";
     let bookingSuccess = false;
     let bookedAppointment = null;
+
+    $: ratingStats = getDoctorRatingStats(
+        doctor?.id,
+        doctor?.rating,
+        doctor?.reviews,
+    );
 
     function openBookingModal() {
         if (!$user) {
@@ -72,6 +82,48 @@
         setTimeout(() => {
             closeBookingModal();
         }, 3000);
+    }
+
+    function convertToMinutes(timeStr) {
+        if (!timeStr) return 0;
+        const [time, modifier] = timeStr.split(" ");
+        let [hours, minutes] = time.split(":");
+        if (hours === "12") hours = "00";
+        let h = parseInt(hours, 10);
+        if (modifier === "PM") h += 12;
+        return h * 60 + parseInt(minutes, 10);
+    }
+
+    function formatMinutes(totalMinutes) {
+        let hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const modifier = hours >= 12 ? "PM" : "AM";
+        let h = hours % 12;
+        if (h === 0) h = 12;
+        return `${String(h).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${modifier}`;
+    }
+
+    function getAvailableSlots(dayStr) {
+        const day = doctor.availability.find((d) => d.day === dayStr);
+        if (!day) return [];
+
+        let allSlots = [];
+        day.slots.forEach((slot) => {
+            if (typeof slot === "string") {
+                allSlots.push(slot);
+            } else if (slot && slot.start && slot.end) {
+                let current = convertToMinutes(slot.start);
+                const end = convertToMinutes(slot.end);
+                while (current <= end) {
+                    allSlots.push(formatMinutes(current));
+                    current += 30; // 30 min intervals
+                }
+            }
+        });
+
+        return [...new Set(allSlots)].sort(
+            (a, b) => convertToMinutes(a) - convertToMinutes(b),
+        );
     }
 </script>
 
@@ -148,7 +200,7 @@
                                     fill="currentColor"
                                     className="text-amber-500"
                                 />
-                                {doctor.rating} ({doctor.reviews} reviews)
+                                {ratingStats.rating} ({ratingStats.count} reviews)
                             </span>
                             <span class="flex items-center gap-2">
                                 <Icon name="briefcase" size={18} />
@@ -205,6 +257,15 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Reviews Section -->
+                    <div class="space-y-8">
+                        <ReviewList doctorId={doctor.id} />
+
+                        {#if $user?.role === "patient"}
+                            <ReviewForm doctorId={doctor.id} />
+                        {/if}
+                    </div>
                 </div>
 
                 <!-- Sidebar -->
@@ -226,7 +287,7 @@
                                     width="100%"
                                     height="100%"
                                     style="border:0;"
-                                    allowfullscreen=""
+                                    allowfullscreen={true}
                                     loading="lazy"
                                 ></iframe>
                             {:else}
@@ -280,218 +341,184 @@
 
     <!-- Booking Modal -->
     {#if showModal}
-        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-        <div
-            role="dialog"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-            on:click|self={closeBookingModal}
-            on:keydown={(e) => e.key === "Escape" && closeBookingModal()}
-            tabindex="-1"
-            aria-modal="true"
+        <Modal
+            isOpen={true}
+            title={bookingSuccess ? "" : "Book Appointment"}
+            on:close={closeBookingModal}
         >
-            <div
-                class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative"
-            >
-                <button
-                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-                    on:click={closeBookingModal}
-                >
-                    ✕
-                </button>
-
-                {#if bookingSuccess}
-                    <div class="text-center py-8">
-                        <div
-                            class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"
-                        >
-                            ✓
-                        </div>
-                        <h3 class="text-2xl font-bold text-gray-900 mb-2">
-                            Booking Confirmed!
-                        </h3>
-                        <p class="text-gray-600 mb-4">
-                            Your appointment with {doctor.name} has been booked.
-                        </p>
-                        {#if bookedAppointment}
-                            <div
-                                class="bg-blue-50 p-4 rounded-lg text-left space-y-2"
-                            >
-                                <p class="text-sm text-gray-700">
-                                    <span class="font-semibold"
-                                        >Appointment ID:</span
-                                    >
-                                    <span class="text-primary font-mono text-xs"
-                                        >{bookedAppointment.id}</span
-                                    >
-                                </p>
-                                <p class="text-sm text-gray-700">
-                                    <span class="font-semibold">Date:</span>
-                                    {bookedAppointment.date}
-                                </p>
-                                <p class="text-sm text-gray-700">
-                                    <span class="font-semibold">Time:</span>
-                                    {bookedAppointment.time}
-                                </p>
-                                <p class="text-sm text-gray-700">
-                                    <span class="font-semibold">Type:</span>
-                                    {bookedAppointment.type}
-                                </p>
-                            </div>
-                        {/if}
+            {#if bookingSuccess}
+                <div class="text-center py-8">
+                    <div
+                        class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"
+                    >
+                        ✓
                     </div>
-                {:else}
-                    <h3 class="text-2xl font-bold text-gray-900 mb-6">
-                        Book Appointment
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">
+                        Booking Confirmed!
                     </h3>
-
-                    <div class="space-y-6">
-                        <!-- Appointment Type -->
-                        <div>
-                            <label
-                                class="block text-sm font-medium text-gray-700 mb-2"
-                            >
-                                Appointment Type <span class="text-red-500"
-                                    >*</span
+                    <p class="text-gray-600 mb-4">
+                        Your appointment with {doctor.name} has been booked.
+                    </p>
+                    {#if bookedAppointment}
+                        <div
+                            class="bg-blue-50 p-4 rounded-lg text-left space-y-2"
+                        >
+                            <p class="text-sm text-gray-700">
+                                <span class="font-semibold"
+                                    >Appointment ID:</span
+                                >
+                                <span class="text-primary font-mono text-xs"
+                                    >{bookedAppointment.id}</span
+                                >
+                            </p>
+                            <p class="text-sm text-gray-700">
+                                <span class="font-semibold">Date:</span>
+                                {bookedAppointment.date}
+                            </p>
+                            <p class="text-sm text-gray-700">
+                                <span class="font-semibold">Time:</span>
+                                {bookedAppointment.time}
+                            </p>
+                            <p class="text-sm text-gray-700">
+                                <span class="font-semibold">Type:</span>
+                                {bookedAppointment.type}
+                            </p>
+                        </div>
+                    {/if}
+                </div>
+            {:else}
+                <div class="space-y-6">
+                    <!-- Appointment Type -->
+                    <div>
+                        <div
+                            class="block text-sm font-medium text-gray-700 mb-2"
+                        >
+                            Appointment Type <span class="text-red-500">*</span>
+                        </div>
+                        <div class="flex gap-4">
+                            <label class="flex items-center cursor-pointer">
+                                <input
+                                    type="radio"
+                                    bind:group={appointmentType}
+                                    value="Video"
+                                    class="mr-2 text-primary focus:ring-primary"
+                                />
+                                <Icon name="video" size={16} className="mr-1" />
+                                <span class="text-gray-700"
+                                    >Video Consultation</span
                                 >
                             </label>
-                            <div class="flex gap-4">
-                                <label class="flex items-center cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        bind:group={appointmentType}
-                                        value="Video"
-                                        class="mr-2 text-primary focus:ring-primary"
-                                    />
-                                    <Icon
-                                        name="video"
-                                        size={16}
-                                        className="mr-1"
-                                    />
-                                    <span class="text-gray-700"
-                                        >Video Consultation</span
-                                    >
-                                </label>
-                                <label class="flex items-center cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        bind:group={appointmentType}
-                                        value="In-Person"
-                                        class="mr-2 text-primary focus:ring-primary"
-                                    />
-                                    <Icon
-                                        name="user"
-                                        size={16}
-                                        className="mr-1"
-                                    />
-                                    <span class="text-gray-700"
-                                        >In-Person Visit</span
-                                    >
-                                </label>
-                            </div>
+                            <label class="flex items-center cursor-pointer">
+                                <input
+                                    type="radio"
+                                    bind:group={appointmentType}
+                                    value="In-Person"
+                                    class="mr-2 text-primary focus:ring-primary"
+                                />
+                                <Icon name="user" size={16} className="mr-1" />
+                                <span class="text-gray-700"
+                                    >In-Person Visit</span
+                                >
+                            </label>
                         </div>
+                    </div>
 
-                        <!-- Select Day -->
+                    <!-- Select Day -->
+                    <div>
+                        <div
+                            class="block text-sm font-medium text-gray-700 mb-2"
+                        >
+                            Select Day <span class="text-red-500">*</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            {#each doctor.availability as slot}
+                                <button
+                                    class="px-4 py-2 rounded-lg border transition-colors {selectedDate ===
+                                    slot.day
+                                        ? 'bg-primary text-white border-primary'
+                                        : 'border-gray-200 text-gray-700 hover:border-primary'}"
+                                    on:click={() => {
+                                        selectedDate = slot.day;
+                                        selectedSlot = "";
+                                    }}
+                                >
+                                    {slot.day}
+                                </button>
+                            {/each}
+                        </div>
+                    </div>
+
+                    <!-- Select Time -->
+                    {#if selectedDate}
                         <div>
-                            <label
+                            <div
                                 class="block text-sm font-medium text-gray-700 mb-2"
                             >
-                                Select Day <span class="text-red-500">*</span>
-                            </label>
-                            <div class="flex flex-wrap gap-2">
-                                {#each doctor.availability as slot}
+                                Select Time <span class="text-red-500">*</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                {#each getAvailableSlots(selectedDate) as time}
                                     <button
-                                        class="px-4 py-2 rounded-lg border transition-colors {selectedDate ===
-                                        slot.day
+                                        class="px-2 py-2 rounded-lg border text-sm transition-colors {selectedSlot ===
+                                        time
                                             ? 'bg-primary text-white border-primary'
                                             : 'border-gray-200 text-gray-700 hover:border-primary'}"
-                                        on:click={() => {
-                                            selectedDate = slot.day;
-                                            selectedSlot = "";
-                                        }}
+                                        on:click={() => (selectedSlot = time)}
                                     >
-                                        {slot.day}
+                                        {time}
                                     </button>
                                 {/each}
                             </div>
                         </div>
+                    {/if}
 
-                        <!-- Select Time -->
-                        {#if selectedDate}
-                            <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-700 mb-2"
-                                >
-                                    Select Time <span class="text-red-500"
-                                        >*</span
-                                    >
-                                </label>
-                                <div class="grid grid-cols-3 gap-2">
-                                    {#each doctor.availability.find((d) => d.day === selectedDate)?.slots || [] as time}
-                                        <button
-                                            class="px-2 py-2 rounded-lg border text-sm transition-colors {selectedSlot ===
-                                            time
-                                                ? 'bg-primary text-white border-primary'
-                                                : 'border-gray-200 text-gray-700 hover:border-primary'}"
-                                            on:click={() =>
-                                                (selectedSlot = time)}
-                                        >
-                                            {time}
-                                        </button>
-                                    {/each}
-                                </div>
-                            </div>
-                        {/if}
-
-                        <!-- Reason for Visit -->
-                        <div>
-                            <label
-                                for="reason"
-                                class="block text-sm font-medium text-gray-700 mb-2"
-                            >
-                                Reason for Visit <span class="text-red-500"
-                                    >*</span
-                                >
-                            </label>
-                            <input
-                                id="reason"
-                                type="text"
-                                bind:value={reason}
-                                placeholder="e.g., General Checkup, Follow-up, Consultation"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                            />
-                        </div>
-
-                        <!-- Additional Notes -->
-                        <div>
-                            <label
-                                for="notes"
-                                class="block text-sm font-medium text-gray-700 mb-2"
-                            >
-                                Additional Notes (Optional)
-                            </label>
-                            <textarea
-                                id="notes"
-                                bind:value={notes}
-                                rows="3"
-                                placeholder="Any specific concerns or information you'd like to share..."
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                            ></textarea>
-                        </div>
-
-                        <Button
-                            variant="primary"
-                            fullWidth
-                            disabled={!selectedDate ||
-                                !selectedSlot ||
-                                !reason.trim()}
-                            onClick={confirmBooking}
+                    <!-- Reason for Visit -->
+                    <div>
+                        <label
+                            for="reason"
+                            class="block text-sm font-medium text-gray-700 mb-2"
                         >
-                            Confirm Booking
-                        </Button>
+                            Reason for Visit <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                            id="reason"
+                            type="text"
+                            bind:value={reason}
+                            placeholder="e.g., General Checkup, Follow-up, Consultation"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
                     </div>
-                {/if}
-            </div>
-        </div>
+
+                    <!-- Additional Notes -->
+                    <div>
+                        <label
+                            for="notes"
+                            class="block text-sm font-medium text-gray-700 mb-2"
+                        >
+                            Additional Notes (Optional)
+                        </label>
+                        <textarea
+                            id="notes"
+                            bind:value={notes}
+                            rows="3"
+                            placeholder="Any specific concerns or information you'd like to share..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                        ></textarea>
+                    </div>
+
+                    <Button
+                        variant="primary"
+                        fullWidth
+                        disabled={!selectedDate ||
+                            !selectedSlot ||
+                            !reason.trim()}
+                        onClick={confirmBooking}
+                    >
+                        Confirm Booking
+                    </Button>
+                </div>
+            {/if}
+        </Modal>
     {/if}
 {:else}
     <div class="min-h-screen flex items-center justify-center">

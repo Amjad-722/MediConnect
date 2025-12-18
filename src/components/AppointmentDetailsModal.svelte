@@ -1,6 +1,7 @@
 <script lang="ts">
     import Button from "$components/reusable/Button.svelte";
     import Icon from "$components/reusable/Icon.svelte";
+    import Modal from "$components/reusable/Modal.svelte";
 
     interface Appointment {
         id: string;
@@ -37,38 +38,16 @@
                 return "bg-gray-100 text-gray-800";
         }
     }
-
-    function handleKeydown(e) {
-        if (e.key === "Escape") {
-            onClose();
-        }
-    }
 </script>
 
-{#if isOpen && appointment}
-    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-    <div
-        role="dialog"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-        on:click|self={onClose}
-        on:keydown={handleKeydown}
-        tabindex="-1"
-        aria-modal="true"
+{#if isOpen && !!appointment}
+    <Modal
+        isOpen={true}
+        title="Appointment Details"
+        maxWidth="max-w-2xl"
+        on:close={onClose}
     >
-        <div
-            class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 relative max-h-[90vh] overflow-y-auto"
-        >
-            <button
-                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-                on:click={onClose}
-            >
-                ✕
-            </button>
-
-            <h3 class="text-2xl font-bold text-gray-900 mb-6">
-                Appointment Details
-            </h3>
-
+        {#if appointment}
             <div class="space-y-4">
                 <!-- Appointment ID -->
                 <div class="bg-blue-50 p-4 rounded-lg">
@@ -157,7 +136,7 @@
             </div>
 
             <!-- Actions -->
-            <div class="flex gap-3 mt-6">
+            <div class="flex gap-3 mt-6 pt-6 border-t border-gray-100">
                 {#if appointment.status === "Pending"}
                     <Button
                         variant="primary"
@@ -198,6 +177,6 @@
                     Close
                 </button>
             </div>
-        </div>
-    </div>
+        {/if}
+    </Modal>
 {/if}

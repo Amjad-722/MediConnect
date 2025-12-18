@@ -13,9 +13,18 @@ export const doctors = [
         about: "Dr. Smith specializes in preventative cardiology and heart failure management. She believes in a holistic approach to heart health.",
         clinicAddress: "123 Heart Ave, New York, NY 10001",
         availability: [
-            { day: "Mon", slots: ["09:00 AM", "10:00 AM", "02:00 PM"] },
-            { day: "Tue", slots: ["11:00 AM", "03:00 PM"] },
-            { day: "Thu", slots: ["09:00 AM", "01:00 PM"] },
+            {
+                day: "Mon",
+                slots: [{ start: "09:00 AM", end: "05:00 PM" }],
+            },
+            {
+                day: "Tue",
+                slots: [{ start: "11:00 AM", end: "04:00 PM" }],
+            },
+            {
+                day: "Thu",
+                slots: [{ start: "09:00 AM", end: "03:00 PM" }],
+            },
         ],
     },
     {
@@ -32,8 +41,14 @@ export const doctors = [
         about: "Dr. Chen focuses on skin cancer prevention and advanced cosmetic procedures. He is passionate about helping patients achieve healthy skin.",
         clinicAddress: "456 Skin Blvd, San Francisco, CA 94101",
         availability: [
-            { day: "Wed", slots: ["10:00 AM", "02:00 PM", "04:00 PM"] },
-            { day: "Fri", slots: ["09:00 AM", "11:00 AM"] },
+            {
+                day: "Wed",
+                slots: [{ start: "10:00 AM", end: "05:00 PM" }],
+            },
+            {
+                day: "Fri",
+                slots: [{ start: "09:00 AM", end: "01:00 PM" }],
+            },
         ],
     },
     {
@@ -50,9 +65,18 @@ export const doctors = [
         about: "Dr. Johnson provides comprehensive pediatric care from newborns to adolescents. She has a special interest in developmental pediatrics.",
         clinicAddress: "789 Kids Way, Chicago, IL 60601",
         availability: [
-            { day: "Mon", slots: ["08:30 AM", "11:30 AM"] },
-            { day: "Tue", slots: ["09:00 AM", "02:00 PM", "04:30 PM"] },
-            { day: "Thu", slots: ["10:00 AM", "03:30 PM"] },
+            {
+                day: "Mon",
+                slots: [{ start: "08:30 AM", end: "12:30 PM" }],
+            },
+            {
+                day: "Tue",
+                slots: [{ start: "09:00 AM", end: "05:00 PM" }],
+            },
+            {
+                day: "Thu",
+                slots: [{ start: "10:00 AM", end: "04:00 PM" }],
+            },
         ],
     },
     {
@@ -69,8 +93,14 @@ export const doctors = [
         about: "Dr. Wilson is committed to using the latest research and technology to diagnose and treat neurological conditions effectively.",
         clinicAddress: "321 Brain Ln, Houston, TX 77001",
         availability: [
-            { day: "Wed", slots: ["09:00 AM", "01:00 PM"] },
-            { day: "Fri", slots: ["11:00 AM", "03:00 PM"] },
+            {
+                day: "Wed",
+                slots: [{ start: "09:00 AM", end: "02:00 PM" }],
+            },
+            {
+                day: "Fri",
+                slots: [{ start: "11:00 AM", end: "04:00 PM" }],
+            },
         ],
     },
     {
@@ -87,8 +117,14 @@ export const doctors = [
         about: "Dr. Brown helps athletes and active individuals return to their peak performance through advanced surgical and non-surgical treatments.",
         clinicAddress: "654 Bone St, Miami, FL 33101",
         availability: [
-            { day: "Mon", slots: ["08:00 AM", "12:00 PM"] },
-            { day: "Wed", slots: ["02:00 PM", "05:00 PM"] },
+            {
+                day: "Mon",
+                slots: [{ start: "08:00 AM", end: "01:00 PM" }],
+            },
+            {
+                day: "Wed",
+                slots: [{ start: "02:00 PM", end: "06:00 PM" }],
+            },
         ],
     },
     {
@@ -105,8 +141,14 @@ export const doctors = [
         about: "Dr. Taylor is dedicated to preserving and restoring vision. He utilizes state-of-the-art diagnostic and surgical techniques.",
         clinicAddress: "987 Vision Ct, Seattle, WA 98101",
         availability: [
-            { day: "Tue", slots: ["09:00 AM", "01:00 PM"] },
-            { day: "Thu", slots: ["10:00 AM", "02:00 PM", "04:00 PM"] },
+            {
+                day: "Tue",
+                slots: [{ start: "09:00 AM", end: "02:00 PM" }],
+            },
+            {
+                day: "Thu",
+                slots: [{ start: "10:00 AM", end: "05:00 PM" }],
+            },
         ],
     },
 ];

@@ -1,9 +1,10 @@
 <script>
     import Button from "$components/reusable/Button.svelte";
     import Icon from "$components/reusable/Icon.svelte";
-    import { user } from "$lib/store";
+    import { user, defaultDoctorFields } from "$lib/store";
     import { navigate } from "$lib/router.js";
     import { onMount } from "svelte";
+    import Modal from "$components/reusable/Modal.svelte";
 
     let isLoading = false;
     let successMessage = "";
@@ -17,16 +18,53 @@
     onMount(() => {
         if (!$user) {
             navigate("/login", { replace: true });
+        } else if ($user.role === "doctor") {
+            // Ensure availability exists
+            if (!$user.availability) {
+                $user.availability = [...defaultDoctorFields.availability];
+            }
+            // Normalize availability data: convert string slots to objects
+            $user.availability = $user.availability.map((day) => ({
+                ...day,
+                slots: (day.slots || []).map((slot) =>
+                    typeof slot === "string"
+                        ? { start: slot, end: "05:00 PM" } // Default end time if it was just a string
+                        : slot,
+                ),
+            }));
         }
     });
+
+    function handleRoleChange(event) {
+        const newRole = event.target.value;
+        if (newRole === "doctor" && $user.role !== "doctor") {
+            // Initialize doctor fields if switching to doctor for the first time
+            $user = {
+                ...$user,
+                role: "doctor",
+                ...Object.fromEntries(
+                    Object.entries(defaultDoctorFields).filter(
+                        ([key]) =>
+                            $user[key] === undefined || $user[key] === "",
+                    ),
+                ),
+            };
+            if (!$user.availability || $user.availability.length === 0) {
+                $user.availability = [...defaultDoctorFields.availability];
+            }
+        } else {
+            $user.role = newRole;
+        }
+    }
 
     async function handleSave() {
         isLoading = true;
         successMessage = "";
         await new Promise((resolve) => setTimeout(resolve, 800));
 
-        // Force store update to trigger subscribers (localStorage sync)
-        user.set($user);
+        // Create a new object reference to ensure Svelte store triggers subscribers
+        // and localStorage sync works correctly.
+        user.set({ ...$user });
 
         successMessage = "Profile updated successfully!";
         isLoading = false;
@@ -39,7 +77,7 @@
     function addSlot(dayIndex) {
         $user.availability[dayIndex].slots = [
             ...$user.availability[dayIndex].slots,
-            "09:00 AM",
+            { start: "09:00 AM", end: "05:00 PM" },
         ];
     }
 
@@ -52,14 +90,14 @@
     const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
     $: unusedDays = daysOfWeek.filter(
-        (day) => !$user.availability.find((d) => d.day === day),
+        (day) => !($user.availability || []).find((d) => d.day === day),
     );
 
     function addDay(day) {
         if (!$user.availability.find((d) => d.day === day)) {
             $user.availability = [
                 ...$user.availability,
-                { day, slots: ["09:00 AM"] },
+                { day, slots: [{ start: "09:00 AM", end: "05:00 PM" }] },
             ];
             // Sort days
             $user.availability.sort(
@@ -221,6 +259,22 @@
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                             />
                         </div>
+                        <div>
+                            <label
+                                for="role"
+                                class="block text-sm font-medium text-gray-700 mb-1"
+                                >Account Role</label
+                            >
+                            <select
+                                id="role"
+                                value={$user.role || "patient"}
+                                on:change={handleRoleChange}
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary bg-white"
+                            >
+                                <option value="patient">Patient</option>
+                                <option value="doctor">Doctor</option>
+                            </select>
+                        </div>
                         {#if $user.role === "doctor"}
                             <div>
                                 <label
@@ -285,7 +339,7 @@
                                                 width="100%"
                                                 height="100%"
                                                 style="border:0;"
-                                                allowfullscreen=""
+                                                allowfullscreen={true}
                                                 loading="lazy"
                                             ></iframe>
                                         </div>
@@ -379,7 +433,7 @@
                             </div>
 
                             <div class="space-y-4">
-                                {#if $user.availability.length === 0}
+                                {#if !($user.availability && $user.availability.length > 0)}
                                     <div
                                         class="text-center py-8 text-gray-500 italic"
                                     >
@@ -388,7 +442,7 @@
                                     </div>
                                 {/if}
 
-                                {#each $user.availability as day, i}
+                                {#each $user.availability || [] as day, i}
                                     <div
                                         class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm transition-shadow hover:shadow-md"
                                     >
@@ -429,37 +483,56 @@
                                             </div>
                                         </div>
 
-                                        <div class="flex flex-wrap gap-3">
+                                        <div class="space-y-3">
                                             {#each day.slots as slot, slotIndex}
                                                 <div
-                                                    class="relative group flex items-center"
+                                                    class="flex items-center gap-3 bg-gray-50/50 p-2 rounded-lg border border-gray-100 group relative"
                                                 >
-                                                    <div class="relative">
-                                                        <input
-                                                            type="text"
-                                                            bind:value={
-                                                                $user
-                                                                    .availability[
-                                                                    i
-                                                                ].slots[
-                                                                    slotIndex
-                                                                ]
-                                                            }
-                                                            class="w-28 px-3 py-2 text-sm font-medium text-center border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm group-hover:border-gray-300"
-                                                            placeholder="00:00 AM"
-                                                        />
+                                                    <div
+                                                        class="flex-1 grid grid-cols-2 gap-2"
+                                                    >
+                                                        <div class="space-y-1">
+                                                            <span
+                                                                class="text-[10px] uppercase font-bold text-gray-400"
+                                                                >From</span
+                                                            >
+                                                            <input
+                                                                type="text"
+                                                                bind:value={
+                                                                    slot.start
+                                                                }
+                                                                class="w-full px-2 py-1.5 text-xs font-bold text-center border border-gray-200 rounded-md bg-white focus:ring-1 focus:ring-primary transition-all"
+                                                                placeholder="09:00 AM"
+                                                            />
+                                                        </div>
+                                                        <div class="space-y-1">
+                                                            <span
+                                                                class="text-[10px] uppercase font-bold text-gray-400"
+                                                                >To</span
+                                                            >
+                                                            <input
+                                                                type="text"
+                                                                bind:value={
+                                                                    slot.end
+                                                                }
+                                                                class="w-full px-2 py-1.5 text-xs font-bold text-center border border-gray-200 rounded-md bg-white focus:ring-1 focus:ring-primary transition-all"
+                                                                placeholder="05:00 PM"
+                                                            />
+                                                        </div>
                                                     </div>
                                                     <button
                                                         type="button"
-                                                        class="absolute -top-2 -right-2 bg-white text-gray-400 border border-gray-200 hover:border-red-200 hover:text-red-500 hover:bg-red-50 rounded-full w-6 h-6 flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-all transform scale-90 group-hover:scale-100 z-10"
+                                                        class="text-gray-300 hover:text-red-500 transition-colors p-1"
                                                         on:click={() =>
                                                             removeSlot(
                                                                 i,
                                                                 slotIndex,
                                                             )}
-                                                        title="Remove Slot"
                                                     >
-                                                        ×
+                                                        <Icon
+                                                            name="x"
+                                                            size={16}
+                                                        />
                                                     </button>
                                                 </div>
                                             {/each}
@@ -501,42 +574,38 @@
 
     <!-- Profile Picture Modal -->
     {#if showProfilePicModal}
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <div
-            class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-            on:click|self={() => (showProfilePicModal = false)}
+        <Modal
+            isOpen={true}
+            title="Change Profile Photo"
+            maxWidth="max-w-sm"
+            on:close={() => (showProfilePicModal = false)}
         >
-            <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
-                <h3 class="text-lg font-bold mb-4">Change Profile Photo</h3>
-                <div class="space-y-3">
-                    <button
-                        type="button"
-                        class="w-full py-3 px-4 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 transition-colors text-left flex items-center gap-3"
-                        on:click={() => {
-                            triggerFileInput("profilePicInput");
-                            showProfilePicModal = false;
-                        }}
-                    >
-                        <Icon name="folder" size={20} /> Upload Photo
-                    </button>
-                    <button
-                        type="button"
-                        class="w-full py-3 px-4 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 transition-colors text-left flex items-center gap-3"
-                        on:click={() => {
-                            $user.profilePic = "";
-                            showProfilePicModal = false;
-                        }}
-                    >
-                        <Icon name="trash" size={20} /> Remove Photo
-                    </button>
-                </div>
+            <div class="space-y-3">
                 <button
-                    class="mt-6 w-full py-2 text-gray-500 hover:text-gray-700 font-medium"
-                    on:click={() => (showProfilePicModal = false)}
-                    >Cancel</button
+                    type="button"
+                    class="w-full py-3 px-4 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 transition-colors text-left flex items-center gap-3"
+                    on:click={() => {
+                        triggerFileInput("profilePicInput");
+                        showProfilePicModal = false;
+                    }}
                 >
+                    <Icon name="folder" size={20} /> Upload Photo
+                </button>
+                <button
+                    type="button"
+                    class="w-full py-3 px-4 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 transition-colors text-left flex items-center gap-3"
+                    on:click={() => {
+                        $user.profilePic = "";
+                        showProfilePicModal = false;
+                    }}
+                >
+                    <Icon name="trash" size={20} /> Remove Photo
+                </button>
             </div>
-        </div>
+            <button
+                class="mt-6 w-full py-2 text-gray-500 hover:text-gray-700 font-medium"
+                on:click={() => (showProfilePicModal = false)}>Cancel</button
+            >
+        </Modal>
     {/if}
 {/if}
