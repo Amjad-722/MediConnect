@@ -83,6 +83,48 @@
             closeBookingModal();
         }, 3000);
     }
+
+    function convertToMinutes(timeStr) {
+        if (!timeStr) return 0;
+        const [time, modifier] = timeStr.split(" ");
+        let [hours, minutes] = time.split(":");
+        if (hours === "12") hours = "00";
+        let h = parseInt(hours, 10);
+        if (modifier === "PM") h += 12;
+        return h * 60 + parseInt(minutes, 10);
+    }
+
+    function formatMinutes(totalMinutes) {
+        let hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const modifier = hours >= 12 ? "PM" : "AM";
+        let h = hours % 12;
+        if (h === 0) h = 12;
+        return `${String(h).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${modifier}`;
+    }
+
+    function getAvailableSlots(dayStr) {
+        const day = doctor.availability.find((d) => d.day === dayStr);
+        if (!day) return [];
+
+        let allSlots = [];
+        day.slots.forEach((slot) => {
+            if (typeof slot === "string") {
+                allSlots.push(slot);
+            } else if (slot && slot.start && slot.end) {
+                let current = convertToMinutes(slot.start);
+                const end = convertToMinutes(slot.end);
+                while (current <= end) {
+                    allSlots.push(formatMinutes(current));
+                    current += 30; // 30 min intervals
+                }
+            }
+        });
+
+        return [...new Set(allSlots)].sort(
+            (a, b) => convertToMinutes(a) - convertToMinutes(b),
+        );
+    }
 </script>
 
 {#if doctor}
@@ -348,11 +390,11 @@
                 <div class="space-y-6">
                     <!-- Appointment Type -->
                     <div>
-                        <label
+                        <div
                             class="block text-sm font-medium text-gray-700 mb-2"
                         >
                             Appointment Type <span class="text-red-500">*</span>
-                        </label>
+                        </div>
                         <div class="flex gap-4">
                             <label class="flex items-center cursor-pointer">
                                 <input
@@ -383,11 +425,11 @@
 
                     <!-- Select Day -->
                     <div>
-                        <label
+                        <div
                             class="block text-sm font-medium text-gray-700 mb-2"
                         >
                             Select Day <span class="text-red-500">*</span>
-                        </label>
+                        </div>
                         <div class="flex flex-wrap gap-2">
                             {#each doctor.availability as slot}
                                 <button
@@ -409,13 +451,13 @@
                     <!-- Select Time -->
                     {#if selectedDate}
                         <div>
-                            <label
+                            <div
                                 class="block text-sm font-medium text-gray-700 mb-2"
                             >
                                 Select Time <span class="text-red-500">*</span>
-                            </label>
+                            </div>
                             <div class="grid grid-cols-3 gap-2">
-                                {#each doctor.availability.find((d) => d.day === selectedDate)?.slots || [] as time}
+                                {#each getAvailableSlots(selectedDate) as time}
                                     <button
                                         class="px-2 py-2 rounded-lg border text-sm transition-colors {selectedSlot ===
                                         time

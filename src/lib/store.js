@@ -21,26 +21,28 @@ if (browser) {
     });
 }
 
+export const defaultDoctorFields = {
+    bio: "",
+    education: "",
+    clinicAddress: "",
+    about: "",
+    availability: [
+        { day: "Mon", slots: [{ start: "09:00 AM", end: "02:00 PM" }] },
+        { day: "Wed", slots: [{ start: "09:00 AM", end: "02:00 PM" }] },
+        { day: "Fri", slots: [{ start: "09:00 AM", end: "02:00 PM" }] },
+    ],
+    profilePic: "",
+    bannerImage: "",
+    clinicMapUrl: ""
+};
+
 export function login(email, userDetails = {}) {
-    const defaultDoctorFields = userDetails.role === 'doctor' ? {
-        bio: "",
-        education: "",
-        clinicAddress: "",
-        about: "",
-        availability: [
-            { day: "Mon", slots: ["09:00 AM", "02:00 PM"] },
-            { day: "Wed", slots: ["09:00 AM", "02:00 PM"] },
-            { day: "Fri", slots: ["09:00 AM", "02:00 PM"] },
-        ],
-        profilePic: "",
-        bannerImage: "",
-        clinicMapUrl: ""
-    } : {};
+    const doctorFields = userDetails.role === 'doctor' ? defaultDoctorFields : {};
 
     user.set({
         email,
         name: userDetails.name || email.split('@')[0],
-        ...defaultDoctorFields,
+        ...doctorFields,
         ...userDetails
     });
 }
