@@ -61,7 +61,7 @@ export function createAppointment(appointmentData) {
         date: appointmentData.date || getNextDateForDay(appointmentData.day),
         day: appointmentData.day,
         time: appointmentData.time,
-        type: appointmentData.type || 'Video',
+        type: appointmentData.type || 'In-Person',
         reason: appointmentData.reason || 'General Consultation',
         status: 'Pending',
         createdAt: new Date().toISOString(),

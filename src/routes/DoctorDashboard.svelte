@@ -326,17 +326,7 @@
                                             <span
                                                 class="inline-flex items-center gap-1 text-sm text-gray-700"
                                             >
-                                                {#if appointment.type === "Video"}
-                                                    <Icon
-                                                        name="video"
-                                                        size={14}
-                                                    /> Video
-                                                {:else}
-                                                    <Icon
-                                                        name="user"
-                                                        size={14}
-                                                    /> In-Person
-                                                {/if}
+                                                <Icon name="user" size={14} /> In-Person
                                             </span>
                                         </td>
                                         <td
