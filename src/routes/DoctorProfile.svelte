@@ -217,9 +217,32 @@
                         </h3>
                         <p class="text-gray-600 mb-4">{doctor.clinicAddress}</p>
                         <div
-                            class="w-full h-40 bg-gray-200 rounded-lg mb-4 flex items-center justify-center text-gray-400"
+                            class="w-full h-48 bg-gray-100 rounded-lg overflow-hidden border border-gray-100"
                         >
-                            Map View
+                            {#if doctor.clinicMapUrl}
+                                <iframe
+                                    title="Clinic Location"
+                                    src={doctor.clinicMapUrl}
+                                    width="100%"
+                                    height="100%"
+                                    style="border:0;"
+                                    allowfullscreen=""
+                                    loading="lazy"
+                                ></iframe>
+                            {:else}
+                                <div
+                                    class="w-full h-full flex flex-col items-center justify-center text-gray-400 p-4 text-center"
+                                >
+                                    <Icon
+                                        name="map-pin"
+                                        size={32}
+                                        className="mb-2 opacity-50"
+                                    />
+                                    <p class="text-xs">
+                                        Location map not available
+                                    </p>
+                                </div>
+                            {/if}
                         </div>
                     </div>
 
