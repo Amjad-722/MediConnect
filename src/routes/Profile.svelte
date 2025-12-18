@@ -84,6 +84,19 @@
             reader.readAsDataURL(file);
         }
     }
+
+    function handleMapUrlInput(event) {
+        let value = event.target.value;
+        // Check if it's a full iframe tag
+        if (value.includes("<iframe")) {
+            const match = value.match(/src="([^"]+)"/);
+            if (match && match[1]) {
+                $user.clinicMapUrl = match[1];
+            }
+        } else {
+            $user.clinicMapUrl = value;
+        }
+    }
 </script>
 
 {#if $user}
@@ -235,6 +248,49 @@
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                                     placeholder="123 Medical Center Dr..."
                                 />
+                            </div>
+                            <div class="md:col-span-2">
+                                <label
+                                    for="mapUrl"
+                                    class="block text-sm font-medium text-gray-700 mb-1"
+                                    >Clinic Map Embed URL</label
+                                >
+                                <input
+                                    id="mapUrl"
+                                    type="text"
+                                    value={$user.clinicMapUrl}
+                                    on:input={handleMapUrlInput}
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                                    placeholder="Paste map URL or iframe tag here..."
+                                />
+                                <p class="mt-2 text-xs text-gray-500">
+                                    <strong>Super Easy:</strong> Just paste the
+                                    whole <code>&lt;iframe&gt;</code> tag from Google
+                                    Maps, and we'll handle the rest!
+                                </p>
+
+                                {#if $user.clinicMapUrl}
+                                    <div class="mt-4">
+                                        <p
+                                            class="text-sm font-medium text-gray-700 mb-2"
+                                        >
+                                            Map Preview:
+                                        </p>
+                                        <div
+                                            class="w-full h-48 bg-gray-100 rounded-lg overflow-hidden border border-gray-200"
+                                        >
+                                            <iframe
+                                                title="Clinic Location Preview"
+                                                src={$user.clinicMapUrl}
+                                                width="100%"
+                                                height="100%"
+                                                style="border:0;"
+                                                allowfullscreen=""
+                                                loading="lazy"
+                                            ></iframe>
+                                        </div>
+                                    </div>
+                                {/if}
                             </div>
                         {/if}
                     </div>

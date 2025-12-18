@@ -33,7 +33,8 @@ export function login(email, userDetails = {}) {
             { day: "Fri", slots: ["09:00 AM", "02:00 PM"] },
         ],
         profilePic: "",
-        bannerImage: ""
+        bannerImage: "",
+        clinicMapUrl: ""
     } : {};
 
     user.set({
