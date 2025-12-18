@@ -22,7 +22,7 @@
     let showModal = false;
     let selectedDate = "";
     let selectedSlot = "";
-    let appointmentType = "Video";
+    let appointmentType = "In-Person";
     let reason = "";
     let notes = "";
     let bookingSuccess = false;
@@ -51,7 +51,7 @@
         bookingSuccess = false;
         selectedDate = "";
         selectedSlot = "";
-        appointmentType = "Video";
+        appointmentType = "In-Person";
         reason = "";
         notes = "";
         bookedAppointment = null;
@@ -388,41 +388,6 @@
                 </div>
             {:else}
                 <div class="space-y-6">
-                    <!-- Appointment Type -->
-                    <div>
-                        <div
-                            class="block text-sm font-medium text-gray-700 mb-2"
-                        >
-                            Appointment Type <span class="text-red-500">*</span>
-                        </div>
-                        <div class="flex gap-4">
-                            <label class="flex items-center cursor-pointer">
-                                <input
-                                    type="radio"
-                                    bind:group={appointmentType}
-                                    value="Video"
-                                    class="mr-2 text-primary focus:ring-primary"
-                                />
-                                <Icon name="video" size={16} className="mr-1" />
-                                <span class="text-gray-700"
-                                    >Video Consultation</span
-                                >
-                            </label>
-                            <label class="flex items-center cursor-pointer">
-                                <input
-                                    type="radio"
-                                    bind:group={appointmentType}
-                                    value="In-Person"
-                                    class="mr-2 text-primary focus:ring-primary"
-                                />
-                                <Icon name="user" size={16} className="mr-1" />
-                                <span class="text-gray-700"
-                                    >In-Person Visit</span
-                                >
-                            </label>
-                        </div>
-                    </div>
-
                     <!-- Select Day -->
                     <div>
                         <div

@@ -3,19 +3,22 @@
     import { stats as initialStats } from "$lib/data.js";
 
     let statsVisible = false;
-    let stats = [...initialStats];
+    let stats = initialStats.map((s) => ({ ...s, value: 0 }));
 
     onMount(() => {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting && !statsVisible) {
-                    statsVisible = true;
-                    animateStats();
-                }
-            });
-        });
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting && !statsVisible) {
+                        statsVisible = true;
+                        animateStats();
+                    }
+                });
+            },
+            { threshold: 0.5 },
+        );
 
-        const statsSection = document.querySelector(".stats");
+        const statsSection = document.querySelector(".stats-section");
         if (statsSection) {
             observer.observe(statsSection);
         }
@@ -25,38 +28,62 @@
 
     function animateStats() {
         stats.forEach((stat, index) => {
-            const duration = 2000;
-            const steps = 60;
-            const increment = stat.target / steps;
-            let current = 0;
+            const duration = 2500;
+            const startTime = performance.now();
+            const target = stat.target;
 
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= stat.target) {
-                    stats[index].value = stat.target;
-                    clearInterval(timer);
-                } else {
-                    stats[index].value = Math.floor(current);
-                }
+            function update(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Ease out cubic
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+
+                stats[index].value = Math.floor(easeOut * target);
                 stats = [...stats];
-            }, duration / steps);
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
         });
     }
 </script>
 
-<section
-    class="stats py-20 bg-gradient-to-br from-primary-dark to-primary text-white"
->
-    <div class="container mx-auto px-4">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-12">
+<section class="stats-section py-24 bg-[#000921] relative overflow-hidden">
+    <!-- Glowing Accent -->
+    <div
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[300px] bg-secondary/5 rounded-full blur-[120px]"
+    ></div>
+
+    <div class="container mx-auto px-6 relative z-10">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-20">
             {#each stats as stat}
-                <div class="text-center">
+                <div class="text-center group">
                     <div
-                        class="text-5xl lg:text-6xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-br from-white to-blue-100"
+                        class="text-5xl lg:text-7xl font-black mb-4 tracking-tighter transition-all duration-500 group-hover:scale-110"
                     >
-                        {stat.value}{stat.suffix}
+                        <span
+                            class="bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-blue-200"
+                        >
+                            {stat.value}{stat.suffix}
+                        </span>
                     </div>
-                    <div class="text-lg opacity-90">{stat.label}</div>
+                    <div
+                        class="text-sm font-bold text-secondary uppercase tracking-[0.2em] opacity-80 group-hover:opacity-100 transition-opacity"
+                    >
+                        {stat.label}
+                    </div>
+                    <!-- Subtle underline accent -->
+                    <div
+                        class="mt-4 h-1 w-8 bg-white/10 mx-auto rounded-full overflow-hidden"
+                    >
+                        <div
+                            class="h-full w-full bg-secondary -translate-x-full group-hover:translate-x-0 transition-transform duration-500"
+                        ></div>
+                    </div>
                 </div>
             {/each}
         </div>

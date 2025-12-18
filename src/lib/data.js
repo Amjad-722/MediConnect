@@ -167,9 +167,9 @@ export const features = [
         desc: "Search by specialty, location, or availability to find the right care for you.",
     },
     {
-        icon: "video",
-        title: "Video Consults",
-        desc: "Consult with doctors from the comfort of your home via secure video calls.",
+        icon: "home",
+        title: "Clinic Visits",
+        desc: "Book appointments for in-person consultations at professional medical clinics.",
     },
     {
         icon: "clipboard",
@@ -195,7 +195,7 @@ export const features = [
 
 export const testimonials = [
     {
-        text: "MediConnect made it so easy to find a specialist for my condition. The video consultation was seamless and saved me hours of travel time.",
+        text: "MediConnect made it so easy to find a specialist for my condition. The booking process was seamless and saved me so much time.",
         name: "Sarah Johnson",
         role: "Patient since 2023",
         img: "/images/testimonial-sarah.png",
@@ -228,6 +228,6 @@ export const steps = [
     {
         num: "3",
         title: "Book & Consult",
-        desc: "Schedule appointments and consult via video or in-person visits.",
+        desc: "Schedule appointments and visit the clinic at your chosen time.",
     },
 ];

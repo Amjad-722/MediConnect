@@ -1,91 +1,207 @@
 <script>
     import Button from "$components/reusable/Button.svelte";
+    import Icon from "$components/reusable/Icon.svelte";
 </script>
 
 <section
-    class="relative py-32 pb-48 overflow-hidden bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200"
+    class="relative min-h-[90vh] flex items-center pt-20 pb-32 overflow-hidden bg-white"
 >
-    <!-- Background Decoration -->
-    <div
-        class="absolute -top-1/2 -right-[20%] w-[1000px] h-[1000px] rounded-full bg-gradient-radial from-secondary/15 to-transparent animate-pulse z-0"
-    ></div>
-
-    <div
-        class="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-16 items-center relative z-10 text-center lg:text-left"
-    >
-        <div class="space-y-6">
-            <h1
-                class="text-5xl lg:text-6xl font-bold text-primary-dark leading-tight animate-fade-in-up"
-            >
-                Healthcare Made <span
-                    class="text-transparent bg-clip-text bg-gradient-to-br from-secondary to-[#00a8b0]"
-                    >Accessible</span
-                >
-            </h1>
-            <p
-                class="text-xl text-gray-500 max-w-lg leading-relaxed animate-fade-in-up delay-200 mx-auto lg:mx-0"
-            >
-                Connect with top doctors, book appointments, and manage your
-                health records - all in one place.
-            </p>
-            <div
-                class="flex flex-wrap gap-4 justify-center lg:justify-start animate-fade-in-up delay-400 mb-12"
-            >
-                <Button variant="primary" href="/doctors">Find a Doctor</Button>
-                <Button variant="outline" href="/about">Learn More</Button>
-            </div>
-            <div
-                class="flex flex-wrap gap-12 justify-center lg:justify-start animate-fade-in-up delay-600"
-            >
-                <div class="flex flex-col gap-1">
-                    <strong class="text-2xl font-bold text-primary">24/7</strong
-                    >
-                    <span class="text-sm text-gray-500">Available</span>
-                </div>
-                <div class="flex flex-col gap-1">
-                    <strong class="text-2xl font-bold text-primary">100%</strong
-                    >
-                    <span class="text-sm text-gray-500">Secure</span>
-                </div>
-                <div class="flex flex-col gap-1">
-                    <strong class="text-2xl font-bold text-primary"
-                        >Instant</strong
-                    >
-                    <span class="text-sm text-gray-500">Booking</span>
-                </div>
-            </div>
-        </div>
-        <div class="relative animate-fade-in-right delay-300">
-            <img
-                src="/images/hero-doctors.png"
-                alt="Healthcare professionals"
-                class="w-full h-auto rounded-3xl shadow-[0_20px_60px_rgba(0,80,157,0.2)] hover:scale-[1.02] transition-transform duration-300"
-            />
-        </div>
+    <!-- Animated Mesh Background -->
+    <div class="absolute inset-0 z-0">
+        <div
+            class="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-100/40 rounded-full blur-[120px] -mr-40 -mt-40 animate-pulse"
+        ></div>
+        <div
+            class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[100px] -ml-20 -mb-20 animate-pulse"
+            style="animation-delay: 2s"
+        ></div>
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-gradient-radial from-blue-50/50 to-transparent"
+        ></div>
     </div>
 
-    <!-- Hero Wave -->
-    <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0]">
-        <svg
-            viewBox="0 0 1200 120"
-            preserveAspectRatio="none"
-            class="relative block w-[calc(100%+1.3px)] h-[120px]"
+    <div class="container mx-auto px-6 relative z-10">
+        <div
+            class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-20 items-center"
         >
-            <path
-                d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z"
-                class="fill-white opacity-25"
-            ></path>
-            <path
-                d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z"
-                class="fill-white opacity-50"
-            ></path>
-            <path
-                d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z"
-                class="fill-white"
-            ></path>
-        </svg>
+            <!-- Text Content -->
+            <div class="space-y-8 text-center lg:text-left">
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-secondary rounded-full text-sm font-semibold animate-fade-in-up"
+                >
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"
+                        ></span>
+                        <span
+                            class="relative inline-flex rounded-full h-2 w-2 bg-secondary"
+                        ></span>
+                    </span>
+                    Join 10,000+ Happy Patients
+                </div>
+
+                <h1
+                    class="text-5xl lg:text-7xl font-bold text-[#000921] leading-[1.1] animate-fade-in-up delay-100"
+                >
+                    Your Health, <br />
+                    <span
+                        class="bg-clip-text text-transparent bg-gradient-to-r from-secondary to-[#00a8b0]"
+                    >
+                        Simplified
+                    </span>
+                    <span class="text-secondary tracking-tighter">.</span>
+                </h1>
+
+                <p
+                    class="text-xl text-gray-500 max-w-xl leading-relaxed animate-fade-in-up delay-200 mx-auto lg:mx-0"
+                >
+                    Experience healthcare like never before. Connect with elite
+                    doctors, manage your medical history, and book clinic visits
+                    instantly.
+                </p>
+
+                <div
+                    class="flex flex-wrap gap-4 justify-center lg:justify-start animate-fade-in-up delay-300"
+                >
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        href="/doctors"
+                        className="px-8 py-4 text-lg rounded-2xl shadow-lg shadow-secondary/20"
+                    >
+                        Find a Doctor
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="lg"
+                        href="/about"
+                        className="px-8 py-4 text-lg rounded-2xl"
+                    >
+                        Learn More
+                    </Button>
+                </div>
+
+                <!-- Trust Badges -->
+                <div
+                    class="pt-8 grid grid-cols-3 gap-6 animate-fade-in-up delay-400 max-w-md mx-auto lg:mx-0"
+                >
+                    <div class="space-y-1">
+                        <div class="text-2xl font-bold text-[#000921]">
+                            24/7
+                        </div>
+                        <div
+                            class="text-xs font-semibold text-gray-400 uppercase tracking-widest"
+                        >
+                            Support
+                        </div>
+                    </div>
+                    <div class="border-x border-gray-100 space-y-1">
+                        <div class="text-2xl font-bold text-[#000921]">
+                            100%
+                        </div>
+                        <div
+                            class="text-xs font-semibold text-gray-400 uppercase tracking-widest"
+                        >
+                            Secure
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="text-2xl font-bold text-[#000921]">1k+</div>
+                        <div
+                            class="text-xs font-semibold text-gray-400 uppercase tracking-widest"
+                        >
+                            Doctors
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Composition -->
+            <div class="relative animate-fade-in-right delay-200">
+                <!-- Main Image Wrapper -->
+                <div class="relative z-10 group">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-tr from-secondary/20 to-transparent rounded-[3rem] -rotate-3 transition-transform group-hover:rotate-0 duration-500"
+                    ></div>
+                    <img
+                        src="/images/hero-premium.png"
+                        alt="Premium Healthcare"
+                        class="relative w-full h-[550px] object-cover rounded-[3rem] shadow-2xl shadow-blue-900/10 rotate-2 transition-transform group-hover:rotate-0 duration-500"
+                    />
+                </div>
+
+                <!-- Floating Glassmorphism Cards -->
+                <div
+                    class="absolute -top-10 -right-6 z-20 bg-white/80 backdrop-blur-xl p-5 rounded-2xl shadow-xl border border-white/40 animate-float"
+                >
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center"
+                        >
+                            <Icon name="check" size={24} />
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-500 font-medium">
+                                Appointments
+                            </div>
+                            <div class="text-lg font-bold text-[#000921]">
+                                Verified Success
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="absolute -bottom-8 -left-8 z-20 bg-white/80 backdrop-blur-xl p-5 rounded-2xl shadow-xl border border-white/40 animate-float"
+                    style="animation-delay: -1s"
+                >
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 bg-blue-100 text-secondary rounded-xl flex items-center justify-center"
+                        >
+                            <Icon name="users" size={24} />
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-500 font-medium">
+                                Network
+                            </div>
+                            <div class="text-lg font-bold text-[#000921]">
+                                Elite Specialist
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="absolute top-1/2 -right-12 -translate-y-1/2 z-0 hidden lg:block opacity-20 rotate-12"
+                >
+                    <Icon
+                        name="activity"
+                        size={200}
+                        className="text-secondary"
+                        strokeWidth={1}
+                    />
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
 <style>
+    @keyframes float {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-15px);
+        }
+    }
+
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    /* Animations are defined in Landing.svelte global classes, 
+       but we can add specific ones here if needed */
 </style>

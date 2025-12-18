@@ -98,11 +98,7 @@
                 <div>
                     <p class="text-sm text-gray-600 mb-1">Appointment Type</p>
                     <span class="inline-flex items-center gap-2 text-gray-900">
-                        {#if appointment.type === "Video"}
-                            <Icon name="video" size={16} /> Video Consultation
-                        {:else}
-                            <Icon name="user" size={16} /> In-Person Visit
-                        {/if}
+                        <Icon name="user" size={16} /> In-Person Visit
                     </span>
                 </div>
 
