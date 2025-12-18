@@ -3,41 +3,72 @@
     import Icon from "$components/reusable/Icon.svelte";
 </script>
 
-<section class="py-24 bg-white">
-    <div class="container mx-auto px-4">
-        <h2
-            class="text-center text-4xl lg:text-5xl font-bold text-primary-dark mb-4"
-        >
-            Why Choose MediConnect?
-        </h2>
-        <p class="text-center text-lg text-gray-500 mb-16">
-            Experience healthcare that puts you first
-        </p>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {#each features as feature}
-                <div
-                    class="group relative p-10 bg-white rounded-2xl shadow-md border border-gray-200 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,80,157,0.15)] hover:border-primary-light overflow-hidden"
+<section class="relative py-32 overflow-hidden bg-white">
+    <!-- Subtle Background Decoration -->
+    <div class="absolute inset-0 z-0 pointer-events-none">
+        <div
+            class="absolute top-1/2 left-[10%] w-[500px] h-[500px] bg-blue-50/50 rounded-full blur-[100px]"
+        ></div>
+        <div
+            class="absolute bottom-0 right-[5%] w-[400px] h-[400px] bg-secondary/5 rounded-full blur-[80px]"
+        ></div>
+    </div>
+
+    <div class="container mx-auto px-6 relative z-10">
+        <div class="text-center max-w-3xl mx-auto mb-20 animate-fade-in-up">
+            <h2
+                class="text-4xl lg:text-5xl font-bold text-[#000921] mb-6 leading-tight"
+            >
+                Healthcare that <span class="text-secondary"
+                    >Moves with You</span
                 >
+            </h2>
+            <p class="text-xl text-gray-500 leading-relaxed">
+                Experience a platform designed to simplify your medical journey
+                with cutting-edge technology and a patient-first approach.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {#each features as feature, i}
+                <div
+                    class="group relative p-10 bg-white/70 backdrop-blur-md rounded-[2.5rem] border border-gray-100 transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-blue-900/10 hover:border-secondary/30 animate-fade-in-up"
+                    style="animation-delay: {i * 100}ms"
+                >
+                    <!-- Hover Accent -->
                     <div
-                        class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"
+                        class="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2.5rem]"
                     ></div>
-                    <div
-                        class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center mb-6 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-primary-light group-hover:to-secondary group-hover:rotate-[10deg] group-hover:scale-110"
-                    >
+
+                    <div class="relative z-10">
                         <div
-                            class="text-primary group-hover:text-white transition-colors duration-300"
+                            class="w-20 h-20 rounded-2xl bg-white shadow-lg shadow-blue-900/5 flex items-center justify-center mb-8 transition-all duration-500 group-hover:bg-secondary group-hover:scale-110 group-hover:rotate-[15deg]"
                         >
-                            <Icon
-                                name={feature.icon}
-                                size={40}
-                                strokeWidth={1.5}
-                            />
+                            <div
+                                class="text-secondary group-hover:text-white transition-colors duration-500"
+                            >
+                                <Icon
+                                    name={feature.icon}
+                                    size={36}
+                                    strokeWidth={1.5}
+                                />
+                            </div>
+                        </div>
+
+                        <h3 class="text-2xl font-bold text-[#000921] mb-4">
+                            {feature.title}
+                        </h3>
+                        <p class="text-gray-500 leading-relaxed text-lg mb-6">
+                            {feature.desc}
+                        </p>
+
+                        <div
+                            class="flex items-center gap-2 text-secondary font-semibold text-sm translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500"
+                        >
+                            Learn more
+                            <Icon name="arrow-right" size={16} />
                         </div>
                     </div>
-                    <h3 class="text-xl font-semibold text-primary mb-4">
-                        {feature.title}
-                    </h3>
-                    <p class="text-gray-500 leading-relaxed">{feature.desc}</p>
                 </div>
             {/each}
         </div>

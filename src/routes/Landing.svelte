@@ -1,5 +1,6 @@
 <script>
   import Button from "$components/reusable/Button.svelte";
+  import Icon from "$components/reusable/Icon.svelte";
   import Hero from "$components/landing/Hero.svelte";
   import Features from "$components/landing/Features.svelte";
   import HowItWorks from "$components/landing/HowItWorks.svelte";
@@ -16,26 +17,58 @@
   <Testimonials />
 
   <!-- CTA Section -->
-  <section
-    class="py-24 relative overflow-hidden bg-gradient-to-br from-blue-50 to-blue-200"
-  >
+  <section class="py-32 relative overflow-hidden bg-[#000921]">
+    <!-- Animated Ornaments -->
     <div
-      class="absolute -top-1/2 -left-[20%] w-[600px] h-[600px] rounded-full bg-gradient-radial from-secondary/20 to-transparent"
+      class="absolute top-0 left-0 w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[120px] -ml-40 -mt-40"
     ></div>
-    <div class="container mx-auto px-4 text-center relative z-10">
-      <div class="max-w-3xl mx-auto">
-        <h2 class="text-4xl lg:text-5xl font-bold text-primary-dark mb-4">
-          Ready to Take Control of Your Health?
-        </h2>
-        <p class="text-xl text-gray-500 mb-10">
-          Join thousands of patients who trust MediConnect for their healthcare
-          needs.
-        </p>
-        <div class="flex flex-wrap gap-4 justify-center">
-          <Button variant="primary" onClick={() => isSignupModalOpen.set(true)}
-            >Get Started Free</Button
+    <div
+      class="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[100px] -mr-20 -mb-20"
+    ></div>
+
+    <div class="container mx-auto px-6 text-center relative z-10">
+      <div class="max-w-4xl mx-auto">
+        <div
+          class="inline-flex items-center gap-2 px-4 py-2 bg-white/5 text-secondary rounded-full text-sm font-bold mb-8 border border-white/10"
+        >
+          <Icon name="heart" size={16} />
+          Join Our Growing Community
+        </div>
+
+        <h2
+          class="text-5xl lg:text-7xl font-black text-white mb-8 leading-[1.1]"
+        >
+          Ready to Prioritize <br />
+          <span
+            class="bg-clip-text text-transparent bg-gradient-to-r from-secondary to-[#00a8b0]"
+            >Your Health?</span
           >
-          <Button variant="outline" href="/doctors">Browse Doctors</Button>
+        </h2>
+
+        <p
+          class="text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed"
+        >
+          Take the first step towards a healthier you. Book your appointment
+          with a specialist in just a few clicks.
+        </p>
+
+        <div class="flex flex-wrap gap-6 justify-center">
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={() => isSignupModalOpen.set(true)}
+            className="px-10 py-5 text-xl rounded-2xl shadow-2xl shadow-secondary/20"
+          >
+            Get Started Free
+          </Button>
+          <Button
+            variant="outline"
+            size="lg"
+            href="/doctors"
+            className="px-10 py-5 text-xl rounded-2xl border-white/20 text-white hover:bg-white/10"
+          >
+            Browse Doctors
+          </Button>
         </div>
       </div>
     </div>
