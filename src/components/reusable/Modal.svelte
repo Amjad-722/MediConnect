@@ -5,6 +5,7 @@
     export let isOpen = false;
     export let title = "";
     export let maxWidth = "max-w-md";
+    export let className = "";
 
     const dispatch = createEventDispatcher();
 
@@ -34,7 +35,7 @@
     >
         <!-- Modal Content -->
         <div
-            class="bg-white rounded-2xl shadow-2xl {maxWidth} w-full relative animate-modal-in"
+            class="bg-white rounded-2xl shadow-2xl {maxWidth} w-full relative animate-modal-in {className}"
         >
             <!-- Header -->
             <div

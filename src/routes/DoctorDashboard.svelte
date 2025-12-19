@@ -111,6 +111,9 @@
                     <p class="text-gray-600">Welcome back, Dr. {$user.name}</p>
                 </div>
                 <div class="flex gap-4">
+                    <Button variant="outline" href="/profile"
+                        >Edit Profile</Button
+                    >
                     <Button variant="primary" href="/doctor/me"
                         >View Public Profile</Button
                     >
