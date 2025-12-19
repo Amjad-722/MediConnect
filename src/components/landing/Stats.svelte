@@ -52,18 +52,20 @@
     }
 </script>
 
-<section class="stats-section py-24 bg-[#000921] relative overflow-hidden">
+<section
+    class="stats-section py-16 sm:py-20 lg:py-24 bg-[#000921] relative overflow-hidden"
+>
     <!-- Glowing Accent -->
     <div
-        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[300px] bg-secondary/5 rounded-full blur-[120px]"
+        class="hidden lg:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[300px] bg-secondary/5 rounded-full blur-[120px]"
     ></div>
 
-    <div class="container mx-auto px-6 relative z-10">
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-20">
+    <div class="container mx-auto px-4 sm:px-6 relative z-10">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-20">
             {#each stats as stat}
                 <div class="text-center group">
                     <div
-                        class="text-5xl lg:text-7xl font-black mb-4 tracking-tighter transition-all duration-500 group-hover:scale-110"
+                        class="text-4xl sm:text-5xl lg:text-7xl font-black mb-3 sm:mb-4 tracking-tighter transition-all duration-500 group-hover:scale-110"
                     >
                         <span
                             class="bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-blue-200"
@@ -72,7 +74,7 @@
                         </span>
                     </div>
                     <div
-                        class="text-sm font-bold text-secondary uppercase tracking-[0.2em] opacity-80 group-hover:opacity-100 transition-opacity"
+                        class="text-xs sm:text-sm font-bold text-secondary uppercase tracking-[0.15em] sm:tracking-[0.2em] opacity-80 group-hover:opacity-100 transition-opacity"
                     >
                         {stat.label}
                     </div>

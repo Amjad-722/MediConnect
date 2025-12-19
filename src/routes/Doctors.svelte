@@ -52,13 +52,15 @@
     });
 </script>
 
-<div class="min-h-screen bg-slate-50 py-12">
-    <div class="container mx-auto px-4">
-        <div class="text-center mb-12 animate-fade-in-up">
-            <h1 class="text-4xl font-bold text-gray-900 mb-4">
+<div class="min-h-screen bg-slate-50 py-8 sm:py-12">
+    <div class="container mx-auto px-4 sm:px-6">
+        <div class="text-center mb-8 sm:mb-12 animate-fade-in-up">
+            <h1
+                class="text-3xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4"
+            >
                 Find a Specialist
             </h1>
-            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto px-4">
                 Browse our extensive list of verified specialists and book your
                 appointment today.
             </p>
@@ -66,26 +68,26 @@
 
         <!-- Search & Filter -->
         <Card
-            className="max-w-4xl mx-auto mb-12 flex flex-col md:flex-row gap-4 animate-fade-in-up"
-            padding="p-4"
+            className="max-w-4xl mx-auto mb-8 sm:mb-12 flex flex-col gap-4 animate-fade-in-up"
+            padding="p-4 sm:p-6"
             hoverEffect={false}
         >
             <Input
                 bind:value={searchQuery}
                 icon={searchIcon}
                 placeholder="Search doctors, location..."
-                className="flex-1"
+                className="flex-1 w-full"
             />
             <Select
                 bind:value={selectedSpecialty}
                 options={specialties}
-                className="w-full md:w-48"
+                className="w-full"
             />
         </Card>
 
         {#if filteredDoctors.length > 0}
             <div
-                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in-up"
+                class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 animate-fade-in-up"
                 style="animation-delay: 0.2s; opacity: 0; animation-fill-mode: forwards;"
             >
                 {#each filteredDoctors as doctor (doctor.id)}

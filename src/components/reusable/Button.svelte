@@ -1,7 +1,8 @@
 <script>
   /** @type {"button" | "submit" | "reset"} */
   export let type = "button";
-  export let variant = "primary"; /* primary, secondary, outline, ghost */
+  export let variant =
+    "primary"; /* primary, secondary, outline, ghost, danger */
   export let disabled = false;
   export let fullWidth = false;
   export let href = null;
@@ -42,6 +43,8 @@
     outline:
       "bg-transparent border-primary text-primary hover:bg-primary hover:text-white",
     ghost: "bg-transparent text-gray-900 hover:bg-gray-100 hover:text-primary",
+    danger:
+      "bg-red-600 text-white hover:bg-red-700 hover:shadow-lg hover:shadow-red-600/30",
   }[variant];
 
   $: widthClass = fullWidth ? "w-full" : "";
