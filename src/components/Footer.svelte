@@ -3,10 +3,12 @@
 </script>
 
 <footer
-  class="bg-[#000921] text-white pt-24 pb-8 rounded-tl-[100px] mt-20 relative overflow-hidden"
+  class="bg-[#000921] text-white pt-16 sm:pt-20 lg:pt-24 pb-8 rounded-tl-[40px] sm:rounded-tl-[60px] lg:rounded-tl-[100px] mt-12 sm:mt-16 lg:mt-20 relative overflow-hidden"
 >
-  <div class="container mx-auto px-6 md:px-12">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+  <div class="container mx-auto px-4 sm:px-6 md:px-12">
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 mb-12 sm:mb-16"
+    >
       <!-- Logo & Description -->
       <div class="space-y-6">
         <div class="flex items-center gap-2">
@@ -139,28 +141,30 @@
             </button>
           </form>
 
-          <div class="flex gap-4">
+          <div
+            class="flex gap-3 sm:gap-4 flex-wrap justify-center sm:justify-start"
+          >
             <button
               type="button"
-              class="w-10 h-10 bg-white/10 hover:bg-white hover:text-[#000921] rounded-full flex items-center justify-center transition-all duration-300"
+              class="w-10 h-10 sm:w-11 sm:h-11 bg-white/10 hover:bg-white hover:text-[#000921] rounded-full flex items-center justify-center transition-all duration-300"
             >
               <Icon name="facebook" size={20} fill="currentColor" />
             </button>
             <button
               type="button"
-              class="w-10 h-10 bg-white/10 hover:bg-white hover:text-[#000921] rounded-full flex items-center justify-center transition-all duration-300"
+              class="w-10 h-10 sm:w-11 sm:h-11 bg-white/10 hover:bg-white hover:text-[#000921] rounded-full flex items-center justify-center transition-all duration-300"
             >
               <Icon name="twitter" size={20} fill="currentColor" />
             </button>
             <button
               type="button"
-              class="w-10 h-10 bg-white/10 hover:bg-white hover:text-[#000921] rounded-full flex items-center justify-center transition-all duration-300"
+              class="w-10 h-10 sm:w-11 sm:h-11 bg-white/10 hover:bg-white hover:text-[#000921] rounded-full flex items-center justify-center transition-all duration-300"
             >
               <Icon name="bell" size={20} fill="currentColor" />
             </button>
             <button
               type="button"
-              class="w-10 h-10 bg-white/10 hover:bg-white hover:text-[#000921] rounded-full flex items-center justify-center transition-all duration-300"
+              class="w-10 h-10 sm:w-11 sm:h-11 bg-white/10 hover:bg-white hover:text-[#000921] rounded-full flex items-center justify-center transition-all duration-300"
             >
               <Icon name="activity" size={20} />
             </button>

@@ -41,11 +41,13 @@
 </script>
 
 <nav
-  class="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-gray-200 py-4"
+  class="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-gray-200 py-3 sm:py-4"
 >
-  <div class="container mx-auto px-4 flex justify-between items-center">
+  <div
+    class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center"
+  >
     <div class="flex-shrink-0">
-      <Link to="/" class="text-2xl font-bold text-gray-900">
+      <Link to="/" class="text-xl sm:text-2xl font-bold text-gray-900">
         Medi<span class="text-primary">Connect</span>
       </Link>
     </div>
@@ -198,37 +200,49 @@
   <!-- Mobile Menu -->
   {#if isMenuOpen}
     <div
-      class="md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-200 shadow-lg p-4 flex flex-col gap-4"
+      class="md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-200 shadow-lg px-4 sm:px-6 py-6 flex flex-col gap-2"
     >
       <Link
         to="/"
-        class="block py-2 font-medium text-gray-700 hover:text-primary"
+        class="block py-3 px-4 font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg transition-colors"
         on:click={toggleMenu}>Home</Link
       >
       <Link
         to="/doctors"
-        class="block py-2 font-medium text-gray-700 hover:text-primary"
+        class="block py-3 px-4 font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg transition-colors"
         on:click={toggleMenu}>Find Doctors</Link
       >
       <Link
         to="/about"
-        class="block py-2 font-medium text-gray-700 hover:text-primary"
+        class="block py-3 px-4 font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg transition-colors"
         on:click={toggleMenu}>About</Link
       >
-      <div class="flex flex-col gap-3 mt-2 pt-4 border-t border-gray-100">
+      <div class="flex flex-col gap-3 mt-4 pt-4 border-t border-gray-100">
         {#if $user}
+          {#if $user.role === "doctor"}
+            <Link
+              to="/doctor-dashboard"
+              class="block py-3 px-4 font-medium text-primary hover:bg-blue-50 rounded-lg transition-colors text-center"
+              on:click={toggleMenu}>Dashboard</Link
+            >
+          {/if}
+          <Link
+            to="/profile"
+            class="block py-3 px-4 font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-center"
+            on:click={toggleMenu}>Profile Settings</Link
+          >
           <div
-            class="py-2 text-center font-medium text-gray-900 bg-gray-50 rounded"
+            class="py-2 px-4 text-center text-sm font-medium text-gray-600 bg-gray-50 rounded-lg"
           >
             Signed in as {$user.name}
           </div>
-          <Button variant="outline" fullWidth onClick={handleLogout}
-            >Logout</Button
+          <Button variant="danger" fullWidth onClick={handleLogout}
+            >Sign Out</Button
           >
         {:else}
           <Link
             to="/login"
-            class="text-center font-medium text-primary hover:text-primary-dark py-2"
+            class="block py-3 px-4 text-center font-medium text-primary hover:text-primary-dark hover:bg-blue-50 rounded-lg transition-colors"
             on:click={toggleMenu}>Login</Link
           >
           <Button
