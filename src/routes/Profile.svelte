@@ -5,11 +5,21 @@
     import { navigate } from "$lib/router.js";
     import { onMount } from "svelte";
     import Modal from "$components/reusable/Modal.svelte";
+    import {
+        getAppointmentsByPatient,
+        cancelAppointment,
+    } from "$lib/appointments.js";
 
     let isLoading = false;
     let successMessage = "";
     let showProfilePicModal = false;
     let selectedDay = "";
+    let activeSection = "details";
+
+    function handleLogout() {
+        user.set(null);
+        navigate("/login");
+    }
 
     function triggerFileInput(elementId) {
         document.getElementById(elementId).click();
@@ -135,31 +145,209 @@
             $user.clinicMapUrl = value;
         }
     }
+
+    // New Appointments Logic
+    let appointments = [];
+    $: if ($user) {
+        appointments = getAppointmentsByPatient($user.email);
+    }
+
+    function getStatusColor(status) {
+        switch (status?.toLowerCase()) {
+            case "upcoming":
+            case "confirmed":
+                return "bg-blue-100 text-blue-800";
+            case "pending":
+                return "bg-yellow-100 text-yellow-800";
+            case "completed":
+                return "bg-green-100 text-green-800";
+            case "cancelled":
+                return "bg-red-100 text-red-800";
+            default:
+                return "bg-gray-100 text-gray-800";
+        }
+    }
 </script>
 
 {#if $user}
     <div class="min-h-screen bg-slate-50 py-12">
-        <div class="container mx-auto px-4 max-w-4xl">
-            <div
-                class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
-            >
-                <div class="p-8 border-b border-gray-100">
-                    <h2 class="text-xl font-bold text-gray-900 mb-2">
-                        Edit Profile
-                    </h2>
-                    <p class="text-gray-600">
-                        Update your personal and professional information.
-                    </p>
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="flex items-center justify-between mb-8">
+                <h1 class="text-3xl font-bold text-[#000921]">
+                    Account Settings
+                </h1>
+                {#if $user.role === "patient"}
+                    <Button
+                        variant="primary"
+                        href="/doctors"
+                        className="hidden sm:flex"
+                    >
+                        Book New Appointment
+                    </Button>
+                {/if}
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- User Profile Card -->
+                    <div
+                        class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 flex flex-col items-center text-center"
+                    >
+                        <div class="relative w-24 h-24 mb-4 group">
+                            {#if $user.profilePic}
+                                <img
+                                    src={$user.profilePic}
+                                    alt="Profile"
+                                    class="w-full h-full rounded-full object-cover border-4 border-white shadow-lg"
+                                />
+                            {:else}
+                                <div
+                                    class="w-full h-full rounded-full bg-blue-50 flex items-center justify-center text-secondary border-4 border-white shadow-lg"
+                                >
+                                    <Icon name="user" size={32} />
+                                </div>
+                            {/if}
+                            <button
+                                class="absolute bottom-0 right-0 p-2 bg-secondary text-white rounded-full shadow-md hover:bg-blue-700 transition-colors"
+                                on:click={() => (showProfilePicModal = true)}
+                            >
+                                <Icon name="edit" size={12} />
+                            </button>
+                        </div>
+                        <h2 class="font-bold text-lg text-[#000921] mb-1">
+                            {$user.name}
+                        </h2>
+                        <p class="text-sm text-gray-500 capitalize">
+                            {$user.role}
+                        </p>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div
+                        class="bg-white rounded-[2rem] p-4 shadow-sm border border-gray-100 overflow-hidden"
+                    >
+                        <nav class="space-y-1">
+                            <button
+                                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left {activeSection ===
+                                'details'
+                                    ? 'bg-blue-50 text-secondary font-bold'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}"
+                                on:click={() => (activeSection = "details")}
+                            >
+                                <Icon name="user" size={18} />
+                                Account Details
+                            </button>
+                            <button
+                                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left {activeSection ===
+                                'appointments'
+                                    ? 'bg-blue-50 text-secondary font-bold'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}"
+                                on:click={() =>
+                                    (activeSection = "appointments")}
+                            >
+                                <Icon name="calendar" size={18} />
+                                My Appointments
+                            </button>
+                            <button
+                                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left {activeSection ===
+                                'password'
+                                    ? 'bg-blue-50 text-secondary font-bold'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}"
+                                on:click={() => (activeSection = "password")}
+                            >
+                                <Icon name="lock" size={18} />
+                                Change Password
+                            </button>
+                            {#if $user.role === "doctor"}
+                                <button
+                                    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left {activeSection ===
+                                    'availability'
+                                        ? 'bg-blue-50 text-secondary font-bold'
+                                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}"
+                                    on:click={() =>
+                                        (activeSection = "availability")}
+                                >
+                                    <Icon name="clock" size={18} />
+                                    Availability
+                                </button>
+                            {/if}
+                            <button
+                                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-all font-medium text-left mt-2"
+                                on:click={handleLogout}
+                            >
+                                <Icon name="log-out" size={18} />
+                                Logout
+                            </button>
+                        </nav>
+                    </div>
                 </div>
 
-                <form
-                    class="p-8 space-y-8"
-                    on:submit|preventDefault={handleSave}
+                <!-- Main Content Form -->
+                <div
+                    class="bg-white rounded-[2.5rem] p-8 lg:p-10 shadow-sm border border-gray-100"
                 >
-                    <!-- Profile Header Redesign -->
-                    {#if $user.role === "doctor"}
-                        <div class="mb-10 relative group">
-                            <!-- Hidden Inputs -->
+                    {#if activeSection === "details"}
+                        <!-- ... (details form) ... -->
+                        <form
+                            on:submit|preventDefault={handleSave}
+                            class="space-y-8 animate-fade-in"
+                        >
+                            <!-- ... content ... -->
+                            <!-- Profile Banner -->
+                            {#if $user.role === "doctor"}
+                                <div>
+                                    <label
+                                        for="bannerInput"
+                                        class="block text-sm font-bold text-gray-700 mb-3"
+                                        >Profile Banner</label
+                                    >
+                                    <div
+                                        class="relative h-40 rounded-2xl overflow-hidden bg-gray-50 group border border-gray-100"
+                                    >
+                                        {#if $user.bannerImage}
+                                            <img
+                                                src={$user.bannerImage}
+                                                alt="Banner"
+                                                class="w-full h-full object-cover"
+                                            />
+                                        {:else}
+                                            <div
+                                                class="w-full h-full flex items-center justify-center text-gray-400 text-sm"
+                                            >
+                                                No banner selected
+                                            </div>
+                                        {/if}
+                                        <div
+                                            class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                                        >
+                                            <button
+                                                type="button"
+                                                class="bg-white text-gray-900 px-4 py-2 rounded-full font-medium shadow-lg"
+                                                on:click={() =>
+                                                    triggerFileInput(
+                                                        "bannerInput",
+                                                    )}
+                                            >
+                                                Change Banner
+                                            </button>
+                                        </div>
+                                        <input
+                                            id="bannerInput"
+                                            type="file"
+                                            accept="image/*"
+                                            class="hidden"
+                                            on:change={(e) =>
+                                                handleFileSelect(
+                                                    e,
+                                                    "bannerImage",
+                                                )}
+                                        />
+                                    </div>
+                                </div>
+                            {/if}
+
+                            <!-- Hidden Profile Input -->
                             <input
                                 id="profilePicInput"
                                 type="file"
@@ -168,170 +356,137 @@
                                 on:change={(e) =>
                                     handleFileSelect(e, "profilePic")}
                             />
-                            <input
-                                id="bannerInput"
-                                type="file"
-                                accept="image/*"
-                                class="hidden"
-                                on:change={(e) =>
-                                    handleFileSelect(e, "bannerImage")}
-                            />
 
-                            <!-- Banner -->
-                            <div
-                                class="relative h-48 rounded-t-2xl overflow-hidden bg-gray-100 group-hover:opacity-95 transition-opacity"
-                            >
-                                {#if $user.bannerImage}
-                                    <img
-                                        src={$user.bannerImage}
-                                        alt="Banner"
-                                        class="w-full h-full object-cover"
-                                    />
-                                {:else}
-                                    <div
-                                        class="w-full h-full bg-gradient-to-r from-blue-600 to-blue-400"
-                                    ></div>
-                                {/if}
-
-                                <!-- Banner Edit Button -->
-                                <button
-                                    type="button"
-                                    class="absolute top-4 right-4 bg-white/90 p-2 rounded-full shadow-sm hover:bg-white transition-colors"
-                                    on:click={() =>
-                                        triggerFileInput("bannerInput")}
-                                    title="Edit Banner"
-                                >
-                                    <Icon name="edit" size={16} />
-                                </button>
-                            </div>
-
-                            <!-- Profile Pic -->
-                            <div class="absolute -bottom-16 left-8">
-                                <button
-                                    type="button"
-                                    class="relative w-32 h-32 rounded-full border-4 border-white shadow-md overflow-hidden bg-white group hover:grayscale-[30%] transition-all"
-                                    on:click={() =>
-                                        (showProfilePicModal = true)}
-                                >
-                                    {#if $user.profilePic}
-                                        <img
-                                            src={$user.profilePic}
-                                            alt="Profile"
-                                            class="w-full h-full object-cover"
-                                        />
-                                    {:else}
-                                        <div
-                                            class="w-full h-full bg-gray-100 flex items-center justify-center text-primary/40"
-                                        >
-                                            <Icon name="user-md" size={64} />
-                                        </div>
-                                    {/if}
-
-                                    <!-- Hover Overlay -->
-                                    <div
-                                        class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            <!-- Basic Inputs -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label
+                                        for="name"
+                                        class="block text-sm font-bold text-gray-700 mb-2"
+                                        >Display Name</label
                                     >
-                                        <span
-                                            class="text-white text-xs font-bold uppercase tracking-wider"
-                                            >Change</span
+                                    <input
+                                        id="name"
+                                        type="text"
+                                        bind:value={$user.name}
+                                        class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium"
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        for="role"
+                                        class="block text-sm font-bold text-gray-700 mb-2"
+                                        >Account Role</label
+                                    >
+                                    <select
+                                        id="role"
+                                        value={$user.role || "patient"}
+                                        on:change={handleRoleChange}
+                                        class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium text-gray-900"
+                                    >
+                                        <option value="patient">Patient</option>
+                                        <option value="doctor">Doctor</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Doctor Fields (Only if doctor) -->
+                            {#if $user.role === "doctor"}
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-2 gap-6"
+                                >
+                                    <div>
+                                        <label
+                                            for="specialty"
+                                            class="block text-sm font-bold text-gray-700 mb-2"
+                                            >Specialty</label
                                         >
+                                        <input
+                                            id="specialty"
+                                            type="text"
+                                            bind:value={$user.specialty}
+                                            class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium"
+                                        />
                                     </div>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Spacing -->
-                        <div class="mt-20 mb-8 border-b border-gray-100"></div>
-                    {/if}
-
-                    <!-- Basic Info -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label
-                                for="name"
-                                class="block text-sm font-medium text-gray-700 mb-1"
-                                >Display Name</label
-                            >
-                            <input
-                                id="name"
-                                type="text"
-                                bind:value={$user.name}
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                            />
-                        </div>
-                        <div>
-                            <label
-                                for="role"
-                                class="block text-sm font-medium text-gray-700 mb-1"
-                                >Account Role</label
-                            >
-                            <select
-                                id="role"
-                                value={$user.role || "patient"}
-                                on:change={handleRoleChange}
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary bg-white"
-                            >
-                                <option value="patient">Patient</option>
-                                <option value="doctor">Doctor</option>
-                            </select>
-                        </div>
-                        {#if $user.role === "doctor"}
-                            <div>
-                                <label
-                                    for="specialty"
-                                    class="block text-sm font-medium text-gray-700 mb-1"
-                                    >Specialty</label
-                                >
-                                <input
-                                    id="specialty"
-                                    type="text"
-                                    bind:value={$user.specialty}
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                                />
-                            </div>
-                            <div class="md:col-span-2">
-                                <label
-                                    for="clinic"
-                                    class="block text-sm font-medium text-gray-700 mb-1"
-                                    >Clinic Address</label
-                                >
-                                <input
-                                    id="clinic"
-                                    type="text"
-                                    bind:value={$user.clinicAddress}
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                                    placeholder="123 Medical Center Dr..."
-                                />
-                            </div>
-                            <div class="md:col-span-2">
-                                <label
-                                    for="mapUrl"
-                                    class="block text-sm font-medium text-gray-700 mb-1"
-                                    >Clinic Map Embed URL</label
-                                >
-                                <input
-                                    id="mapUrl"
-                                    type="text"
-                                    value={$user.clinicMapUrl}
-                                    on:input={handleMapUrlInput}
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                                    placeholder="Paste map URL or iframe tag here..."
-                                />
-                                <p class="mt-2 text-xs text-gray-500">
-                                    <strong>Super Easy:</strong> Just paste the
-                                    whole <code>&lt;iframe&gt;</code> tag from Google
-                                    Maps, and we'll handle the rest!
-                                </p>
-
-                                {#if $user.clinicMapUrl}
-                                    <div class="mt-4">
-                                        <p
-                                            class="text-sm font-medium text-gray-700 mb-2"
+                                    <div>
+                                        <label
+                                            for="education"
+                                            class="block text-sm font-bold text-gray-700 mb-2"
+                                            >Education</label
                                         >
-                                            Map Preview:
-                                        </p>
+                                        <input
+                                            id="education"
+                                            type="text"
+                                            bind:value={$user.education}
+                                            class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium"
+                                        />
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label
+                                            for="clinic"
+                                            class="block text-sm font-bold text-gray-700 mb-2"
+                                            >Clinic Address</label
+                                        >
+                                        <input
+                                            id="clinic"
+                                            type="text"
+                                            bind:value={$user.clinicAddress}
+                                            class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium"
+                                            placeholder="123 Medical Center Dr..."
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="bio"
+                                        class="block text-sm font-bold text-gray-700 mb-2"
+                                        >Short Bio</label
+                                    >
+                                    <textarea
+                                        id="bio"
+                                        rows="2"
+                                        bind:value={$user.bio}
+                                        class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium resize-none"
+                                        placeholder="A brief summary..."
+                                    ></textarea>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="about"
+                                        class="block text-sm font-bold text-gray-700 mb-2"
+                                        >About / Services</label
+                                    >
+                                    <textarea
+                                        id="about"
+                                        rows="4"
+                                        bind:value={$user.about}
+                                        class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium resize-none"
+                                        placeholder="Detailed description..."
+                                    ></textarea>
+                                </div>
+
+                                <!-- Map Section -->
+                                <div
+                                    class="p-6 bg-gray-50 rounded-2xl border border-gray-100"
+                                >
+                                    <label
+                                        for="mapUrl"
+                                        class="block text-sm font-bold text-gray-700 mb-2"
+                                        >Clinic Map URL / Embed</label
+                                    >
+                                    <input
+                                        id="mapUrl"
+                                        type="text"
+                                        value={$user.clinicMapUrl}
+                                        on:input={handleMapUrlInput}
+                                        class="w-full px-5 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium text-sm"
+                                        placeholder="Paste Google Maps iframe tag..."
+                                    />
+                                    {#if $user.clinicMapUrl}
                                         <div
-                                            class="w-full h-48 bg-gray-100 rounded-lg overflow-hidden border border-gray-200"
+                                            class="mt-4 h-48 rounded-xl overflow-hidden shadow-sm border border-gray-200"
                                         >
                                             <iframe
                                                 title="Clinic Location Preview"
@@ -343,72 +498,245 @@
                                                 loading="lazy"
                                             ></iframe>
                                         </div>
-                                    </div>
+                                    {/if}
+                                </div>
+                            {/if}
+
+                            <div
+                                class="flex items-center justify-end pt-4 border-t border-gray-100"
+                            >
+                                {#if successMessage}
+                                    <span
+                                        class="text-green-600 font-bold mr-4 animate-fade-in"
+                                        >{successMessage}</span
+                                    >
                                 {/if}
+                                <Button
+                                    variant="primary"
+                                    type="submit"
+                                    size="lg"
+                                    disabled={isLoading}
+                                    className="shadow-lg shadow-primary/30"
+                                >
+                                    {isLoading ? "Saving..." : "Save Changes"}
+                                </Button>
                             </div>
-                        {/if}
-                    </div>
+                        </form>
+                    {:else if activeSection === "appointments"}
+                        <div class="space-y-6 animate-fade-in">
+                            <h2 class="text-2xl font-bold text-[#000921]">
+                                My Appointments
+                            </h2>
 
-                    {#if $user.role === "doctor"}
-                        <!-- Bio & About -->
-                        <div class="space-y-6">
-                            <div>
-                                <label
-                                    for="bio"
-                                    class="block text-sm font-medium text-gray-700 mb-1"
-                                    >Short Bio</label
+                            {#if appointments.length === 0}
+                                <div
+                                    class="text-center py-12 bg-gray-50 rounded-2xl border border-dashed border-gray-200"
                                 >
-                                <textarea
-                                    id="bio"
-                                    rows="2"
-                                    bind:value={$user.bio}
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                                    placeholder="A brief summary of your expertise..."
-                                ></textarea>
-                            </div>
-                            <div>
-                                <label
-                                    for="about"
-                                    class="block text-sm font-medium text-gray-700 mb-1"
-                                    >About / Services</label
-                                >
-                                <textarea
-                                    id="about"
-                                    rows="4"
-                                    bind:value={$user.about}
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                                    placeholder="Detailed description of your practice, philosophy, and services..."
-                                ></textarea>
-                            </div>
-                            <div>
-                                <label
-                                    for="education"
-                                    class="block text-sm font-medium text-gray-700 mb-1"
-                                    >Education</label
-                                >
-                                <input
-                                    id="education"
-                                    type="text"
-                                    bind:value={$user.education}
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                                    placeholder="MD, University of Medicine..."
-                                />
-                            </div>
+                                    <div
+                                        class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-secondary mb-4"
+                                    >
+                                        <Icon name="calendar" size={32} />
+                                    </div>
+                                    <h3 class="text-lg font-bold text-gray-900">
+                                        No appointments yet
+                                    </h3>
+                                    <p
+                                        class="text-gray-500 max-w-sm mx-auto mt-2"
+                                    >
+                                        Find a doctor and book your first
+                                        appointment to see it here.
+                                    </p>
+                                    <div class="mt-6">
+                                        <Button
+                                            variant="primary"
+                                            href="/doctors"
+                                        >
+                                            Find a Doctor
+                                        </Button>
+                                    </div>
+                                </div>
+                            {:else}
+                                <div class="space-y-4">
+                                    {#each appointments as apt}
+                                        <div
+                                            class="bg-gray-50/50 rounded-2xl p-6 border border-gray-100 hover:bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all group"
+                                        >
+                                            <div
+                                                class="flex flex-col md:flex-row md:items-center justify-between gap-6"
+                                            >
+                                                <div
+                                                    class="flex items-start gap-4"
+                                                >
+                                                    <div
+                                                        class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl shrink-0"
+                                                    >
+                                                        {apt.doctorName.charAt(
+                                                            0,
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <h3
+                                                            class="font-bold text-lg text-gray-900 group-hover:text-primary transition-colors"
+                                                        >
+                                                            {apt.doctorName}
+                                                        </h3>
+                                                        <div
+                                                            class="flex items-center gap-4 mt-1 text-sm text-gray-500"
+                                                        >
+                                                            <div
+                                                                class="flex items-center gap-1.5"
+                                                            >
+                                                                <Icon
+                                                                    name="calendar"
+                                                                    size={14}
+                                                                />
+                                                                {apt.date}
+                                                            </div>
+                                                            <div
+                                                                class="flex items-center gap-1.5"
+                                                            >
+                                                                <Icon
+                                                                    name="clock"
+                                                                    size={14}
+                                                                />
+                                                                {apt.time}
+                                                            </div>
+                                                        </div>
+                                                        <p
+                                                            class="text-sm text-gray-600 mt-2 bg-white px-3 py-1.5 rounded-lg inline-block border border-gray-100"
+                                                        >
+                                                            Reason: {apt.reason}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center gap-4 self-end md:self-center"
+                                                >
+                                                    <span
+                                                        class="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider {getStatusColor(
+                                                            apt.status,
+                                                        )}"
+                                                    >
+                                                        {apt.status}
+                                                    </span>
+                                                    {#if apt.status === "Pending" || apt.status === "Confirmed"}
+                                                        <button
+                                                            class="text-red-500 hover:text-red-600 text-sm font-bold hover:bg-red-50 px-3 py-2 rounded-lg transition-colors"
+                                                            on:click={() => {
+                                                                if (
+                                                                    confirm(
+                                                                        "Cancel this appointment?",
+                                                                    )
+                                                                ) {
+                                                                    cancelAppointment(
+                                                                        apt.id,
+                                                                    );
+                                                                    appointments =
+                                                                        getAppointmentsByPatient(
+                                                                            $user.email,
+                                                                        );
+                                                                }
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    {/if}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {/each}
+                                </div>
+                            {/if}
                         </div>
-
-                        <!-- Availability -->
-                        <!-- Availability -->
-                        <div
-                            class="bg-gray-50 rounded-2xl p-6 border border-gray-100"
+                    {:else if activeSection === "password"}
+                        <form
+                            on:submit|preventDefault={handleSave}
+                            class="space-y-8 animate-fade-in"
                         >
-                            <div class="flex items-center justify-between mb-6">
-                                <h3 class="text-lg font-bold text-gray-900">
-                                    Availability Management
-                                </h3>
+                            <h2 class="text-2xl font-bold text-[#000921]">
+                                Change Password
+                            </h2>
 
+                            <div class="space-y-6">
+                                <div>
+                                    <label
+                                        for="currentPassword"
+                                        class="block text-sm font-bold text-gray-700 mb-2"
+                                        >Current Password</label
+                                    >
+                                    <input
+                                        id="currentPassword"
+                                        type="password"
+                                        class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        for="newPassword"
+                                        class="block text-sm font-bold text-gray-700 mb-2"
+                                        >New Password</label
+                                    >
+                                    <input
+                                        id="newPassword"
+                                        type="password"
+                                        class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        for="confirmPassword"
+                                        class="block text-sm font-bold text-gray-700 mb-2"
+                                        >Confirm New Password</label
+                                    >
+                                    <input
+                                        id="confirmPassword"
+                                        type="password"
+                                        class="w-full px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div
+                                class="flex items-center justify-end pt-4 border-t border-gray-100"
+                            >
+                                {#if successMessage}
+                                    <span
+                                        class="text-green-600 font-bold mr-4 animate-fade-in"
+                                        >Password updated!</span
+                                    >
+                                {/if}
+                                <Button
+                                    variant="primary"
+                                    type="submit"
+                                    size="lg"
+                                    disabled={isLoading}
+                                    className="shadow-lg shadow-primary/30"
+                                >
+                                    {isLoading
+                                        ? "Updating..."
+                                        : "Update Password"}
+                                </Button>
+                            </div>
+                        </form>
+                    {/if}
+
+                    {#if activeSection === "availability" && $user.role === "doctor"}
+                        <form
+                            on:submit|preventDefault={handleSave}
+                            class="space-y-8 animate-fade-in"
+                        >
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-2xl font-bold text-[#000921]">
+                                    Manage Availability
+                                </h2>
                                 <div class="relative">
                                     <select
-                                        class="appearance-none bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-primary text-sm font-medium hover:border-gray-400 transition-colors cursor-pointer"
+                                        class="appearance-none pl-4 pr-8 py-2 bg-secondary text-white rounded-lg text-sm font-bold cursor-pointer hover:bg-blue-700 transition-colors shadow-lg shadow-indigo-200"
                                         bind:value={selectedDay}
                                         on:change={() => {
                                             if (selectedDay) {
@@ -421,108 +749,96 @@
                                             >+ Add Day</option
                                         >
                                         {#each unusedDays as day}
-                                            <option value={day}>{day}</option>
+                                            <option
+                                                value={day}
+                                                class="text-gray-900"
+                                                >{day}</option
+                                            >
                                         {/each}
                                     </select>
-                                    <div
-                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
-                                    >
-                                        <Icon name="chevron-down" size={16} />
-                                    </div>
                                 </div>
                             </div>
 
                             <div class="space-y-4">
-                                {#if !($user.availability && $user.availability.length > 0)}
+                                {#if $user.availability?.length === 0}
                                     <div
-                                        class="text-center py-8 text-gray-500 italic"
+                                        class="text-center py-12 text-gray-500 bg-gray-50 rounded-2xl border border-dashed border-gray-200"
                                     >
-                                        No availability set. Add a day to get
-                                        started.
+                                        <p>No availability added yet.</p>
+                                        <p class="text-sm mt-1">
+                                            Select a day above to start.
+                                        </p>
                                     </div>
                                 {/if}
 
                                 {#each $user.availability || [] as day, i}
                                     <div
-                                        class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm transition-shadow hover:shadow-md"
+                                        class="bg-gray-50 rounded-2xl p-6 border border-gray-200 transition-all hover:bg-white hover:shadow-md hover:border-blue-100 group"
                                     >
                                         <div
-                                            class="flex items-center justify-between mb-3"
+                                            class="flex items-center justify-between mb-4"
                                         >
                                             <span
-                                                class="font-bold text-lg text-gray-800 flex items-center gap-2"
+                                                class="font-bold text-gray-800 text-lg"
+                                                >{day.day}</span
                                             >
-                                                {day.day}
-                                                <span
-                                                    class="text-xs font-normal text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full"
-                                                    >{day.slots.length} slots</span
-                                                >
-                                            </span>
                                             <div
                                                 class="flex items-center gap-2"
                                             >
                                                 <button
                                                     type="button"
-                                                    class="text-sm font-medium text-primary hover:text-primary-dark hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors"
+                                                    class="text-xs font-bold text-primary hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors"
                                                     on:click={() => addSlot(i)}
                                                 >
                                                     + Add Slot
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    class="text-gray-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                                     on:click={() =>
                                                         removeDay(i)}
-                                                    title="Remove Day"
                                                 >
                                                     <Icon
                                                         name="trash"
-                                                        size={20}
+                                                        size={18}
                                                     />
                                                 </button>
                                             </div>
                                         </div>
-
                                         <div class="space-y-3">
                                             {#each day.slots as slot, slotIndex}
                                                 <div
-                                                    class="flex items-center gap-3 bg-gray-50/50 p-2 rounded-lg border border-gray-100 group relative"
+                                                    class="flex items-center gap-3 animate-fade-in"
                                                 >
                                                     <div
-                                                        class="flex-1 grid grid-cols-2 gap-2"
+                                                        class="relative w-full"
                                                     >
-                                                        <div class="space-y-1">
-                                                            <span
-                                                                class="text-[10px] uppercase font-bold text-gray-400"
-                                                                >From</span
-                                                            >
-                                                            <input
-                                                                type="text"
-                                                                bind:value={
-                                                                    slot.start
-                                                                }
-                                                                class="w-full px-2 py-1.5 text-xs font-bold text-center border border-gray-200 rounded-md bg-white focus:ring-1 focus:ring-primary transition-all"
-                                                                placeholder="09:00 AM"
-                                                            />
-                                                        </div>
-                                                        <div class="space-y-1">
-                                                            <span
-                                                                class="text-[10px] uppercase font-bold text-gray-400"
-                                                                >To</span
-                                                            >
-                                                            <input
-                                                                type="text"
-                                                                bind:value={
-                                                                    slot.end
-                                                                }
-                                                                class="w-full px-2 py-1.5 text-xs font-bold text-center border border-gray-200 rounded-md bg-white focus:ring-1 focus:ring-primary transition-all"
-                                                                placeholder="05:00 PM"
-                                                            />
-                                                        </div>
+                                                        <input
+                                                            type="text"
+                                                            bind:value={
+                                                                slot.start
+                                                            }
+                                                            class="w-full px-4 py-2 bg-white rounded-xl border border-gray-200 text-sm font-bold text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                                        />
+                                                    </div>
+                                                    <span
+                                                        class="text-gray-400 font-medium"
+                                                        >to</span
+                                                    >
+                                                    <div
+                                                        class="relative w-full"
+                                                    >
+                                                        <input
+                                                            type="text"
+                                                            bind:value={
+                                                                slot.end
+                                                            }
+                                                            class="w-full px-4 py-2 bg-white rounded-xl border border-gray-200 text-sm font-bold text-center focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                                                        />
                                                     </div>
                                                     <button
                                                         type="button"
-                                                        class="text-gray-300 hover:text-red-500 transition-colors p-1"
+                                                        class="p-2 text-gray-400 hover:text-red-500 transition-colors"
                                                         on:click={() =>
                                                             removeSlot(
                                                                 i,
@@ -536,38 +852,34 @@
                                                     </button>
                                                 </div>
                                             {/each}
-                                            {#if day.slots.length === 0}
-                                                <span
-                                                    class="text-sm text-gray-400 py-2"
-                                                    >No slots added yet.</span
-                                                >
-                                            {/if}
                                         </div>
                                     </div>
                                 {/each}
                             </div>
-                        </div>
-                    {/if}
 
-                    <div
-                        class="pt-6 border-t border-gray-100 flex items-center justify-between"
-                    >
-                        {#if successMessage}
-                            <span class="text-green-600 font-medium"
-                                >{successMessage}</span
+                            <!-- Action Buttons -->
+                            <div
+                                class="flex items-center justify-end pt-4 border-t border-gray-100"
                             >
-                        {:else}
-                            <span></span>
-                        {/if}
-                        <Button
-                            variant="primary"
-                            type="submit"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? "Saving Changes..." : "Save Changes"}
-                        </Button>
-                    </div>
-                </form>
+                                {#if successMessage}
+                                    <span
+                                        class="text-green-600 font-bold mr-4 animate-fade-in"
+                                        >{successMessage}</span
+                                    >
+                                {/if}
+                                <Button
+                                    variant="primary"
+                                    type="submit"
+                                    size="lg"
+                                    disabled={isLoading}
+                                    className="shadow-lg shadow-primary/30"
+                                >
+                                    {isLoading ? "Saving..." : "Save Schedule"}
+                                </Button>
+                            </div>
+                        </form>
+                    {/if}
+                </div>
             </div>
         </div>
     </div>
@@ -576,36 +888,66 @@
     {#if showProfilePicModal}
         <Modal
             isOpen={true}
-            title="Change Profile Photo"
+            title="Edit Photo"
             maxWidth="max-w-sm"
+            className="rounded-[2.5rem]"
             on:close={() => (showProfilePicModal = false)}
         >
-            <div class="space-y-3">
-                <button
-                    type="button"
-                    class="w-full py-3 px-4 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 transition-colors text-left flex items-center gap-3"
-                    on:click={() => {
-                        triggerFileInput("profilePicInput");
-                        showProfilePicModal = false;
-                    }}
-                >
-                    <Icon name="folder" size={20} /> Upload Photo
-                </button>
-                <button
-                    type="button"
-                    class="w-full py-3 px-4 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 transition-colors text-left flex items-center gap-3"
-                    on:click={() => {
-                        $user.profilePic = "";
-                        showProfilePicModal = false;
-                    }}
-                >
-                    <Icon name="trash" size={20} /> Remove Photo
-                </button>
+            <div class="flex flex-col items-center pb-4">
+                <!-- Preview -->
+                <div class="relative w-32 h-32 mb-8 group">
+                    <div
+                        class="absolute inset-0 rounded-full bg-blue-100 animate-pulse"
+                    ></div>
+                    {#if $user.profilePic}
+                        <img
+                            src={$user.profilePic}
+                            alt="Profile Reference"
+                            class="relative w-full h-full rounded-full object-cover border-[6px] border-white shadow-xl shadow-blue-900/10"
+                        />
+                    {:else}
+                        <div
+                            class="relative w-full h-full rounded-full bg-blue-50 flex items-center justify-center text-secondary border-[6px] border-white shadow-xl shadow-blue-900/10"
+                        >
+                            <Icon name="user" size={48} />
+                        </div>
+                    {/if}
+                    <!-- Edit Icon Overlay -->
+                    <div
+                        class="absolute bottom-0 right-0 p-2.5 bg-primary text-white rounded-full shadow-lg border-4 border-white"
+                    >
+                        <Icon name="edit" size={14} />
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="w-full space-y-3">
+                    <Button
+                        variant="primary"
+                        fullWidth
+                        onClick={() => {
+                            triggerFileInput("profilePicInput");
+                            showProfilePicModal = false;
+                        }}
+                    >
+                        Upload New Photo
+                    </Button>
+
+                    {#if $user.profilePic}
+                        <button
+                            type="button"
+                            class="w-full py-3 text-red-500 hover:text-red-600 hover:bg-red-50 font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                            on:click={() => {
+                                $user.profilePic = "";
+                                showProfilePicModal = false;
+                            }}
+                        >
+                            <Icon name="trash" size={16} />
+                            Remove Photo
+                        </button>
+                    {/if}
+                </div>
             </div>
-            <button
-                class="mt-6 w-full py-2 text-gray-500 hover:text-gray-700 font-medium"
-                on:click={() => (showProfilePicModal = false)}>Cancel</button
-            >
         </Modal>
     {/if}
 {/if}

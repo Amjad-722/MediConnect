@@ -32,7 +32,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {#each features as feature, i}
                 <div
-                    class="group relative p-10 bg-white/70 backdrop-blur-md rounded-[2.5rem] border border-gray-100 transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-blue-900/10 hover:border-secondary/30 animate-fade-in-up"
+                    class="group relative p-10 bg-white/70 backdrop-blur-md rounded-[2.5rem] border border-gray-100 shadow-xl shadow-blue-900/5 transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-blue-900/10 hover:border-secondary/30 animate-fade-in-up"
                     style="animation-delay: {i * 100}ms"
                 >
                     <!-- Hover Accent -->

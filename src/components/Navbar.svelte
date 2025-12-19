@@ -8,6 +8,7 @@
   import settingsIcon from "../assets/icons/settings.svg";
   import logOutIcon from "../assets/icons/log-out.svg";
   import { user, logout, isSignupModalOpen } from "$lib/store";
+  import Icon from "$components/reusable/Icon.svelte";
   import { navigate } from "$lib/router.js";
 
   let isMenuOpen = false;
@@ -106,44 +107,66 @@
 
           {#if isProfileMenuOpen}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div
-              class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+              class="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
               on:mouseleave={closeProfileMenu}
             >
-              <div class="px-4 py-3 border-b border-gray-50">
-                <p class="text-sm font-medium text-gray-900 truncate">
-                  {$user.name}
-                </p>
-                <p class="text-xs text-gray-500 truncate">{$user.email}</p>
+              <!-- Profile Header -->
+              <div
+                class="px-4 py-3 flex items-center gap-3 border-b border-gray-50 mb-1"
+              >
+                {#if $user.profilePic}
+                  <img
+                    src={$user.profilePic}
+                    alt={$user.name}
+                    class="w-10 h-10 rounded-full object-cover border border-gray-200"
+                  />
+                {:else}
+                  <div
+                    class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary font-bold text-lg border border-blue-100"
+                  >
+                    {$user.name.charAt(0).toUpperCase()}
+                  </div>
+                {/if}
+                <div class="overflow-hidden">
+                  <p class="font-bold text-gray-900 truncate text-sm">
+                    {$user.name}
+                  </p>
+                  <p class="text-xs text-gray-500 truncate">{$user.email}</p>
+                </div>
               </div>
 
-              <div class="py-1">
+              <!-- Menu Items -->
+              <div class="px-2 space-y-0.5">
                 <Link
                   to="/profile"
-                  class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary"
+                  class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors"
                   on:click={closeProfileMenu}
                 >
-                  <img src={userIcon} alt="" class="w-4 h-4" />
-                  Profile
+                  <Icon name="user" size={16} className="text-gray-400" />
+                  Profile Settings
                 </Link>
-                <Link
-                  to="/settings"
-                  class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary"
-                  on:click={closeProfileMenu}
-                >
-                  <img src={settingsIcon} alt="" class="w-4 h-4" />
-                  Settings
-                </Link>
+
+                {#if $user.role === "doctor"}
+                  <Link
+                    to="/doctor-dashboard"
+                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                    on:click={closeProfileMenu}
+                  >
+                    <Icon name="grid" size={16} className="text-gray-400" />
+                    Dashboard
+                  </Link>
+                {/if}
               </div>
 
-              <div class="border-t border-gray-50 py-1">
+              <!-- Logout -->
+              <div class="border-t border-gray-50 mt-1 pt-1 px-2">
                 <button
                   on:click={handleLogout}
-                  class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                  class="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                 >
-                  <img src={logOutIcon} alt="" class="w-4 h-4" />
-                  Logout
+                  <Icon name="log-out" size={16} className="text-red-400" />
+                  Sign Out
                 </button>
               </div>
             </div>

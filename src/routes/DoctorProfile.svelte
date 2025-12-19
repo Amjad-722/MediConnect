@@ -125,130 +125,127 @@
             (a, b) => convertToMinutes(a) - convertToMinutes(b),
         );
     }
+    function formatDate(dateStr) {
+        if (!dateStr) return "";
+        const date = new Date(dateStr);
+        return date.toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+    }
 </script>
 
 {#if doctor}
-    <div class="min-h-screen bg-slate-50 py-12">
-        <div class="container mx-auto px-4 max-w-5xl">
-            <!-- Back Button -->
+    <div class="min-h-screen bg-white relative overflow-hidden">
+        <!-- Background Orbs (Landing Page Style) -->
+        <div class="absolute inset-0 z-0 pointer-events-none">
+            <div
+                class="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-100/40 rounded-full blur-[120px] -mr-40 -mt-40 animate-pulse"
+            ></div>
+            <div
+                class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary/10 rounded-full blur-[100px] -ml-20 -mb-20"
+            ></div>
+            <div
+                class="absolute top-[20%] left-[10%] w-[300px] h-[300px] bg-primary/5 rounded-full blur-[80px]"
+            ></div>
+        </div>
+
+        <!-- Navigation (Minimal) -->
+        <div class="container mx-auto px-6 pt-8 relative z-50 mb-8">
             <button
-                class="mb-6 text-gray-500 hover:text-primary flex items-center gap-2 transition-colors"
+                class="group flex items-center gap-2 text-gray-400 hover:text-secondary transition-colors"
                 on:click={() => navigate("/doctors")}
             >
-                ← Back to Doctors
+                <div
+                    class="p-2 rounded-full bg-gray-50 group-hover:bg-white border border-transparent group-hover:border-gray-100 shadow-sm transition-all"
+                >
+                    <Icon name="arrow-left" size={16} />
+                </div>
+                <span class="font-medium">Back to Doctors</span>
             </button>
+        </div>
 
-            <!-- Profile Header -->
+        <div class="container mx-auto px-6 pb-20 relative z-10">
             <div
-                class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8"
+                class="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] xl:grid-cols-[1.5fr_1fr] gap-12 lg:gap-24 items-start"
             >
-                <div class="h-48 bg-gray-100 relative overflow-hidden">
-                    {#if doctor.bannerImage}
-                        <img
-                            src={doctor.bannerImage}
-                            alt="Banner"
-                            class="w-full h-full object-cover"
-                        />
-                    {:else}
+                <!-- LEFT COLUMN: Profile Info & Content -->
+                <div class="space-y-12 animate-fade-in-up">
+                    <!-- Hero Profile Header -->
+                    <div class="relative">
                         <div
-                            class="w-full h-full bg-gradient-to-r from-blue-600 to-blue-400"
-                        ></div>
-                    {/if}
-                </div>
-                <div class="px-8 pb-8">
-                    <div
-                        class="relative flex justify-between items-end -mt-16 mb-6"
-                    >
-                        <div class="p-2 bg-white rounded-2xl shadow-lg">
-                            {#if doctor.profilePic}
-                                <img
-                                    src={doctor.profilePic}
-                                    alt={doctor.name}
-                                    class="w-32 h-32 bg-blue-50 rounded-xl object-cover"
-                                />
-                            {:else}
+                            class="flex flex-col sm:flex-row gap-8 items-center sm:items-start text-center sm:text-left"
+                        >
+                            <!-- Profile Pic with Float Animation -->
+                            <div class="relative animate-float shrink-0">
                                 <div
-                                    class="w-32 h-32 bg-blue-50 rounded-xl flex items-center justify-center text-primary/40"
+                                    class="p-2 bg-white rounded-[2.5rem] shadow-2xl shadow-blue-900/10"
                                 >
-                                    <Icon name="user-md" size={64} />
+                                    {#if doctor.profilePic}
+                                        <img
+                                            src={doctor.profilePic}
+                                            alt={doctor.name}
+                                            class="w-48 h-48 md:w-56 md:h-56 rounded-[2rem] object-cover"
+                                        />
+                                    {:else}
+                                        <div
+                                            class="w-48 h-48 md:w-56 md:h-56 bg-blue-50 rounded-[2rem] flex items-center justify-center text-secondary/30"
+                                        >
+                                            <Icon name="user-md" size={80} />
+                                        </div>
+                                    {/if}
                                 </div>
-                            {/if}
-                        </div>
-                        <div class="mb-4">
-                            <Button variant="primary" onClick={openBookingModal}
-                                >Book Appointment</Button
-                            >
-                        </div>
-                    </div>
-
-                    <div>
-                        <h1 class="text-3xl font-bold text-gray-900 mb-2">
-                            {doctor.name}
-                        </h1>
-                        <p class="text-xl text-primary font-medium mb-4">
-                            {doctor.specialty}
-                        </p>
-                        <div class="flex flex-wrap gap-6 text-gray-600">
-                            <span class="flex items-center gap-2">
-                                <Icon name="map-pin" size={18} />
-                                {doctor.location}
-                            </span>
-                            <span class="flex items-center gap-2">
-                                <Icon
-                                    name="star"
-                                    size={18}
-                                    fill="currentColor"
-                                    className="text-amber-500"
-                                />
-                                {ratingStats.rating} ({ratingStats.count} reviews)
-                            </span>
-                            <span class="flex items-center gap-2">
-                                <Icon name="briefcase" size={18} />
-                                {doctor.experience} Exp.
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Main Content -->
-                <div class="md:col-span-2 space-y-8">
-                    <div
-                        class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100"
-                    >
-                        <h2 class="text-xl font-bold text-gray-900 mb-4">
-                            About
-                        </h2>
-                        <p class="text-gray-600 leading-relaxed mb-6">
-                            {doctor.bio}
-                        </p>
-                        <p class="text-gray-600 leading-relaxed">
-                            {doctor.about}
-                        </p>
-                    </div>
-
-                    <div
-                        class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100"
-                    >
-                        <h2 class="text-xl font-bold text-gray-900 mb-4">
-                            Education & Languages
-                        </h2>
-                        <div class="space-y-4">
-                            <div>
-                                <h3 class="font-medium text-gray-900 mb-1">
-                                    Education
-                                </h3>
-                                <p class="text-gray-600">{doctor.education}</p>
+                                <!-- Badge floating -->
+                                <div
+                                    class="absolute -bottom-4 -right-4 bg-white p-3 rounded-2xl shadow-lg flex items-center gap-2 border border-gray-100"
+                                >
+                                    <div class="text-amber-400">
+                                        <Icon
+                                            name="star"
+                                            size={20}
+                                            fill="currentColor"
+                                        />
+                                    </div>
+                                    <div class="text-left leading-none">
+                                        <div class="font-bold text-gray-900">
+                                            {ratingStats.rating}
+                                        </div>
+                                        <div
+                                            class="text-[10px] text-gray-400 uppercase tracking-wider font-bold"
+                                        >
+                                            Rating
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="font-medium text-gray-900 mb-1">
-                                    Languages
-                                </h3>
-                                <div class="flex gap-2">
+
+                            <div class="pt-4">
+                                <div
+                                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-secondary rounded-full text-sm font-bold mb-4"
+                                >
+                                    <Icon name="briefcase" size={14} />
+                                    {doctor.specialty}
+                                </div>
+                                <h1
+                                    class="text-4xl md:text-6xl font-black text-[#000921] mb-4 leading-[1.1]"
+                                >
+                                    {doctor.name}
+                                </h1>
+                                <p
+                                    class="text-xl text-gray-500 max-w-lg leading-relaxed mb-6"
+                                >
+                                    {doctor.experience} years of experience in {doctor.specialty}.
+                                    Dedicated to providing top-tier medical
+                                    care.
+                                </p>
+                                <div
+                                    class="flex flex-wrap gap-3 justify-center sm:justify-start"
+                                >
                                     {#each doctor.languages as lang}
                                         <span
-                                            class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+                                            class="px-4 py-2 border border-gray-200 text-gray-600 rounded-xl text-sm font-medium hover:border-secondary hover:text-secondary transition-colors cursor-default"
                                         >
                                             {lang}
                                         </span>
@@ -258,27 +255,136 @@
                         </div>
                     </div>
 
+                    <!-- About Card -->
+                    <div
+                        class="group relative p-10 bg-white/70 backdrop-blur-md rounded-[2.5rem] border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/5 hover:border-secondary/20"
+                    >
+                        <h2 class="text-2xl font-bold text-[#000921] mb-6">
+                            About
+                        </h2>
+                        <div
+                            class="text-lg text-gray-500 leading-relaxed space-y-6"
+                        >
+                            <p>{doctor.bio}</p>
+                            <p>{doctor.about}</p>
+                        </div>
+                    </div>
+
                     <!-- Reviews Section -->
-                    <div class="space-y-8">
-                        <ReviewList doctorId={doctor.id} />
+                    <div
+                        class="group relative p-10 bg-white/70 backdrop-blur-md rounded-[2.5rem] border border-gray-100 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/5 hover:border-secondary/20"
+                    >
+                        <div class="flex items-center justify-between mb-8">
+                            <h2 class="text-2xl font-bold text-[#000921]">
+                                Patient Stories
+                            </h2>
+                            {#if $user?.role === "patient"}
+                                <button
+                                    class="text-secondary font-bold hover:underline"
+                                    >Write a Review</button
+                                >
+                            {/if}
+                        </div>
 
                         {#if $user?.role === "patient"}
-                            <ReviewForm doctorId={doctor.id} />
+                            <div
+                                class="mb-8 p-6 bg-blue-50/50 rounded-3xl border border-blue-100/50"
+                            >
+                                <ReviewForm doctorId={doctor.id} />
+                            </div>
                         {/if}
+                        <ReviewList doctorId={doctor.id} />
                     </div>
                 </div>
 
-                <!-- Sidebar -->
-                <div class="space-y-8">
+                <!-- RIGHT COLUMN: Sticky Booking & Info -->
+                <div
+                    class="space-y-8 lg:sticky lg:top-8 animate-fade-in-up"
+                    style="animation-delay: 200ms"
+                >
+                    <!-- Booking Card -->
                     <div
-                        class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"
+                        class="relative bg-white rounded-[2.5rem] shadow-2xl shadow-blue-900/5 border border-gray-100 overflow-hidden p-8"
                     >
-                        <h3 class="font-bold text-gray-900 mb-4">
-                            Clinic Details
-                        </h3>
-                        <p class="text-gray-600 mb-4">{doctor.clinicAddress}</p>
                         <div
-                            class="w-full h-48 bg-gray-100 rounded-lg overflow-hidden border border-gray-100"
+                            class="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-secondary to-[#00a8b0]"
+                        ></div>
+
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-bold text-[#000921] mb-2">
+                                Book Appointment
+                            </h3>
+                            <p class="text-gray-500">
+                                Secure your slot with Dr. {doctor.name.split(
+                                    " ",
+                                )[1]}
+                            </p>
+                        </div>
+
+                        <div class="space-y-4 mb-8">
+                            <div
+                                class="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-100"
+                            >
+                                <div
+                                    class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-secondary shadow-sm"
+                                >
+                                    <Icon name="map-pin" size={18} />
+                                </div>
+                                <div class="flex-1">
+                                    <div
+                                        class="text-xs font-bold text-gray-400 uppercase tracking-widest"
+                                    >
+                                        Location
+                                    </div>
+                                    <div class="font-medium text-gray-900">
+                                        {doctor.location}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="p-4 rounded-2xl bg-gray-50 border border-gray-100"
+                            >
+                                <div
+                                    class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3"
+                                >
+                                    Availability
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    {#each doctor.availability.slice(0, 3) as slot}
+                                        <span
+                                            class="px-3 py-1 bg-white rounded-lg text-xs font-bold text-gray-700 shadow-sm border border-gray-100"
+                                        >
+                                            {slot.day.substring(0, 3)}
+                                        </span>
+                                    {/each}
+                                    {#if doctor.availability.length > 3}
+                                        <span
+                                            class="px-3 py-1 text-xs text-gray-400"
+                                            >+ more</span
+                                        >
+                                    {/if}
+                                </div>
+                            </div>
+                        </div>
+
+                        <Button
+                            variant="primary"
+                            fullWidth
+                            size="lg"
+                            className="rounded-xl py-4 text-lg font-bold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all"
+                            onClick={openBookingModal}
+                        >
+                            Schedule Visit
+                        </Button>
+                    </div>
+
+                    <!-- Map Card -->
+                    <div
+                        class="bg-white rounded-[2.5rem] overflow-hidden shadow-xl shadow-blue-900/5 border border-gray-100 h-64 relative group"
+                    >
+                        <div
+                            class="absolute inset-0 grayscale group-hover:grayscale-0 transition-all duration-700"
                         >
                             {#if doctor.clinicMapUrl}
                                 <iframe
@@ -292,46 +398,28 @@
                                 ></iframe>
                             {:else}
                                 <div
-                                    class="w-full h-full flex flex-col items-center justify-center text-gray-400 p-4 text-center"
+                                    class="w-full h-full flex flex-col items-center justify-center bg-gray-50 text-gray-400"
                                 >
-                                    <Icon
-                                        name="map-pin"
-                                        size={32}
-                                        className="mb-2 opacity-50"
-                                    />
-                                    <p class="text-xs">
-                                        Location map not available
-                                    </p>
+                                    <Icon name="map-pin" size={32} />
+                                    <span class="mt-2 text-sm"
+                                        >Map Unavailable</span
+                                    >
                                 </div>
                             {/if}
                         </div>
-                    </div>
-
-                    <div
-                        class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"
-                    >
-                        <h3 class="font-bold text-gray-900 mb-4">
-                            Availability
-                        </h3>
-                        <div class="space-y-3">
-                            {#each doctor.availability as slot}
-                                <div class="flex justify-between items-start">
-                                    <span class="font-medium text-gray-700 w-12"
-                                        >{slot.day}</span
-                                    >
-                                    <div
-                                        class="flex flex-wrap gap-2 justify-end flex-1"
-                                    >
-                                        {#each slot.slots as time}
-                                            <span
-                                                class="px-2 py-1 bg-blue-50 text-primary text-xs rounded"
-                                            >
-                                                {time}
-                                            </span>
-                                        {/each}
-                                    </div>
-                                </div>
-                            {/each}
+                        <div
+                            class="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-white/50 shadow-lg translate-y-full group-hover:translate-y-0 transition-transform duration-300"
+                        >
+                            <div
+                                class="text-xs font-bold text-gray-400 uppercase"
+                            >
+                                Clinic Address
+                            </div>
+                            <div
+                                class="text-sm font-medium text-gray-900 truncate"
+                            >
+                                {doctor.clinicAddress}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -339,69 +427,68 @@
         </div>
     </div>
 
-    <!-- Booking Modal -->
+    <!-- Booking Modal (Retaining Logic) -->
     {#if showModal}
         <Modal
             isOpen={true}
             title={bookingSuccess ? "" : "Book Appointment"}
+            maxWidth="max-w-2xl"
             on:close={closeBookingModal}
         >
             {#if bookingSuccess}
-                <div class="text-center py-8">
+                <!-- Success State -->
+                <div class="text-center py-12">
                     <div
-                        class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4"
+                        class="w-24 h-24 bg-green-100 text-green-500 rounded-[2rem] flex items-center justify-center text-5xl mx-auto mb-8 animate-bounce shadow-xl shadow-green-100/50"
                     >
                         ✓
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">
-                        Booking Confirmed!
+                    <h3 class="text-3xl font-bold text-[#000921] mb-4">
+                        All Set!
                     </h3>
-                    <p class="text-gray-600 mb-4">
-                        Your appointment with {doctor.name} has been booked.
+                    <p class="text-xl text-gray-500 mb-8 max-w-sm mx-auto">
+                        Your appointment with Dr. {doctor.name.split(" ")[1]} is
+                        confirmed.
                     </p>
+
                     {#if bookedAppointment}
                         <div
-                            class="bg-blue-50 p-4 rounded-lg text-left space-y-2"
+                            class="bg-gray-50 p-8 rounded-[2rem] text-left space-y-4 max-w-sm mx-auto border border-gray-100"
                         >
-                            <p class="text-sm text-gray-700">
-                                <span class="font-semibold"
-                                    >Appointment ID:</span
+                            <div
+                                class="flex justify-between items-center pb-4 border-b border-gray-200"
+                            >
+                                <span class="text-gray-500">Day</span>
+                                <span class="font-bold text-gray-900 text-lg"
+                                    >{formatDate(bookedAppointment.date)}</span
                                 >
-                                <span class="text-primary font-mono text-xs"
-                                    >{bookedAppointment.id}</span
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-500">Time</span>
+                                <span class="font-bold text-secondary text-lg"
+                                    >{bookedAppointment.time}</span
                                 >
-                            </p>
-                            <p class="text-sm text-gray-700">
-                                <span class="font-semibold">Date:</span>
-                                {bookedAppointment.date}
-                            </p>
-                            <p class="text-sm text-gray-700">
-                                <span class="font-semibold">Time:</span>
-                                {bookedAppointment.time}
-                            </p>
-                            <p class="text-sm text-gray-700">
-                                <span class="font-semibold">Type:</span>
-                                {bookedAppointment.type}
-                            </p>
+                            </div>
                         </div>
                     {/if}
                 </div>
             {:else}
-                <div class="space-y-6">
-                    <!-- Select Day -->
+                <!-- Booking Form -->
+                <div class="space-y-8">
+                    <!-- Day Selection -->
                     <div>
                         <div
-                            class="block text-sm font-medium text-gray-700 mb-2"
+                            class="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-4"
                         >
-                            Select Day <span class="text-red-500">*</span>
+                            Select Day
                         </div>
-                        <div class="flex flex-wrap gap-2">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             {#each doctor.availability as slot}
                                 <button
-                                    class="px-4 py-2 rounded-lg border transition-colors {selectedDate ===
+                                    class="p-4 rounded-xl border transition-all duration-200 font-bold text-center {selectedDate ===
                                     slot.day
-                                        ? 'bg-primary text-white border-primary'
-                                        : 'border-gray-200 text-gray-700 hover:border-primary'}"
+                                        ? 'bg-primary text-white border-primary shadow-lg shadow-primary/30 scale-105'
+                                        : 'border-gray-100 text-gray-500 hover:border-primary/30 hover:text-primary bg-white hover:bg-blue-50'}"
                                     on:click={() => {
                                         selectedDate = slot.day;
                                         selectedSlot = "";
@@ -413,21 +500,22 @@
                         </div>
                     </div>
 
-                    <!-- Select Time -->
                     {#if selectedDate}
-                        <div>
+                        <div class="animate-fade-in-up">
                             <div
-                                class="block text-sm font-medium text-gray-700 mb-2"
+                                class="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-4"
                             >
-                                Select Time <span class="text-red-500">*</span>
+                                Available Slots
                             </div>
-                            <div class="grid grid-cols-3 gap-2">
+                            <div
+                                class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3"
+                            >
                                 {#each getAvailableSlots(selectedDate) as time}
                                     <button
-                                        class="px-2 py-2 rounded-lg border text-sm transition-colors {selectedSlot ===
+                                        class="py-3 px-2 rounded-xl border transition-all duration-200 text-sm font-semibold {selectedSlot ===
                                         time
-                                            ? 'bg-primary text-white border-primary'
-                                            : 'border-gray-200 text-gray-700 hover:border-primary'}"
+                                            ? 'bg-gradient-to-r from-primary to-blue-400 text-white border-transparent shadow-lg shadow-primary/30 transform scale-105'
+                                            : 'border-gray-100 text-gray-600 hover:border-primary hover:text-primary bg-white hover:bg-blue-50'}"
                                         on:click={() => (selectedSlot = time)}
                                     >
                                         {time}
@@ -437,56 +525,97 @@
                         </div>
                     {/if}
 
-                    <!-- Reason for Visit -->
-                    <div>
-                        <label
-                            for="reason"
-                            class="block text-sm font-medium text-gray-700 mb-2"
-                        >
-                            Reason for Visit <span class="text-red-500">*</span>
-                        </label>
-                        <input
-                            id="reason"
-                            type="text"
-                            bind:value={reason}
-                            placeholder="e.g., General Checkup, Follow-up, Consultation"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
+                    <div class="space-y-6">
+                        <div>
+                            <label
+                                for="reason"
+                                class="block text-sm font-bold text-gray-700 mb-2"
+                                >Reason for Visit</label
+                            >
+                            <input
+                                id="reason"
+                                type="text"
+                                bind:value={reason}
+                                placeholder="e.g., Annual Checkup"
+                                class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-secondary transition-all outline-none font-medium text-gray-900 placeholder:text-gray-400"
+                            />
+                        </div>
+                        <div>
+                            <label
+                                for="notes"
+                                class="block text-sm font-bold text-gray-700 mb-2"
+                                >Notes (Optional)</label
+                            >
+                            <textarea
+                                id="notes"
+                                bind:value={notes}
+                                rows="2"
+                                placeholder="Any symptoms or details..."
+                                class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-secondary transition-all outline-none font-medium text-gray-900 placeholder:text-gray-400 resize-none"
+                            ></textarea>
+                        </div>
                     </div>
 
-                    <!-- Additional Notes -->
-                    <div>
-                        <label
-                            for="notes"
-                            class="block text-sm font-medium text-gray-700 mb-2"
+                    <div class="pt-4">
+                        <Button
+                            variant="primary"
+                            fullWidth
+                            size="lg"
+                            className="rounded-xl py-4 text-xl font-bold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all"
+                            disabled={!selectedDate ||
+                                !selectedSlot ||
+                                !reason.trim()}
+                            onClick={confirmBooking}
                         >
-                            Additional Notes (Optional)
-                        </label>
-                        <textarea
-                            id="notes"
-                            bind:value={notes}
-                            rows="3"
-                            placeholder="Any specific concerns or information you'd like to share..."
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                        ></textarea>
+                            Confirm Appointment
+                        </Button>
                     </div>
-
-                    <Button
-                        variant="primary"
-                        fullWidth
-                        disabled={!selectedDate ||
-                            !selectedSlot ||
-                            !reason.trim()}
-                        onClick={confirmBooking}
-                    >
-                        Confirm Booking
-                    </Button>
                 </div>
             {/if}
         </Modal>
     {/if}
 {:else}
-    <div class="min-h-screen flex items-center justify-center">
-        <p class="text-gray-500">Doctor not found</p>
+    <div class="min-h-screen flex items-center justify-center bg-white">
+        <div class="text-center">
+            <div
+                class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center text-4xl mx-auto mb-6 text-gray-300"
+            >
+                🩺
+            </div>
+            <h2 class="text-2xl font-bold text-[#000921]">Doctor not found</h2>
+            <button
+                class="text-secondary font-semibold hover:underline mt-4"
+                on:click={() => navigate("/doctors")}>Back to Doctors</button
+            >
+        </div>
     </div>
 {/if}
+
+<style>
+    @keyframes float {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+    @keyframes fade-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+    :global(.animate-fade-in-up) {
+        animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+</style>

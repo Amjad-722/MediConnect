@@ -7,6 +7,9 @@
   export let href = null;
   export let onClick = null;
 
+  export let className = "";
+  export let size = "md"; /* sm, md, lg, xl */
+
   import { navigate } from "$lib/router.js";
 
   function handleClick(e) {
@@ -22,7 +25,14 @@
   }
 
   $: baseClasses =
-    "inline-flex items-center justify-center px-6 py-3 text-base font-medium rounded-lg transition-all duration-200 border-2 border-transparent cursor-pointer leading-none disabled:opacity-60 disabled:cursor-not-allowed transform active:scale-95";
+    "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 border-2 border-transparent cursor-pointer leading-none disabled:opacity-60 disabled:cursor-not-allowed transform active:scale-95";
+
+  $: sizeClasses = {
+    sm: "px-3 py-1.5 text-sm",
+    md: "px-6 py-3 text-base",
+    lg: "px-8 py-4 text-lg",
+    xl: "px-10 py-5 text-xl",
+  }[size];
 
   $: variantClasses = {
     primary:
@@ -35,7 +45,7 @@
   }[variant];
 
   $: widthClass = fullWidth ? "w-full" : "";
-  $: classes = `${baseClasses} ${variantClasses} ${widthClass}`;
+  $: classes = `${baseClasses} ${sizeClasses} ${variantClasses} ${widthClass} ${className}`;
 </script>
 
 {#if href}
