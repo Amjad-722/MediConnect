@@ -5,6 +5,10 @@
     import { navigate } from "$lib/router.js";
     import { onMount } from "svelte";
     import Modal from "$components/reusable/Modal.svelte";
+    import {
+        getAppointmentsByPatient,
+        cancelAppointment,
+    } from "$lib/appointments.js";
 
     let isLoading = false;
     let successMessage = "";
@@ -141,14 +145,47 @@
             $user.clinicMapUrl = value;
         }
     }
+
+    // New Appointments Logic
+    let appointments = [];
+    $: if ($user) {
+        appointments = getAppointmentsByPatient($user.email);
+    }
+
+    function getStatusColor(status) {
+        switch (status?.toLowerCase()) {
+            case "upcoming":
+            case "confirmed":
+                return "bg-blue-100 text-blue-800";
+            case "pending":
+                return "bg-yellow-100 text-yellow-800";
+            case "completed":
+                return "bg-green-100 text-green-800";
+            case "cancelled":
+                return "bg-red-100 text-red-800";
+            default:
+                return "bg-gray-100 text-gray-800";
+        }
+    }
 </script>
 
 {#if $user}
     <div class="min-h-screen bg-slate-50 py-12">
         <div class="container mx-auto px-4 max-w-6xl">
-            <h1 class="text-3xl font-bold text-[#000921] mb-8">
-                Account Settings
-            </h1>
+            <div class="flex items-center justify-between mb-8">
+                <h1 class="text-3xl font-bold text-[#000921]">
+                    Account Settings
+                </h1>
+                {#if $user.role === "patient"}
+                    <Button
+                        variant="primary"
+                        href="/doctors"
+                        className="hidden sm:flex"
+                    >
+                        Book New Appointment
+                    </Button>
+                {/if}
+            </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
                 <!-- Sidebar -->
@@ -203,6 +240,17 @@
                             </button>
                             <button
                                 class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left {activeSection ===
+                                'appointments'
+                                    ? 'bg-blue-50 text-secondary font-bold'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}"
+                                on:click={() =>
+                                    (activeSection = "appointments")}
+                            >
+                                <Icon name="calendar" size={18} />
+                                My Appointments
+                            </button>
+                            <button
+                                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left {activeSection ===
                                 'password'
                                     ? 'bg-blue-50 text-secondary font-bold'
                                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}"
@@ -220,7 +268,7 @@
                                     on:click={() =>
                                         (activeSection = "availability")}
                                 >
-                                    <Icon name="calendar" size={18} />
+                                    <Icon name="clock" size={18} />
                                     Availability
                                 </button>
                             {/if}
@@ -240,11 +288,13 @@
                     class="bg-white rounded-[2.5rem] p-8 lg:p-10 shadow-sm border border-gray-100"
                 >
                     {#if activeSection === "details"}
+                        <!-- ... (details form) ... -->
                         <form
                             on:submit|preventDefault={handleSave}
                             class="space-y-8 animate-fade-in"
                         >
-                            <!-- Profile Banner (Optional, keeping as it was in original but styled better) -->
+                            <!-- ... content ... -->
+                            <!-- Profile Banner -->
                             {#if $user.role === "doctor"}
                                 <div>
                                     <label
@@ -340,6 +390,7 @@
                                 </div>
                             </div>
 
+                            <!-- Doctor Fields (Only if doctor) -->
                             {#if $user.role === "doctor"}
                                 <div
                                     class="grid grid-cols-1 md:grid-cols-2 gap-6"
@@ -451,7 +502,6 @@
                                 </div>
                             {/if}
 
-                            <!-- Action Buttons -->
                             <div
                                 class="flex items-center justify-end pt-4 border-t border-gray-100"
                             >
@@ -472,6 +522,133 @@
                                 </Button>
                             </div>
                         </form>
+                    {:else if activeSection === "appointments"}
+                        <div class="space-y-6 animate-fade-in">
+                            <h2 class="text-2xl font-bold text-[#000921]">
+                                My Appointments
+                            </h2>
+
+                            {#if appointments.length === 0}
+                                <div
+                                    class="text-center py-12 bg-gray-50 rounded-2xl border border-dashed border-gray-200"
+                                >
+                                    <div
+                                        class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-secondary mb-4"
+                                    >
+                                        <Icon name="calendar" size={32} />
+                                    </div>
+                                    <h3 class="text-lg font-bold text-gray-900">
+                                        No appointments yet
+                                    </h3>
+                                    <p
+                                        class="text-gray-500 max-w-sm mx-auto mt-2"
+                                    >
+                                        Find a doctor and book your first
+                                        appointment to see it here.
+                                    </p>
+                                    <div class="mt-6">
+                                        <Button
+                                            variant="primary"
+                                            href="/doctors"
+                                        >
+                                            Find a Doctor
+                                        </Button>
+                                    </div>
+                                </div>
+                            {:else}
+                                <div class="space-y-4">
+                                    {#each appointments as apt}
+                                        <div
+                                            class="bg-gray-50/50 rounded-2xl p-6 border border-gray-100 hover:bg-white hover:shadow-lg hover:shadow-blue-500/5 transition-all group"
+                                        >
+                                            <div
+                                                class="flex flex-col md:flex-row md:items-center justify-between gap-6"
+                                            >
+                                                <div
+                                                    class="flex items-start gap-4"
+                                                >
+                                                    <div
+                                                        class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl shrink-0"
+                                                    >
+                                                        {apt.doctorName.charAt(
+                                                            0,
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <h3
+                                                            class="font-bold text-lg text-gray-900 group-hover:text-primary transition-colors"
+                                                        >
+                                                            {apt.doctorName}
+                                                        </h3>
+                                                        <div
+                                                            class="flex items-center gap-4 mt-1 text-sm text-gray-500"
+                                                        >
+                                                            <div
+                                                                class="flex items-center gap-1.5"
+                                                            >
+                                                                <Icon
+                                                                    name="calendar"
+                                                                    size={14}
+                                                                />
+                                                                {apt.date}
+                                                            </div>
+                                                            <div
+                                                                class="flex items-center gap-1.5"
+                                                            >
+                                                                <Icon
+                                                                    name="clock"
+                                                                    size={14}
+                                                                />
+                                                                {apt.time}
+                                                            </div>
+                                                        </div>
+                                                        <p
+                                                            class="text-sm text-gray-600 mt-2 bg-white px-3 py-1.5 rounded-lg inline-block border border-gray-100"
+                                                        >
+                                                            Reason: {apt.reason}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center gap-4 self-end md:self-center"
+                                                >
+                                                    <span
+                                                        class="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider {getStatusColor(
+                                                            apt.status,
+                                                        )}"
+                                                    >
+                                                        {apt.status}
+                                                    </span>
+                                                    {#if apt.status === "Pending" || apt.status === "Confirmed"}
+                                                        <button
+                                                            class="text-red-500 hover:text-red-600 text-sm font-bold hover:bg-red-50 px-3 py-2 rounded-lg transition-colors"
+                                                            on:click={() => {
+                                                                if (
+                                                                    confirm(
+                                                                        "Cancel this appointment?",
+                                                                    )
+                                                                ) {
+                                                                    cancelAppointment(
+                                                                        apt.id,
+                                                                    );
+                                                                    appointments =
+                                                                        getAppointmentsByPatient(
+                                                                            $user.email,
+                                                                        );
+                                                                }
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    {/if}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {/each}
+                                </div>
+                            {/if}
+                        </div>
                     {:else if activeSection === "password"}
                         <form
                             on:submit|preventDefault={handleSave}

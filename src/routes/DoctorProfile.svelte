@@ -125,6 +125,16 @@
             (a, b) => convertToMinutes(a) - convertToMinutes(b),
         );
     }
+    function formatDate(dateStr) {
+        if (!dateStr) return "";
+        const date = new Date(dateStr);
+        return date.toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+    }
 </script>
 
 {#if doctor}
@@ -362,7 +372,7 @@
                             variant="primary"
                             fullWidth
                             size="lg"
-                            className="rounded-2xl py-5 text-lg shadow-xl shadow-secondary/20 hover:scale-[1.02] transition-transform"
+                            className="rounded-xl py-4 text-lg font-bold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all"
                             onClick={openBookingModal}
                         >
                             Schedule Visit
@@ -450,7 +460,7 @@
                             >
                                 <span class="text-gray-500">Day</span>
                                 <span class="font-bold text-gray-900 text-lg"
-                                    >{bookedAppointment.date}</span
+                                    >{formatDate(bookedAppointment.date)}</span
                                 >
                             </div>
                             <div class="flex justify-between items-center">
@@ -475,10 +485,10 @@
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             {#each doctor.availability as slot}
                                 <button
-                                    class="p-4 rounded-2xl border-2 transition-all duration-200 font-bold text-center {selectedDate ===
+                                    class="p-4 rounded-xl border transition-all duration-200 font-bold text-center {selectedDate ===
                                     slot.day
-                                        ? 'bg-secondary text-white border-secondary shadow-lg shadow-secondary/20 scale-105'
-                                        : 'border-gray-100 text-gray-500 hover:border-secondary/30 hover:text-secondary bg-white'}"
+                                        ? 'bg-primary text-white border-primary shadow-lg shadow-primary/30 scale-105'
+                                        : 'border-gray-100 text-gray-500 hover:border-primary/30 hover:text-primary bg-white hover:bg-blue-50'}"
                                     on:click={() => {
                                         selectedDate = slot.day;
                                         selectedSlot = "";
@@ -504,8 +514,8 @@
                                     <button
                                         class="py-3 px-2 rounded-xl border transition-all duration-200 text-sm font-semibold {selectedSlot ===
                                         time
-                                            ? 'bg-gradient-to-r from-secondary to-[#00a8b0] text-white border-transparent shadow-lg shadow-blue-500/30 transform scale-105'
-                                            : 'border-gray-100 text-gray-600 hover:border-secondary hover:text-secondary bg-white'}"
+                                            ? 'bg-gradient-to-r from-primary to-blue-400 text-white border-transparent shadow-lg shadow-primary/30 transform scale-105'
+                                            : 'border-gray-100 text-gray-600 hover:border-primary hover:text-primary bg-white hover:bg-blue-50'}"
                                         on:click={() => (selectedSlot = time)}
                                     >
                                         {time}
@@ -551,7 +561,7 @@
                             variant="primary"
                             fullWidth
                             size="lg"
-                            className="rounded-2xl py-5 text-xl font-bold shadow-xl shadow-secondary/20 hover:scale-[1.02] transition-transform"
+                            className="rounded-xl py-4 text-xl font-bold shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all"
                             disabled={!selectedDate ||
                                 !selectedSlot ||
                                 !reason.trim()}
