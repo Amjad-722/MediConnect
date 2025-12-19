@@ -140,30 +140,30 @@
           </form>
 
           <div class="flex gap-4">
-            <a
-              href="#"
+            <button
+              type="button"
               class="w-10 h-10 bg-white/10 hover:bg-white hover:text-[#000921] rounded-full flex items-center justify-center transition-all duration-300"
             >
               <Icon name="facebook" size={20} fill="currentColor" />
-            </a>
-            <a
-              href="#"
+            </button>
+            <button
+              type="button"
               class="w-10 h-10 bg-white/10 hover:bg-white hover:text-[#000921] rounded-full flex items-center justify-center transition-all duration-300"
             >
               <Icon name="twitter" size={20} fill="currentColor" />
-            </a>
-            <a
-              href="#"
+            </button>
+            <button
+              type="button"
               class="w-10 h-10 bg-white/10 hover:bg-white hover:text-[#000921] rounded-full flex items-center justify-center transition-all duration-300"
             >
               <Icon name="bell" size={20} fill="currentColor" />
-            </a>
-            <a
-              href="#"
+            </button>
+            <button
+              type="button"
               class="w-10 h-10 bg-white/10 hover:bg-white hover:text-[#000921] rounded-full flex items-center justify-center transition-all duration-300"
             >
               <Icon name="activity" size={20} />
-            </a>
+            </button>
           </div>
         </div>
       </div>
