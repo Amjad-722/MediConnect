@@ -21,7 +21,8 @@
     }
   }
 
-  function toggleProfileMenu() {
+  function toggleProfileMenu(event) {
+    if (event) event.stopPropagation();
     isProfileMenuOpen = !isProfileMenuOpen;
     if (isProfileMenuOpen) {
       isMenuOpen = false; // Close mobile menu if profile menu opens
@@ -32,6 +33,21 @@
     isProfileMenuOpen = false;
   }
 
+  function handleOutsideClick(event) {
+    if (isProfileMenuOpen) {
+      const profileMenu = document.getElementById("profile-menu");
+      const profileButton = document.getElementById("profile-button");
+      if (
+        profileMenu &&
+        !profileMenu.contains(event.target) &&
+        profileButton &&
+        !profileButton.contains(event.target)
+      ) {
+        closeProfileMenu();
+      }
+    }
+  }
+
   function handleLogout() {
     logout();
     navigate("/", { replace: true });
@@ -39,6 +55,8 @@
     isProfileMenuOpen = false; // Close profile menu on logout
   }
 </script>
+
+<svelte:window on:click={handleOutsideClick} />
 
 <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl">
   <div
@@ -87,11 +105,18 @@
           class="hidden sm:block text-xs font-bold text-secondary uppercase tracking-widest hover:text-white transition-colors"
           >Dashboard</Link
         >
+      {:else if $user && $user.role === "patient"}
+        <Link
+          to="/patient-dashboard"
+          class="hidden sm:block text-xs font-bold text-secondary uppercase tracking-widest hover:text-white transition-colors"
+          >Dashboard</Link
+        >
       {/if}
 
       {#if $user}
         <div class="relative">
           <button
+            id="profile-button"
             on:click={toggleProfileMenu}
             class="flex items-center gap-2.5 bg-white/5 hover:bg-white/10 p-1 pr-3 rounded-full transition-all border border-white/5"
           >
@@ -122,10 +147,10 @@
 
           {#if isProfileMenuOpen}
             <div
+              id="profile-menu"
               role="menu"
               tabindex="-1"
               class="absolute right-0 mt-4 w-72 bg-[#000921] rounded-2xl shadow-2xl border border-white/10 py-2 z-50 animate-in fade-in slide-in-from-top-4 duration-300 backdrop-blur-2xl"
-              on:mouseleave={closeProfileMenu}
             >
               <!-- Profile Header -->
               <div
@@ -160,7 +185,7 @@
                   on:click={closeProfileMenu}
                 >
                   <Icon name="user" size={18} className="text-secondary/60" />
-                  Account Settings
+                  My Profile
                 </Link>
 
                 {#if $user.role === "doctor"}
@@ -171,6 +196,15 @@
                   >
                     <Icon name="grid" size={18} className="text-secondary/60" />
                     Doctor Dashboard
+                  </Link>
+                {:else if $user.role === "patient"}
+                  <Link
+                    to="/patient-dashboard"
+                    class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-white/70 rounded-xl hover:bg-white/5 hover:text-white transition-all"
+                    on:click={closeProfileMenu}
+                  >
+                    <Icon name="grid" size={18} className="text-secondary/60" />
+                    Patient Dashboard
                   </Link>
                 {/if}
               </div>
@@ -238,10 +272,23 @@
 
       <div class="mt-4 pt-4 border-t border-white/5 space-y-4">
         {#if $user}
+          {#if $user.role === "doctor"}
+            <Link
+              to="/doctor-dashboard"
+              class="block py-4 px-5 font-bold text-center text-[#000921] bg-secondary rounded-2xl transition-all"
+              on:click={toggleMenu}>Doctor Dashboard</Link
+            >
+          {:else if $user.role === "patient"}
+            <Link
+              to="/patient-dashboard"
+              class="block py-4 px-5 font-bold text-center text-[#000921] bg-secondary rounded-2xl transition-all"
+              on:click={toggleMenu}>Patient Dashboard</Link
+            >
+          {/if}
           <Link
             to="/profile"
-            class="block py-4 px-5 font-bold text-center text-[#000921] bg-secondary rounded-2xl transition-all"
-            on:click={toggleMenu}>Account Settings</Link
+            class="block py-4 px-5 font-bold text-center text-white/80 border border-white/10 rounded-2xl transition-all mt-2"
+            on:click={toggleMenu}>My Profile</Link
           >
           <button
             on:click={handleLogout}
