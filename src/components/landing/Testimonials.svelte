@@ -170,8 +170,6 @@
                 {/each}
             </div>
 
-            <!-- Navigation Arrows -->
-
             <!-- Dots Navigation -->
             <div class="flex justify-center gap-2 mt-8 sm:mt-12">
                 {#each testimonials as _, i}
