@@ -40,68 +40,81 @@
   }
 </script>
 
-<nav
-  class="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-gray-200 py-3 sm:py-4"
->
+<nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl">
   <div
-    class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center"
+    class="bg-[#000921]/90 backdrop-blur-xl border border-white/10 rounded-[2rem] px-4 sm:px-6 py-2 sm:py-3 flex justify-between items-center shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
   >
-    <div class="flex-shrink-0">
-      <Link to="/" class="text-xl sm:text-2xl font-bold text-gray-900">
-        Medi<span class="text-primary">Connect</span>
+    <!-- Logo with Circular Background -->
+    <div class="flex-shrink-0 flex items-center gap-3">
+      <div
+        class="bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg group transition-transform hover:scale-105"
+      >
+        <Link to="/" class="flex items-center justify-center">
+          <Icon name="activity" size={24} className="text-[#000921]" />
+        </Link>
+      </div>
+      <Link
+        to="/"
+        class="hidden sm:block text-xl font-bold text-white tracking-tight"
+      >
+        Medi<span class="text-secondary">Connect</span>
       </Link>
     </div>
 
     <!-- Desktop Menu -->
-    <div class="hidden md:flex items-center gap-8">
+    <div class="hidden md:flex items-center gap-10">
       <Link
         to="/"
-        class="font-medium text-gray-700 hover:text-primary transition-colors"
+        class="text-sm font-semibold text-white/80 hover:text-white transition-all hover:scale-105"
         >Home</Link
       >
       <Link
         to="/doctors"
-        class="font-medium text-gray-700 hover:text-primary transition-colors"
+        class="text-sm font-semibold text-white/80 hover:text-white transition-all hover:scale-105"
         >Find Doctors</Link
       >
       <Link
         to="/about"
-        class="font-medium text-gray-700 hover:text-primary transition-colors"
+        class="text-sm font-semibold text-white/80 hover:text-white transition-all hover:scale-105"
         >About</Link
       >
     </div>
 
-    <div class="hidden md:flex items-center gap-4">
+    <div class="flex items-center gap-4">
       {#if $user && $user.role === "doctor"}
         <Link
           to="/doctor-dashboard"
-          class="text-sm font-medium text-primary hover:text-primary-dark transition-colors"
+          class="hidden sm:block text-xs font-bold text-secondary uppercase tracking-widest hover:text-white transition-colors"
           >Dashboard</Link
         >
       {/if}
+
       {#if $user}
         <div class="relative">
           <button
             on:click={toggleProfileMenu}
-            class="flex items-center gap-2 focus:outline-none"
+            class="flex items-center gap-2.5 bg-white/5 hover:bg-white/10 p-1 pr-3 rounded-full transition-all border border-white/5"
           >
             {#if $user.profilePic}
               <img
                 src={$user.profilePic}
                 alt={$user.name}
-                class="w-10 h-10 rounded-full object-cover border-2 border-transparent hover:border-primary/20 transition-all"
+                class="w-8 h-8 rounded-full object-cover border border-white/20"
               />
             {:else}
               <div
-                class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg border-2 border-transparent hover:border-primary/20 transition-all"
+                class="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-[#000921] font-bold text-sm"
               >
                 {$user.name.charAt(0).toUpperCase()}
               </div>
             {/if}
-            <img
-              src={chevronDownIcon}
-              alt=""
-              class="w-4 h-4 text-gray-500 transition-transform duration-200 {isProfileMenuOpen
+            <span class="hidden sm:block text-sm font-medium text-white/90"
+              >{$user.name.split(" ")[0]}</span
+            >
+            <Icon
+              name="chevron-down"
+              size={14}
+              className="text-white/50 transition-transform {isProfileMenuOpen
                 ? 'rotate-180'
                 : ''}"
             />
@@ -111,64 +124,64 @@
             <div
               role="menu"
               tabindex="-1"
-              class="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+              class="absolute right-0 mt-4 w-72 bg-[#000921] rounded-2xl shadow-2xl border border-white/10 py-2 z-50 animate-in fade-in slide-in-from-top-4 duration-300 backdrop-blur-2xl"
               on:mouseleave={closeProfileMenu}
             >
               <!-- Profile Header -->
               <div
-                class="px-4 py-3 flex items-center gap-3 border-b border-gray-50 mb-1"
+                class="px-5 py-4 flex items-center gap-3 border-b border-white/5 mb-2"
               >
                 {#if $user.profilePic}
                   <img
                     src={$user.profilePic}
                     alt={$user.name}
-                    class="w-10 h-10 rounded-full object-cover border border-gray-200"
+                    class="w-12 h-12 rounded-full object-cover border border-white/10"
                   />
                 {:else}
                   <div
-                    class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-primary font-bold text-lg border border-blue-100"
+                    class="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-bold text-xl"
                   >
                     {$user.name.charAt(0).toUpperCase()}
                   </div>
                 {/if}
                 <div class="overflow-hidden">
-                  <p class="font-bold text-gray-900 truncate text-sm">
+                  <p class="font-bold text-white truncate">
                     {$user.name}
                   </p>
-                  <p class="text-xs text-gray-500 truncate">{$user.email}</p>
+                  <p class="text-xs text-white/50 truncate">{$user.email}</p>
                 </div>
               </div>
 
               <!-- Menu Items -->
-              <div class="px-2 space-y-0.5">
+              <div class="px-2 space-y-1">
                 <Link
                   to="/profile"
-                  class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                  class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-white/70 rounded-xl hover:bg-white/5 hover:text-white transition-all"
                   on:click={closeProfileMenu}
                 >
-                  <Icon name="user" size={16} className="text-gray-400" />
-                  Profile Settings
+                  <Icon name="user" size={18} className="text-secondary/60" />
+                  Account Settings
                 </Link>
 
                 {#if $user.role === "doctor"}
                   <Link
                     to="/doctor-dashboard"
-                    class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                    class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-white/70 rounded-xl hover:bg-white/5 hover:text-white transition-all"
                     on:click={closeProfileMenu}
                   >
-                    <Icon name="grid" size={16} className="text-gray-400" />
-                    Dashboard
+                    <Icon name="grid" size={18} className="text-secondary/60" />
+                    Doctor Dashboard
                   </Link>
                 {/if}
               </div>
 
               <!-- Logout -->
-              <div class="border-t border-gray-50 mt-1 pt-1 px-2">
+              <div class="border-t border-white/5 mt-2 pt-2 px-2">
                 <button
                   on:click={handleLogout}
-                  class="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-400 rounded-xl hover:bg-red-500/10 transition-all"
                 >
-                  <Icon name="log-out" size={16} className="text-red-400" />
+                  <Icon name="log-out" size={18} />
                   Sign Out
                 </button>
               </div>
@@ -176,83 +189,81 @@
           {/if}
         </div>
       {:else}
-        <Link
-          to="/login"
-          class="font-medium text-primary hover:text-primary-dark transition-colors"
-          >Login</Link
-        >
-        <Button variant="primary" onClick={() => isSignupModalOpen.set(true)}
-          >Get Started</Button
-        >
+        <div class="flex items-center bg-white rounded-full p-1 shadow-sm">
+          <Link
+            to="/login"
+            class="hidden sm:block px-6 py-2 text-sm font-bold text-[#000921] transition-opacity hover:opacity-70"
+            >Login</Link
+          >
+          <button
+            on:click={() => isSignupModalOpen.set(true)}
+            class="bg-[#000921] text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg hover:scale-105 active:scale-95 transition-all"
+          >
+            Get Started
+          </button>
+        </div>
       {/if}
-    </div>
 
-    <!-- Mobile Menu Button -->
-    <button
-      class="md:hidden p-2 text-gray-700 hover:text-primary focus:outline-none"
-      on:click={toggleMenu}
-      aria-label="Toggle menu"
-    >
-      <img src={isMenuOpen ? xIcon : menuIcon} alt="" class="w-6 h-6" />
-    </button>
+      <!-- Mobile Menu Button -->
+      <button
+        class="md:hidden p-2 text-white/80 hover:text-white focus:outline-none transition-colors"
+        on:click={toggleMenu}
+        aria-label="Toggle menu"
+      >
+        <Icon name={isMenuOpen ? "x" : "menu"} size={26} />
+      </button>
+    </div>
   </div>
 
   <!-- Mobile Menu -->
   {#if isMenuOpen}
     <div
-      class="md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-200 shadow-lg px-4 sm:px-6 py-6 flex flex-col gap-2"
+      class="md:hidden absolute top-full left-0 right-0 mt-4 bg-[#000921]/95 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl p-6 flex flex-col gap-3 animate-in fade-in slide-in-from-top-4 duration-300"
     >
       <Link
         to="/"
-        class="block py-3 px-4 font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg transition-colors"
+        class="block py-4 px-5 font-semibold text-white/80 hover:text-white hover:bg-white/5 rounded-2xl transition-all"
         on:click={toggleMenu}>Home</Link
       >
       <Link
         to="/doctors"
-        class="block py-3 px-4 font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg transition-colors"
+        class="block py-4 px-5 font-semibold text-white/80 hover:text-white hover:bg-white/5 rounded-2xl transition-all"
         on:click={toggleMenu}>Find Doctors</Link
       >
       <Link
         to="/about"
-        class="block py-3 px-4 font-medium text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg transition-colors"
+        class="block py-4 px-5 font-semibold text-white/80 hover:text-white hover:bg-white/5 rounded-2xl transition-all"
         on:click={toggleMenu}>About</Link
       >
-      <div class="flex flex-col gap-3 mt-4 pt-4 border-t border-gray-100">
+
+      <div class="mt-4 pt-4 border-t border-white/5 space-y-4">
         {#if $user}
-          {#if $user.role === "doctor"}
-            <Link
-              to="/doctor-dashboard"
-              class="block py-3 px-4 font-medium text-primary hover:bg-blue-50 rounded-lg transition-colors text-center"
-              on:click={toggleMenu}>Dashboard</Link
-            >
-          {/if}
           <Link
             to="/profile"
-            class="block py-3 px-4 font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors text-center"
-            on:click={toggleMenu}>Profile Settings</Link
+            class="block py-4 px-5 font-bold text-center text-[#000921] bg-secondary rounded-2xl transition-all"
+            on:click={toggleMenu}>Account Settings</Link
           >
-          <div
-            class="py-2 px-4 text-center text-sm font-medium text-gray-600 bg-gray-50 rounded-lg"
+          <button
+            on:click={handleLogout}
+            class="w-full py-4 text-center font-bold text-red-400 bg-red-400/10 rounded-2xl border border-red-400/20 active:scale-95 transition-transform"
           >
-            Signed in as {$user.name}
-          </div>
-          <Button variant="danger" fullWidth onClick={handleLogout}
-            >Sign Out</Button
-          >
+            Sign Out
+          </button>
         {:else}
           <Link
             to="/login"
-            class="block py-3 px-4 text-center font-medium text-primary hover:text-primary-dark hover:bg-blue-50 rounded-lg transition-colors"
+            class="block py-4 px-5 font-bold text-center text-white/90 border border-white/10 rounded-2xl active:scale-95 transition-transform"
             on:click={toggleMenu}>Login</Link
           >
-          <Button
-            variant="primary"
-            fullWidth
-            onClick={() => {
+          <button
+            on:click={() => {
               toggleMenu();
               isSignupModalOpen.set(true);
-            }}>Get Started</Button
+            }}
+            class="w-full py-4 font-bold text-center text-[#000921] bg-white rounded-2xl shadow-xl active:scale-95 transition-transform"
           >
+            Get Started
+          </button>
         {/if}
       </div>
     </div>
