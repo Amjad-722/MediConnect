@@ -66,7 +66,7 @@
         </div>
 
         <!-- Carousel Container -->
-        <div class="relative max-w-6xl mx-auto">
+        <div class="relative max-w-full mx-auto bg-red-500">
             <!-- Cards Container -->
             <div class="relative h-[500px] sm:h-[450px] lg:h-[400px]">
                 {#each testimonials as testimonial, i}
@@ -79,14 +79,16 @@
                         position === "center"
                             ? "-50%"
                             : position === "left"
-                              ? "calc(-50% - 280px)"
+                              ? "calc(-50% - 400px)"
                               : position === "right"
-                                ? "calc(-50% + 280px)"
+                                ? "calc(-50% + 400px)"
                                 : "-50%"}
                     <div
                         class="absolute top-1/2 left-1/2 w-full max-w-md sm:max-w-lg transition-all duration-700 ease-out -translate-y-1/2
                         {isCenter ? 'opacity-100 scale-105 z-30' : ''}
-                        {isSide ? 'opacity-50 scale-90 blur-sm z-20' : ''}
+                        {isSide
+                            ? 'opacity-70 scale-[0.95] blur-[2px] z-20'
+                            : ''}
                         {isHidden ? 'opacity-0 scale-75 blur-md z-10' : ''}
                         {!isCenter ? 'pointer-events-none' : ''}"
                         style="transform: translateX({translateX}) translateY(-50%); z-index: {isCenter
