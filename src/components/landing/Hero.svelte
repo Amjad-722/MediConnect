@@ -4,7 +4,7 @@
 </script>
 
 <section
-    class="relative min-h-[80vh] sm:min-h-[85vh] lg:min-h-[90vh] flex items-center pt-16 sm:pt-20 pb-20 sm:pb-28 lg:pb-32 overflow-hidden bg-white"
+    class="relative h-[100dvh] flex items-center pt-8 sm:pt-12 pb-12 sm:pb-16 overflow-hidden bg-white"
 >
     <!-- Animated Mesh Background -->
     <div class="absolute inset-0 z-0">
@@ -22,7 +22,7 @@
 
     <div class="container mx-auto px-4 sm:px-6 relative z-10">
         <div
-            class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-20 items-center"
+            class="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-20 items-center h-full"
         >
             <!-- Text Content -->
             <div class="space-y-6 sm:space-y-8 text-center lg:text-left">
@@ -128,16 +128,22 @@
             </div>
 
             <!-- Image Composition -->
-            <div class="relative animate-fade-in-right delay-200 mt-12 lg:mt-0">
+            <div
+                class="relative animate-fade-in-right delay-200 mt-12 lg:mt-0 px-4 sm:px-8"
+            >
                 <!-- Main Image Wrapper -->
                 <div class="relative z-10 group">
+                    <!-- Premium Multi-layered Shadow & Glow -->
                     <div
-                        class="absolute inset-0 bg-gradient-to-tr from-secondary/20 to-transparent rounded-2xl sm:rounded-[2rem] lg:rounded-[3rem] -rotate-3 transition-transform group-hover:rotate-0 duration-500"
+                        class="absolute -inset-4 bg-secondary/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                    ></div>
+                    <div
+                        class="absolute inset-0 bg-white/20 backdrop-blur-md rounded-2xl sm:rounded-[2rem] lg:rounded-[3rem] -rotate-3 transition-all group-hover:rotate-0 duration-500 border border-white/40 shadow-xl"
                     ></div>
                     <img
                         src="/images/hero-premium.png"
                         alt="Premium Healthcare"
-                        class="relative w-full h-[300px] sm:h-[400px] lg:h-[550px] object-cover rounded-2xl sm:rounded-[2rem] lg:rounded-[3rem] shadow-2xl shadow-blue-900/10 rotate-2 transition-transform group-hover:rotate-0 duration-500"
+                        class="relative w-full h-[300px] sm:h-[400px] lg:h-[550px] object-cover rounded-2xl sm:rounded-[2rem] lg:rounded-[3rem] shadow-[0_35px_60px_-15px_rgba(0,10,33,0.3),0_15px_30px_-10px_rgba(0,168,176,0.15)] rotate-2 transition-all group-hover:rotate-0 group-hover:scale-[1.02] duration-500"
                     />
                 </div>
 

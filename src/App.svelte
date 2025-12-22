@@ -22,7 +22,7 @@
   <div class="flex flex-col min-h-screen bg-slate-50">
     <Navbar />
     <SignupTypeModal />
-    <main class="flex-1">
+    <main class="flex-1 pt-24 sm:pt-32">
       <Route path="/" component={Landing} />
       <Route path="/doctors" component={Doctors} />
       <Route path="/doctor/:id" component={DoctorProfile} />
