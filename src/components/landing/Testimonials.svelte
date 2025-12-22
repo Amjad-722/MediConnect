@@ -66,7 +66,7 @@
         </div>
 
         <!-- Carousel Container -->
-        <div class="relative max-w-full mx-auto bg-red-500">
+        <div class="relative max-w-6xl mx-auto bg-white">
             <!-- Cards Container -->
             <div class="relative h-[500px] sm:h-[450px] lg:h-[400px]">
                 {#each testimonials as testimonial, i}
@@ -171,20 +171,6 @@
             </div>
 
             <!-- Navigation Arrows -->
-            <button
-                on:click={prev}
-                class="absolute left-0 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center text-[#000921] hover:bg-secondary hover:text-white transition-all duration-300 hover:scale-110"
-                aria-label="Previous testimonial"
-            >
-                <Icon name="chevron-down" size={24} className="rotate-90" />
-            </button>
-            <button
-                on:click={next}
-                class="absolute right-0 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-200 flex items-center justify-center text-[#000921] hover:bg-secondary hover:text-white transition-all duration-300 hover:scale-110"
-                aria-label="Next testimonial"
-            >
-                <Icon name="chevron-down" size={24} className="-rotate-90" />
-            </button>
 
             <!-- Dots Navigation -->
             <div class="flex justify-center gap-2 mt-8 sm:mt-12">
