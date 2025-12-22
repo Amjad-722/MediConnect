@@ -138,7 +138,7 @@
 </script>
 
 {#if doctor}
-    <div class="min-h-screen bg-white relative overflow-hidden">
+    <div class="min-h-screen bg-white relative overflow-hidden pt-24 sm:pt-32">
         <!-- Background Orbs (Landing Page Style) -->
         <div class="absolute inset-0 z-0 pointer-events-none">
             <div

@@ -140,6 +140,29 @@ export function getDoctorStats(doctorId) {
 }
 
 /**
+ * Get appointment statistics for a patient
+ */
+export function getPatientStats(patientEmail) {
+    let apts = [];
+    appointments.subscribe(current => {
+        apts = current.filter(apt => apt.patientEmail === patientEmail);
+    })();
+
+    const now = new Date();
+
+    return {
+        total: apts.length,
+        upcoming: apts.filter(apt => {
+            const aptDate = new Date(apt.date);
+            return aptDate >= now && (apt.status === 'Pending' || apt.status === 'Confirmed');
+        }).length,
+        completed: apts.filter(apt => apt.status === 'Completed').length,
+        cancelled: apts.filter(apt => apt.status === 'Cancelled').length,
+        pending: apts.filter(apt => apt.status === 'Pending').length
+    };
+}
+
+/**
  * Delete an appointment (for admin purposes)
  */
 export function deleteAppointment(appointmentId) {

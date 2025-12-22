@@ -170,12 +170,10 @@
 </script>
 
 {#if $user}
-    <div class="min-h-screen bg-slate-50 py-12">
+    <div class="min-h-screen bg-slate-50 pt-28 sm:pt-36 pb-12">
         <div class="container mx-auto px-4 max-w-6xl">
             <div class="flex items-center justify-between mb-8">
-                <h1 class="text-3xl font-bold text-[#000921]">
-                    Account Settings
-                </h1>
+                <h1 class="text-3xl font-bold text-[#000921]">My Profile</h1>
                 {#if $user.role === "patient"}
                     <Button
                         variant="primary"

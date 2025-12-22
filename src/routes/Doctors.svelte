@@ -52,7 +52,7 @@
     });
 </script>
 
-<div class="min-h-screen bg-slate-50 py-8 sm:py-12">
+<div class="min-h-screen bg-slate-50 pt-28 sm:pt-36 pb-8 sm:pb-12">
     <div class="container mx-auto px-4 sm:px-6">
         <div class="text-center mb-8 sm:mb-12 animate-fade-in-up">
             <h1

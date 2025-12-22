@@ -5,7 +5,7 @@
 <div class="min-h-screen bg-white">
     <!-- Header -->
     <div
-        class="bg-primary/5 bg-gradient-to-br from-blue-50 to-white py-20 relative overflow-hidden"
+        class="bg-primary/5 bg-gradient-to-br from-blue-50 to-white pt-28 sm:pt-36 pb-20 relative overflow-hidden"
     >
         <div class="container mx-auto px-4 text-center relative z-10">
             <h1 class="text-5xl font-bold mb-6 text-primary-dark">

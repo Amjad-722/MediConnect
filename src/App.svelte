@@ -11,6 +11,7 @@
   import DoctorProfile from "./routes/DoctorProfile.svelte";
   import DoctorRegister from "./routes/DoctorRegister.svelte";
   import DoctorDashboard from "./routes/DoctorDashboard.svelte";
+  import PatientDashboard from "./routes/PatientDashboard.svelte";
   import Profile from "./routes/Profile.svelte";
   import SignupTypeModal from "$components/SignupTypeModal.svelte";
 
@@ -22,7 +23,7 @@
   <div class="flex flex-col min-h-screen bg-slate-50">
     <Navbar />
     <SignupTypeModal />
-    <main class="flex-1 pt-24 sm:pt-32">
+    <main class="flex-1">
       <Route path="/" component={Landing} />
       <Route path="/doctors" component={Doctors} />
       <Route path="/doctor/:id" component={DoctorProfile} />
@@ -31,6 +32,7 @@
       <Route path="/register" component={Register} />
       <Route path="/doctor-register" component={DoctorRegister} />
       <Route path="/doctor-dashboard" component={DoctorDashboard} />
+      <Route path="/patient-dashboard" component={PatientDashboard} />
       <Route path="/profile" component={Profile} />
     </main>
     <Footer />
