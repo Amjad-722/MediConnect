@@ -38,7 +38,7 @@
         >
             {#each features as feature, i}
                 <div
-                    class="group relative p-6 sm:p-8 lg:p-10 bg-white/70 backdrop-blur-md rounded-2xl sm:rounded-[2rem] lg:rounded-[2.5rem] border border-gray-100 shadow-xl shadow-blue-900/5 transition-all duration-500 hover:-translate-y-3 hover:shadow-2xl hover:shadow-blue-900/10 hover:border-secondary/30 animate-fade-in-up"
+                    class="group relative p-6 sm:p-8 lg:p-10 bg-white backdrop-blur-md rounded-2xl sm:rounded-[2rem] lg:rounded-[2.5rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_20px_60px_rgb(0,0,0,0.2)] hover:border-secondary/30 animate-fade-in-up"
                     style="animation-delay: {i * 100}ms"
                 >
                     <!-- Hover Accent -->
