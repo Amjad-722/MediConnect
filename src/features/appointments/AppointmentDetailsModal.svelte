@@ -2,6 +2,8 @@
     import Button from "$ui/Button.svelte";
     import Icon from "$ui/Icon.svelte";
     import Modal from "$ui/Modal.svelte";
+    import MedicalRecords from "$features/medical-records/MedicalRecords.svelte";
+    import { user } from "$lib/store";
 
     interface Appointment {
         id: string;
@@ -22,6 +24,8 @@
     export let onConfirm: (id: string) => void = () => {};
     export let onComplete: (id: string) => void = () => {};
     export let onCancel: (id: string) => void = () => {};
+
+    let showMedicalRecords = false;
 
     function getStatusColor(status) {
         switch (status?.toLowerCase()) {
@@ -129,10 +133,52 @@
                         {new Date(appointment.createdAt).toLocaleString()}
                     </p>
                 </div>
+
+                <!-- Medical Records Section for Doctors -->
+                {#if $user?.role === "doctor"}
+                    <div class="mt-8 pt-6 border-t border-gray-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3
+                                class="text-lg font-bold text-gray-900 flex items-center gap-2"
+                            >
+                                <Icon
+                                    name="clipboard"
+                                    size={20}
+                                    className="text-secondary"
+                                />
+                                Medical History & Notes
+                            </h3>
+                            <button
+                                class="text-sm font-bold text-secondary hover:underline"
+                                on:click={() =>
+                                    (showMedicalRecords = !showMedicalRecords)}
+                            >
+                                {showMedicalRecords
+                                    ? "Hide Records"
+                                    : "View/Add Records"}
+                            </button>
+                        </div>
+
+                        {#if showMedicalRecords}
+                            <div
+                                class="bg-slate-50 rounded-2xl p-4 border border-gray-100"
+                            >
+                                <MedicalRecords
+                                    targetEmail={appointment.patientEmail}
+                                    showHeader={false}
+                                    isDoctorView={true}
+                                    forceAddMode={true}
+                                />
+                            </div>
+                        {/if}
+                    </div>
+                {/if}
             </div>
 
             <!-- Actions -->
-            <div class="flex gap-3 mt-6 pt-6 border-t border-gray-100">
+            <div
+                class="flex flex-wrap gap-3 mt-6 pt-6 border-t border-gray-100"
+            >
                 {#if appointment.status === "Pending"}
                     <Button
                         variant="primary"

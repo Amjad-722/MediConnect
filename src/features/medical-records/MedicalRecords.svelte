@@ -11,8 +11,13 @@
     import Button from "$ui/Button.svelte";
     import RecordDetailsModal from "./RecordDetailsModal.svelte";
 
+    export let targetEmail = null;
+    export let showHeader = true;
+    export let isDoctorView = false;
+    export let forceAddMode = false;
+
     let activeTab = "All";
-    let showAddForm = false;
+    let showAddForm = forceAddMode;
     let selectedRecord = null;
     let showDetailsModal = false;
 
@@ -21,22 +26,28 @@
         title: "",
         type: "History",
         date: new Date().toISOString().split("T")[0],
-        doctor: "",
+        doctor: $user?.role === "doctor" ? $user.name : "",
         description: "",
     };
 
-    $: patientRecords = $records.filter((r) => r.patientEmail === $user?.email);
+    $: effectiveEmail = targetEmail || $user?.email;
+
+    $: patientRecords = $records.filter(
+        (r) => r.patientEmail === effectiveEmail,
+    );
 
     $: filteredRecords = patientRecords
         .filter((r) => activeTab === "All" || r.type === activeTab)
-        .sort((a, b) => new Date(b.date) - new Date(a.date));
+        .sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+        );
 
     function handleAddRecord() {
         if (!newRecord.title || !newRecord.description) return;
 
         addRecord({
             ...newRecord,
-            patientEmail: $user.email,
+            patientEmail: effectiveEmail,
         });
 
         // Reset form
@@ -70,24 +81,33 @@
 </script>
 
 <div class="space-y-8 animate-fade-in">
-    <div
-        class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
-    >
-        <div>
-            <h2 class="text-2xl font-bold text-[#000921]">Medical Records</h2>
-            <p class="text-gray-500 text-sm mt-1">
-                Manage and view your centralized medical history.
-            </p>
+    {#if showHeader}
+        <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+        >
+            <div>
+                <h2 class="text-2xl font-bold text-[#000921]">
+                    Medical Records
+                </h2>
+                <p class="text-gray-500 text-sm mt-1">
+                    {isDoctorView
+                        ? "Manage clinical records for this patient."
+                        : "Manage and view your centralized medical history."}
+                </p>
+            </div>
+            <Button
+                variant="primary"
+                onClick={() => (showAddForm = !showAddForm)}
+            >
+                <Icon
+                    name={showAddForm ? "x" : "plus"}
+                    size={18}
+                    className="mr-2"
+                />
+                {showAddForm ? "Cancel" : "Add Record"}
+            </Button>
         </div>
-        <Button variant="primary" onClick={() => (showAddForm = !showAddForm)}>
-            <Icon
-                name={showAddForm ? "x" : "plus"}
-                size={18}
-                className="mr-2"
-            />
-            {showAddForm ? "Cancel" : "Add Record"}
-        </Button>
-    </div>
+    {/if}
 
     {#if showAddForm}
         <div
@@ -100,10 +120,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label
+                            for="recordTitle"
                             class="block text-sm font-bold text-gray-700 mb-2"
                             >Record Title</label
                         >
                         <input
+                            id="recordTitle"
                             type="text"
                             bind:value={newRecord.title}
                             placeholder="e.g. Annual Checkup, Dental Surgery"
@@ -113,10 +135,12 @@
                     </div>
                     <div>
                         <label
+                            for="recordType"
                             class="block text-sm font-bold text-gray-700 mb-2"
                             >Record Type</label
                         >
                         <select
+                            id="recordType"
                             bind:value={newRecord.type}
                             class="w-full px-5 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium text-sm text-gray-900"
                         >
@@ -127,10 +151,12 @@
                     </div>
                     <div>
                         <label
+                            for="recordDate"
                             class="block text-sm font-bold text-gray-700 mb-2"
                             >Date</label
                         >
                         <input
+                            id="recordDate"
                             type="date"
                             bind:value={newRecord.date}
                             class="w-full px-5 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium text-sm"
@@ -139,10 +165,12 @@
                     </div>
                     <div>
                         <label
+                            for="recordDoctor"
                             class="block text-sm font-bold text-gray-700 mb-2"
                             >Doctor/Clinic</label
                         >
                         <input
+                            id="recordDoctor"
                             type="text"
                             bind:value={newRecord.doctor}
                             placeholder="e.g. Dr. Sarah Smith"
@@ -151,10 +179,13 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2"
+                    <label
+                        for="recordDescription"
+                        class="block text-sm font-bold text-gray-700 mb-2"
                         >Summary / Notes</label
                     >
                     <textarea
+                        id="recordDescription"
                         bind:value={newRecord.description}
                         rows="4"
                         placeholder="Provide basic details about this record..."
