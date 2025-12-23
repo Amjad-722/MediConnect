@@ -1,14 +1,15 @@
 <script>
-    import Button from "$components/reusable/Button.svelte";
-    import Icon from "$components/reusable/Icon.svelte";
+    import Button from "$ui/Button.svelte";
+    import Icon from "$ui/Icon.svelte";
     import { user, defaultDoctorFields } from "$lib/store";
-    import { navigate } from "$lib/router.js";
+    import { navigate } from "$features/routing/router";
     import { onMount } from "svelte";
-    import Modal from "$components/reusable/Modal.svelte";
+    import Modal from "$ui/Modal.svelte";
     import {
         getAppointmentsByPatient,
         cancelAppointment,
-    } from "$lib/appointments.js";
+    } from "$features/appointments/appointments";
+    import MedicalRecords from "$features/medical-records/MedicalRecords.svelte";
 
     let isLoading = false;
     let successMessage = "";
@@ -42,6 +43,12 @@
                         : slot,
                 ),
             }));
+        }
+
+        const savedSection = localStorage.getItem("profileActiveSection");
+        if (savedSection) {
+            activeSection = savedSection;
+            localStorage.removeItem("profileActiveSection");
         }
     });
 
@@ -247,6 +254,18 @@
                                 <Icon name="calendar" size={18} />
                                 My Appointments
                             </button>
+                            {#if $user.role === "patient"}
+                                <button
+                                    class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left {activeSection ===
+                                    'records'
+                                        ? 'bg-blue-50 text-secondary font-bold'
+                                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}"
+                                    on:click={() => (activeSection = "records")}
+                                >
+                                    <Icon name="clipboard" size={18} />
+                                    Medical Records
+                                </button>
+                            {/if}
                             <button
                                 class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-left {activeSection ===
                                 'password'
@@ -721,6 +740,8 @@
                                 </Button>
                             </div>
                         </form>
+                    {:else if activeSection === "records" && $user.role === "patient"}
+                        <MedicalRecords />
                     {/if}
 
                     {#if activeSection === "availability" && $user.role === "doctor"}

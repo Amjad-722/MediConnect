@@ -1,7 +1,7 @@
 <script lang="ts">
-    import Button from "$components/reusable/Button.svelte";
-    import Icon from "$components/reusable/Icon.svelte";
-    import Modal from "$components/reusable/Modal.svelte";
+    import Button from "$ui/Button.svelte";
+    import Icon from "$ui/Icon.svelte";
+    import Modal from "$ui/Modal.svelte";
 
     interface Appointment {
         id: string;

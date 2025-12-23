@@ -1,15 +1,16 @@
 <script>
-    import Button from "$components/reusable/Button.svelte";
-    import Icon from "$components/reusable/Icon.svelte";
+    import Button from "$ui/Button.svelte";
+    import Icon from "$ui/Icon.svelte";
     import { user } from "$lib/store";
-    import { navigate } from "$lib/router.js";
+    import { navigate } from "$features/routing/router";
     import { onMount } from "svelte";
-    import AppointmentDetailsModal from "$components/AppointmentDetailsModal.svelte";
+    import AppointmentDetailsModal from "$features/appointments/AppointmentDetailsModal.svelte";
     import {
         appointments,
         cancelAppointment,
         getPatientStats,
-    } from "$lib/appointments.js";
+    } from "$features/appointments/appointments";
+    import { records } from "$features/medical-records/records";
 
     onMount(() => {
         if (!$user || $user.role !== "patient") {
@@ -25,6 +26,8 @@
     $: patientAppointments = $appointments.filter(
         (apt) => apt.patientEmail === $user?.email,
     );
+
+    $: patientRecords = $records.filter((r) => r.patientEmail === $user?.email);
 
     $: filteredAppointments = patientAppointments
         .filter((apt) => {
@@ -265,6 +268,115 @@
                     <div
                         class="absolute -right-4 -bottom-4 w-32 h-32 bg-secondary/10 rounded-full blur-3xl"
                     ></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                <!-- Records Summary -->
+                <div
+                    class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col"
+                >
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-bold text-[#000921]">
+                            Medical Records
+                        </h3>
+                        <a
+                            href="/profile"
+                            on:click={() =>
+                                localStorage.setItem(
+                                    "profileActiveSection",
+                                    "records",
+                                )}
+                            class="text-xs font-bold text-secondary hover:underline"
+                            >View All</a
+                        >
+                    </div>
+
+                    <div class="space-y-4 flex-1">
+                        {#if patientRecords.length === 0}
+                            <div
+                                class="flex flex-col items-center justify-center py-6 text-gray-400"
+                            >
+                                <Icon
+                                    name="clipboard"
+                                    size={32}
+                                    className="mb-2 opacity-20"
+                                />
+                                <p class="text-xs font-medium">
+                                    No records yet
+                                </p>
+                            </div>
+                        {:else}
+                            {#each patientRecords.slice(0, 3) as record}
+                                <button
+                                    class="w-full flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-transparent hover:border-blue-100 transition-all text-left group"
+                                    on:click={() => {
+                                        localStorage.setItem(
+                                            "profileActiveSection",
+                                            "records",
+                                        );
+                                        navigate("/profile");
+                                    }}
+                                >
+                                    <div
+                                        class="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-gray-400 group-hover:text-secondary transition-colors shadow-sm"
+                                    >
+                                        <Icon
+                                            name={record.type === "Prescription"
+                                                ? "activity"
+                                                : record.type === "Report"
+                                                  ? "clipboard"
+                                                  : "heart"}
+                                            size={18}
+                                        />
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p
+                                            class="text-sm font-bold text-gray-900 truncate"
+                                        >
+                                            {record.title}
+                                        </p>
+                                        <p class="text-[10px] text-gray-500">
+                                            {record.date}
+                                        </p>
+                                    </div>
+                                </button>
+                            {/each}
+                        {/if}
+                    </div>
+
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full mt-6"
+                        href="/profile"
+                        onClick={() =>
+                            localStorage.setItem(
+                                "profileActiveSection",
+                                "records",
+                            )}
+                    >
+                        <Icon name="plus" size={14} className="mr-2" />
+                        Add New Record
+                    </Button>
+                </div>
+
+                <!-- Empty space or other summary could go here, for now let's just use the column -->
+                <div
+                    class="lg:col-span-2 bg-[#000921]/5 rounded-3xl p-8 flex flex-col items-center justify-center text-center border border-dashed border-gray-200"
+                >
+                    <div
+                        class="w-16 h-16 rounded-full bg-white flex items-center justify-center text-secondary mb-4 shadow-sm"
+                    >
+                        <Icon name="shield" size={32} />
+                    </div>
+                    <h3 class="text-lg font-bold text-[#000921]">
+                        Your Health Data is Secure
+                    </h3>
+                    <p class="text-sm text-gray-500 max-w-sm mt-2">
+                        All your records are encrypted and only accessible by
+                        you and the doctors you choose to share them with.
+                    </p>
                 </div>
             </div>
 

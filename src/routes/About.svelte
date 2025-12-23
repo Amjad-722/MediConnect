@@ -1,5 +1,5 @@
 <script>
-    import Button from "../components/reusable/Button.svelte";
+    import Button from "$ui/Button.svelte";
 </script>
 
 <div class="min-h-screen bg-white">

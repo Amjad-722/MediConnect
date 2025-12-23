@@ -1,6 +1,6 @@
 <script>
-    import { reviews } from "$lib/reviews";
-    import Icon from "$components/reusable/Icon.svelte";
+    import { reviews } from "$features/doctors/reviews";
+    import Icon from "$ui/Icon.svelte";
 
     export let doctorId;
 

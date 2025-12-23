@@ -1,7 +1,7 @@
 <script>
     import { onMount, onDestroy } from "svelte";
-    import { testimonials } from "$lib/data.js";
-    import Icon from "$components/reusable/Icon.svelte";
+    import { testimonials } from "$features/landing/data";
+    import Icon from "$ui/Icon.svelte";
 
     let currentIndex = 0;
     let autoRotateInterval;

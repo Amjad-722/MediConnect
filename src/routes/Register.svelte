@@ -1,8 +1,8 @@
 <script>
-    import Button from "$components/reusable/Button.svelte";
-    import Link from "$lib/Link.svelte";
+    import Button from "$ui/Button.svelte";
+    import Link from "$features/routing/Link.svelte";
     import { login } from "$lib/store";
-    import { navigate } from "$lib/router.js";
+    import { navigate } from "$features/routing/router";
 
     let firstName = "";
     let lastName = "";
