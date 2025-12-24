@@ -12,6 +12,7 @@
         updateAppointment,
     } from "$features/appointments/appointments";
     import { records } from "$features/medical-records/records";
+    import MedicationManager from "$features/reminders/MedicationManager.svelte";
     import Modal from "$ui/Modal.svelte";
 
     onMount(() => {
@@ -427,7 +428,7 @@
 
                     <!-- Filter Tabs -->
                     <div class="flex flex-wrap gap-2 p-1 bg-gray-50 rounded-xl">
-                        {#each ["all", "pending", "confirmed", "completed", "cancelled"] as tab}
+                        {#each ["all", "pending", "confirmed", "completed", "cancelled", "reminders"] as tab}
                             <button
                                 class="px-4 py-2 rounded-lg text-sm font-bold transition-all {activeTab ===
                                 tab
@@ -435,168 +436,185 @@
                                     : 'text-gray-500 hover:text-gray-700'}"
                                 on:click={() => (activeTab = tab)}
                             >
-                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                {tab === "all"
+                                    ? "All Activity"
+                                    : tab.charAt(0).toUpperCase() +
+                                      tab.slice(1)}
                             </button>
                         {/each}
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="bg-gray-50/50">
-                                <th
-                                    class="px-8 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-                                    >Doctor</th
-                                >
-                                <th
-                                    class="px-8 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-                                    >Date & Time</th
-                                >
-                                <th
-                                    class="px-8 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-                                    >Reason</th
-                                >
-                                <th
-                                    class="px-8 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
-                                    >Status</th
-                                >
-                                <th
-                                    class="px-8 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider"
-                                    >Actions</th
-                                >
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            {#if filteredAppointments.length === 0}
-                                <tr>
-                                    <td
-                                        colspan="5"
-                                        class="px-8 py-16 text-center"
+                {#if activeTab === "reminders"}
+                    <div class="p-6 md:p-8">
+                        <MedicationManager />
+                    </div>
+                {:else}
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50/50">
+                                    <th
+                                        class="px-8 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                                        >Doctor</th
                                     >
-                                        <div
-                                            class="flex flex-col items-center justify-center text-gray-400"
+                                    <th
+                                        class="px-8 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                                        >Date & Time</th
+                                    >
+                                    <th
+                                        class="px-8 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                                        >Reason</th
+                                    >
+                                    <th
+                                        class="px-8 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"
+                                        >Status</th
+                                    >
+                                    <th
+                                        class="px-8 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider"
+                                        >Actions</th
+                                    >
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                {#if filteredAppointments.length === 0}
+                                    <tr>
+                                        <td
+                                            colspan="5"
+                                            class="px-8 py-16 text-center"
                                         >
                                             <div
-                                                class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-4"
-                                            >
-                                                <Icon
-                                                    name="calendar"
-                                                    size={32}
-                                                />
-                                            </div>
-                                            <p class="font-bold text-gray-900">
-                                                No appointments found
-                                            </p>
-                                            <p class="text-sm mt-1">
-                                                Book an appointment to see your
-                                                activity here.
-                                            </p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {:else}
-                                {#each filteredAppointments as apt}
-                                    <tr
-                                        class="hover:bg-slate-50/50 transition-colors group"
-                                    >
-                                        <td class="px-8 py-5">
-                                            <div
-                                                class="flex items-center gap-3"
+                                                class="flex flex-col items-center justify-center text-gray-400"
                                             >
                                                 <div
-                                                    class="w-10 h-10 rounded-full bg-blue-50 text-secondary flex items-center justify-center font-bold"
-                                                >
-                                                    {apt.doctorName.charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <p
-                                                        class="font-bold text-gray-900 group-hover:text-primary transition-colors"
-                                                    >
-                                                        {apt.doctorName}
-                                                    </p>
-                                                    <p
-                                                        class="text-xs text-gray-500 capitalize"
-                                                    >
-                                                        {apt.type ||
-                                                            "Clinic Visit"}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-8 py-5 text-sm">
-                                            <p
-                                                class="font-medium text-gray-900"
-                                            >
-                                                {apt.date}
-                                            </p>
-                                            <p class="text-gray-500">
-                                                {apt.time}
-                                            </p>
-                                        </td>
-                                        <td
-                                            class="px-8 py-5 text-sm text-gray-600 max-w-[200px] truncate"
-                                        >
-                                            {apt.reason}
-                                        </td>
-                                        <td class="px-8 py-5">
-                                            <span
-                                                class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full {getStatusColor(
-                                                    apt.status,
-                                                )}"
-                                            >
-                                                {apt.status}
-                                            </span>
-                                        </td>
-                                        <td class="px-8 py-5 text-right">
-                                            <div
-                                                class="flex items-center justify-end gap-3"
-                                            >
-                                                <button
-                                                    class="p-2 text-gray-400 hover:text-primary hover:bg-blue-50 rounded-lg transition-all"
-                                                    on:click={() =>
-                                                        viewAppointment(apt)}
-                                                    title="View Details"
+                                                    class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-4"
                                                 >
                                                     <Icon
-                                                        name="eye"
-                                                        size={18}
+                                                        name="calendar"
+                                                        size={32}
                                                     />
-                                                </button>
-                                                {#if apt.status === "Pending" || apt.status === "Confirmed"}
-                                                    <button
-                                                        class="p-2 text-gray-400 hover:text-secondary hover:bg-blue-50 rounded-lg transition-all"
-                                                        on:click={() =>
-                                                            openEditModal(apt)}
-                                                        title="Edit Appointment"
-                                                    >
-                                                        <Icon
-                                                            name="edit"
-                                                            size={18}
-                                                        />
-                                                    </button>
-                                                    <button
-                                                        class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                                                        on:click={() =>
-                                                            handleCancel(
-                                                                apt.id,
-                                                            )}
-                                                        title="Cancel Appointment"
-                                                    >
-                                                        <Icon
-                                                            name="x-circle"
-                                                            size={18}
-                                                        />
-                                                    </button>
-                                                {/if}
+                                                </div>
+                                                <p
+                                                    class="font-bold text-gray-900"
+                                                >
+                                                    No appointments found
+                                                </p>
+                                                <p class="text-sm mt-1">
+                                                    Book an appointment to see
+                                                    your activity here.
+                                                </p>
                                             </div>
                                         </td>
                                     </tr>
-                                {/each}
-                            {/if}
-                        </tbody>
-                    </table>
-                </div>
+                                {:else}
+                                    {#each filteredAppointments as apt}
+                                        <tr
+                                            class="hover:bg-slate-50/50 transition-colors group"
+                                        >
+                                            <td class="px-8 py-5">
+                                                <div
+                                                    class="flex items-center gap-3"
+                                                >
+                                                    <div
+                                                        class="w-10 h-10 rounded-full bg-blue-50 text-secondary flex items-center justify-center font-bold"
+                                                    >
+                                                        {apt.doctorName.charAt(
+                                                            0,
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <p
+                                                            class="font-bold text-gray-900 group-hover:text-primary transition-colors"
+                                                        >
+                                                            {apt.doctorName}
+                                                        </p>
+                                                        <p
+                                                            class="text-xs text-gray-500 capitalize"
+                                                        >
+                                                            {apt.type ||
+                                                                "Clinic Visit"}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-8 py-5 text-sm">
+                                                <p
+                                                    class="font-medium text-gray-900"
+                                                >
+                                                    {apt.date}
+                                                </p>
+                                                <p class="text-gray-500">
+                                                    {apt.time}
+                                                </p>
+                                            </td>
+                                            <td
+                                                class="px-8 py-5 text-sm text-gray-600 max-w-[200px] truncate"
+                                            >
+                                                {apt.reason}
+                                            </td>
+                                            <td class="px-8 py-5">
+                                                <span
+                                                    class="px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full {getStatusColor(
+                                                        apt.status,
+                                                    )}"
+                                                >
+                                                    {apt.status}
+                                                </span>
+                                            </td>
+                                            <td class="px-8 py-5 text-right">
+                                                <div
+                                                    class="flex items-center justify-end gap-3"
+                                                >
+                                                    <button
+                                                        class="p-2 text-gray-400 hover:text-primary hover:bg-blue-50 rounded-lg transition-all"
+                                                        on:click={() =>
+                                                            viewAppointment(
+                                                                apt,
+                                                            )}
+                                                        title="View Details"
+                                                    >
+                                                        <Icon
+                                                            name="eye"
+                                                            size={18}
+                                                        />
+                                                    </button>
+                                                    {#if apt.status === "Pending" || apt.status === "Confirmed"}
+                                                        <button
+                                                            class="p-2 text-gray-400 hover:text-secondary hover:bg-blue-50 rounded-lg transition-all"
+                                                            on:click={() =>
+                                                                openEditModal(
+                                                                    apt,
+                                                                )}
+                                                            title="Edit Appointment"
+                                                        >
+                                                            <Icon
+                                                                name="edit"
+                                                                size={18}
+                                                            />
+                                                        </button>
+                                                        <button
+                                                            class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                                            on:click={() =>
+                                                                handleCancel(
+                                                                    apt.id,
+                                                                )}
+                                                            title="Cancel Appointment"
+                                                        >
+                                                            <Icon
+                                                                name="x-circle"
+                                                                size={18}
+                                                            />
+                                                        </button>
+                                                    {/if}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {/each}
+                                {/if}
+                            </tbody>
+                        </table>
+                    </div>
+                {/if}
             </div>
         </div>
     </div>
