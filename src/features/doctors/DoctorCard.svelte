@@ -1,9 +1,9 @@
 <script>
-    import Button from "$components/reusable/Button.svelte";
-    import Link from "$lib/Link.svelte";
-    import Card from "$components/reusable/Card.svelte";
-    import Icon from "$components/reusable/Icon.svelte";
-    import { getDoctorRatingStats } from "$lib/reviews.js";
+    import Button from "$ui/Button.svelte";
+    import Link from "$features/routing/Link.svelte";
+    import Card from "$ui/Card.svelte";
+    import Icon from "$ui/Icon.svelte";
+    import { getDoctorRatingStats } from "$features/doctors/reviews";
 
     export let doctor;
 

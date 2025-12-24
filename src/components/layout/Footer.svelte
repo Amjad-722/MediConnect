@@ -1,5 +1,5 @@
 <script>
-  import Icon from "$components/reusable/Icon.svelte";
+  import Icon from "$ui/Icon.svelte";
 </script>
 
 <footer

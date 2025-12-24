@@ -1,10 +1,10 @@
 <script>
-    import DoctorCard from "$components/doctors/DoctorCard.svelte";
-    import { doctors } from "$lib/data.js";
-    import Card from "$components/reusable/Card.svelte";
-    import Input from "$components/reusable/Input.svelte";
-    import Select from "$components/reusable/Select.svelte";
-    import searchIcon from "../assets/icons/search.svg";
+    import DoctorCard from "$features/doctors/DoctorCard.svelte";
+    import { doctors } from "$features/doctors/data";
+    import Card from "$ui/Card.svelte";
+    import Input from "$ui/Input.svelte";
+    import Select from "$ui/Select.svelte";
+    import searchIcon from "$assets/icons/search.svg";
 
     import { user } from "$lib/store";
 

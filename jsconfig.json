@@ -32,6 +32,15 @@
       ],
       "$components/*": [
         "./src/components/*"
+      ],
+      "$ui/*": [
+        "./src/components/ui/*"
+      ],
+      "$features/*": [
+        "./src/features/*"
+      ],
+      "$assets/*": [
+        "./src/assets/*"
       ]
     }
   },

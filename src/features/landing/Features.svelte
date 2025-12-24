@@ -1,6 +1,6 @@
 <script>
-    import { features } from "$lib/data.js";
-    import Icon from "$components/reusable/Icon.svelte";
+    import { features } from "$features/landing/data";
+    import Icon from "$ui/Icon.svelte";
 </script>
 
 <section class="relative py-16 sm:py-24 lg:py-32 overflow-hidden bg-white">

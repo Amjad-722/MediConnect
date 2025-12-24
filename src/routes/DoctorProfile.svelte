@@ -1,14 +1,14 @@
 <script>
-    import { doctors } from "$lib/data.js";
-    import Button from "$components/reusable/Button.svelte";
-    import Icon from "$components/reusable/Icon.svelte";
+    import { doctors } from "$features/doctors/data";
+    import Button from "$ui/Button.svelte";
+    import Icon from "$ui/Icon.svelte";
     import { user } from "$lib/store";
-    import { navigate } from "$lib/router.js";
-    import { createAppointment } from "$lib/appointments.js";
-    import { getDoctorRatingStats } from "$lib/reviews.js";
-    import ReviewForm from "$components/doctors/ReviewForm.svelte";
-    import ReviewList from "$components/doctors/ReviewList.svelte";
-    import Modal from "$components/reusable/Modal.svelte";
+    import { navigate } from "$features/routing/router";
+    import { createAppointment } from "$features/appointments/appointments";
+    import { getDoctorRatingStats } from "$features/doctors/reviews";
+    import ReviewForm from "$features/doctors/ReviewForm.svelte";
+    import ReviewList from "$features/doctors/ReviewList.svelte";
+    import Modal from "$ui/Modal.svelte";
 
     export let id;
 

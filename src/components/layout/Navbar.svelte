@@ -1,15 +1,15 @@
 <script>
-  import Link from "$lib/Link.svelte";
-  import Button from "$components/reusable/Button.svelte";
-  import menuIcon from "../assets/icons/menu.svg";
-  import xIcon from "../assets/icons/x.svg";
-  import userIcon from "../assets/icons/user.svg";
-  import chevronDownIcon from "../assets/icons/chevron-down.svg";
-  import settingsIcon from "../assets/icons/settings.svg";
-  import logOutIcon from "../assets/icons/log-out.svg";
+  import Link from "$features/routing/Link.svelte";
+  import Button from "$ui/Button.svelte";
+  import menuIcon from "$assets/icons/menu.svg";
+  import xIcon from "$assets/icons/x.svg";
+  import userIcon from "$assets/icons/user.svg";
+  import chevronDownIcon from "$assets/icons/chevron-down.svg";
+  import settingsIcon from "$assets/icons/settings.svg";
+  import logOutIcon from "$assets/icons/log-out.svg";
   import { user, logout, isSignupModalOpen } from "$lib/store";
-  import Icon from "$components/reusable/Icon.svelte";
-  import { navigate } from "$lib/router.js";
+  import Icon from "$ui/Icon.svelte";
+  import { navigate } from "$features/routing/router";
 
   let isMenuOpen = false;
   let isProfileMenuOpen = false;

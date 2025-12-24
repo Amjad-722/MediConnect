@@ -1,11 +1,11 @@
 <script>
-  import Button from "$components/reusable/Button.svelte";
-  import Icon from "$components/reusable/Icon.svelte";
-  import Hero from "$components/landing/Hero.svelte";
-  import Features from "$components/landing/Features.svelte";
-  import HowItWorks from "$components/landing/HowItWorks.svelte";
-  import Stats from "$components/landing/Stats.svelte";
-  import Testimonials from "$components/landing/Testimonials.svelte";
+  import Button from "$ui/Button.svelte";
+  import Icon from "$ui/Icon.svelte";
+  import Hero from "$features/landing/Hero.svelte";
+  import Features from "$features/landing/Features.svelte";
+  import HowItWorks from "$features/landing/HowItWorks.svelte";
+  import Stats from "$features/landing/Stats.svelte";
+  import Testimonials from "$features/landing/Testimonials.svelte";
   import { isSignupModalOpen } from "$lib/store";
 </script>
 

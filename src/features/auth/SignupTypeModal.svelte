@@ -1,8 +1,8 @@
 <script>
     import { isSignupModalOpen } from "$lib/store";
-    import Icon from "$components/reusable/Icon.svelte";
-    import { navigate } from "$lib/router.js";
-    import Modal from "$components/reusable/Modal.svelte";
+    import Icon from "$ui/Icon.svelte";
+    import { navigate } from "$features/routing/router";
+    import Modal from "$ui/Modal.svelte";
 
     function close() {
         isSignupModalOpen.set(false);

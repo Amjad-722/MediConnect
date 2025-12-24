@@ -1,8 +1,8 @@
 <script>
     import { user } from "$lib/store";
-    import { addReview } from "$lib/reviews";
-    import Icon from "$components/reusable/Icon.svelte";
-    import Button from "$components/reusable/Button.svelte";
+    import { addReview } from "$features/doctors/reviews";
+    import Icon from "$ui/Icon.svelte";
+    import Button from "$ui/Button.svelte";
 
     export let doctorId;
 

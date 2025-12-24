@@ -1,16 +1,16 @@
 <script>
-    import Button from "$components/reusable/Button.svelte";
-    import Icon from "$components/reusable/Icon.svelte";
+    import Button from "$ui/Button.svelte";
+    import Icon from "$ui/Icon.svelte";
     import { user } from "$lib/store";
-    import { navigate } from "$lib/router.js";
+    import { navigate } from "$features/routing/router";
     import { onMount } from "svelte";
-    import Link from "$lib/Link.svelte";
-    import AppointmentDetailsModal from "$components/AppointmentDetailsModal.svelte";
+    import Link from "$features/routing/Link.svelte";
+    import AppointmentDetailsModal from "$features/appointments/AppointmentDetailsModal.svelte";
     import {
         appointments,
         updateAppointmentStatus,
         getDoctorStats,
-    } from "$lib/appointments.js";
+    } from "$features/appointments/appointments";
 
     onMount(() => {
         if (!$user || $user.role !== "doctor") {

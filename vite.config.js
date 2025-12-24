@@ -8,6 +8,9 @@ export default defineConfig({
     alias: {
       $lib: '/src/lib',
       $components: '/src/components',
+      $ui: '/src/components/ui',
+      $features: '/src/features',
+      $assets: '/src/assets',
     },
   },
 })

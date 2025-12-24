@@ -11,7 +11,7 @@
   export let className = "";
   export let size = "md"; /* sm, md, lg, xl */
 
-  import { navigate } from "$lib/router.js";
+  import { navigate } from "$features/routing/router";
 
   function handleClick(e) {
     if (disabled) {

@@ -1,6 +1,6 @@
 <script>
     import { onMount } from "svelte";
-    import { stats as initialStats } from "$lib/data.js";
+    import { stats as initialStats } from "$features/landing/data";
 
     let statsVisible = false;
     let stats = initialStats.map((s) => ({ ...s, value: 0 }));

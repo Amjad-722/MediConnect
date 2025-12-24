@@ -1,5 +1,5 @@
 <script>
-    import { steps } from "$lib/data.js";
+    import { steps } from "$features/landing/data";
 </script>
 
 <section class="py-16 sm:py-24 lg:py-32 bg-slate-50 relative overflow-hidden">

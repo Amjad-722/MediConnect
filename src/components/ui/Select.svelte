@@ -1,5 +1,5 @@
 <script>
-    import chevronDown from "../../assets/icons/chevron-down.svg";
+    import chevronDown from "$assets/icons/chevron-down.svg";
 
     export let value = "";
     export let options = []; // Array of {value, label} or strings

@@ -1,8 +1,8 @@
 <script>
-  import Router from "$lib/Router.svelte";
-  import Route from "$lib/Route.svelte";
-  import Navbar from "$components/Navbar.svelte";
-  import Footer from "$components/Footer.svelte";
+  import Router from "$features/routing/Router.svelte";
+  import Route from "$features/routing/Route.svelte";
+  import Navbar from "$components/layout/Navbar.svelte";
+  import Footer from "$components/layout/Footer.svelte";
   import Landing from "./routes/Landing.svelte"; // Routes are usually kept relative or having their own alias
   import Doctors from "./routes/Doctors.svelte";
   import About from "./routes/About.svelte";
@@ -13,7 +13,7 @@
   import DoctorDashboard from "./routes/DoctorDashboard.svelte";
   import PatientDashboard from "./routes/PatientDashboard.svelte";
   import Profile from "./routes/Profile.svelte";
-  import SignupTypeModal from "$components/SignupTypeModal.svelte";
+  import SignupTypeModal from "$features/auth/SignupTypeModal.svelte";
 
   // Handle routing location
   export let url = "";

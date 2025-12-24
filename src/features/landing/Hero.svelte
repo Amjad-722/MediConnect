@@ -1,6 +1,6 @@
 <script>
-    import Button from "$components/reusable/Button.svelte";
-    import Icon from "$components/reusable/Icon.svelte";
+    import Button from "$ui/Button.svelte";
+    import Icon from "$ui/Icon.svelte";
 </script>
 
 <section
