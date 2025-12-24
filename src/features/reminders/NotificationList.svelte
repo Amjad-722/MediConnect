@@ -19,7 +19,7 @@
     }
 </script>
 
-<div class="relative w-full max-w-md animate-fade-in pt-3">
+<div class="relative w-full max-w-lg animate-fade-in pt-3">
     <!-- Chevron/Arrow -->
     <div
         class="absolute top-0 right-6 w-5 h-5 bg-[#000921] rotate-45 transform origin-center -z-10 translate-y-2"
@@ -32,7 +32,7 @@
             class="p-6 bg-[#000921] text-white flex justify-between items-center"
         >
             <div>
-                <h3 class="text-xl font-bold">Notifications</h3>
+                <h3 class="text-xl font-bold text-white">Notifications</h3>
                 <p class="text-white/60 text-xs mt-0.5">
                     Stay updated with your health schedule
                 </p>
