@@ -11,6 +11,9 @@
         updateAppointmentStatus,
         getDoctorStats,
     } from "$features/appointments/appointments";
+    import ChatInterface from "$features/messaging/ChatInterface.svelte";
+    import PrescriptionManager from "$features/prescriptions/PrescriptionManager.svelte";
+    import Modal from "$ui/Modal.svelte";
 
     onMount(() => {
         if (!$user || $user.role !== "doctor") {
@@ -99,6 +102,34 @@
         if (confirm("Are you sure you want to cancel this appointment?")) {
             updateAppointmentStatus(id, "Cancelled");
         }
+    }
+
+    // Chat State
+    let showChat = false;
+    let activeChatAppointment = null;
+
+    function openChat(apt) {
+        activeChatAppointment = apt;
+        showChat = true;
+    }
+
+    function closeChat() {
+        showChat = false;
+        activeChatAppointment = null;
+    }
+
+    // Prescribing State
+    let showPrescribeModal = false;
+    let selectedAptForRx = null;
+
+    function openPrescribeModal(apt) {
+        selectedAptForRx = apt;
+        showPrescribeModal = true;
+    }
+
+    function closePrescribeModal() {
+        showPrescribeModal = false;
+        selectedAptForRx = null;
     }
 </script>
 
@@ -354,6 +385,12 @@
                                                         appointment,
                                                     )}>View</button
                                             >
+                                            <button
+                                                class="text-secondary hover:text-secondary-dark mr-3"
+                                                on:click={() =>
+                                                    openChat(appointment)}
+                                                >Message</button
+                                            >
                                             {#if appointment.status === "Pending"}
                                                 <button
                                                     class="text-green-600 hover:text-green-700 mr-3"
@@ -370,6 +407,15 @@
                                                         completeAppointment(
                                                             appointment.id,
                                                         )}>Complete</button
+                                                >
+                                            {/if}
+                                            {#if appointment.status === "Completed"}
+                                                <button
+                                                    class="text-green-600 hover:text-green-700 mr-3"
+                                                    on:click={() =>
+                                                        openPrescribeModal(
+                                                            appointment,
+                                                        )}>Prescribe</button
                                                 >
                                             {/if}
                                             {#if appointment.status === "Pending" || appointment.status === "Confirmed"}
@@ -401,4 +447,40 @@
         onComplete={completeAppointment}
         onCancel={cancelAppointment}
     />
+
+    {#if showChat && activeChatAppointment}
+        <ChatInterface
+            appointmentId={activeChatAppointment.id}
+            otherPartyName={activeChatAppointment.patientName}
+            onClose={closeChat}
+        />
+    {/if}
+
+    <!-- Prescription Modal -->
+    <Modal
+        isOpen={showPrescribeModal}
+        title="Issue Prescription"
+        on:close={closePrescribeModal}
+    >
+        {#if selectedAptForRx}
+            <div class="mb-6 pb-6 border-b border-gray-100">
+                <p
+                    class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1"
+                >
+                    Patient
+                </p>
+                <p class="font-bold text-gray-900">
+                    {selectedAptForRx.patientName}
+                </p>
+                <p class="text-sm text-gray-500">{selectedAptForRx.reason}</p>
+            </div>
+            <PrescriptionManager
+                mode="issuer"
+                appointmentId={selectedAptForRx.id}
+                patientEmail={selectedAptForRx.patientEmail}
+                patientName={selectedAptForRx.patientName}
+                onClose={closePrescribeModal}
+            />
+        {/if}
+    </Modal>
 {/if}
