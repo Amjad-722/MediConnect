@@ -1,5 +1,6 @@
 <script>
     import { onMount } from "svelte";
+    import { slide } from "svelte/transition";
     import { user } from "$lib/store";
     import {
         medications,
@@ -73,7 +74,8 @@
 
     {#if showAddForm}
         <div
-            class="bg-gray-50 rounded-[2rem] p-6 sm:p-8 border border-gray-100 shadow-inner animate-in"
+            transition:slide
+            class="bg-gray-50 rounded-[2rem] p-6 sm:p-8 border border-gray-100 shadow-inner"
         >
             <h3 class="text-lg font-bold text-[#000921] mb-6">
                 Track New Medication
@@ -229,19 +231,3 @@
         {/if}
     </div>
 </div>
-
-<style>
-    .animate-in {
-        animation: slideDown 0.4s ease-out;
-    }
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-</style>

@@ -48,6 +48,7 @@
   }
 
   function handleOutsideClick(event) {
+    // Handle Profile Menu
     if (isProfileMenuOpen) {
       const profileMenu = document.getElementById("profile-menu");
       const profileButton = document.getElementById("profile-button");
@@ -58,6 +59,20 @@
         !profileButton.contains(event.target)
       ) {
         closeProfileMenu();
+      }
+    }
+
+    // Handle Notifications Menu
+    if (isNotificationsOpen) {
+      const notifyMenu = document.getElementById("notification-dropdown");
+      const notifyButton = document.getElementById("notification-button");
+      if (
+        notifyMenu &&
+        !notifyMenu.contains(event.target) &&
+        notifyButton &&
+        !notifyButton.contains(event.target)
+      ) {
+        isNotificationsOpen = false;
       }
     }
   }
@@ -130,6 +145,7 @@
       {#if $user}
         <div class="relative">
           <button
+            id="notification-button"
             on:click={toggleNotifications}
             class="p-2 text-white/70 hover:text-white hover:bg-white/5 rounded-full transition-all relative"
           >
@@ -144,7 +160,7 @@
           </button>
 
           {#if isNotificationsOpen}
-            <div class="absolute right-0 mt-4 z-50">
+            <div id="notification-dropdown" class="absolute right-0 mt-4 z-50">
               <NotificationList onClose={() => (isNotificationsOpen = false)} />
             </div>
           {/if}

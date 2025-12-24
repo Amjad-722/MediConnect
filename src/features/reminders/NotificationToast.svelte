@@ -1,5 +1,6 @@
 <script>
     import { onMount } from "svelte";
+    import { fly } from "svelte/transition";
     import { notifications, removeNotification } from "./notifications";
     import Icon from "$ui/Icon.svelte";
 
@@ -21,7 +22,8 @@
 >
     {#each toasts as toast (toast.id)}
         <div
-            class="pointer-events-auto bg-white border border-gray-100 rounded-2xl p-4 shadow-2xl flex items-start gap-4 min-w-[320px] max-w-[400px] animate-slide-in"
+            transition:fly={{ x: 100, duration: 400, opacity: 0 }}
+            class="pointer-events-auto bg-white border border-gray-100 rounded-2xl p-4 shadow-2xl flex items-start gap-4 min-w-[260px] max-w-[320px]"
         >
             <div
                 class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 {toast.type ===
@@ -49,20 +51,3 @@
         </div>
     {/each}
 </div>
-
-<style>
-    .animate-slide-in {
-        animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateX(100%) scale(0.9);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0) scale(1);
-        }
-    }
-</style>
