@@ -180,7 +180,7 @@
                     disabled
                     className="py-2 text-gray-400 opacity-100"
                 >
-                    Settings
+                    View all
                 </Button>
             {/if}
         </div>
