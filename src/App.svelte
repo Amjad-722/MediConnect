@@ -14,6 +14,13 @@
   import PatientDashboard from "./routes/PatientDashboard.svelte";
   import Profile from "./routes/Profile.svelte";
   import SignupTypeModal from "$features/auth/SignupTypeModal.svelte";
+  import NotificationToast from "$features/reminders/NotificationToast.svelte";
+  import { onMount } from "svelte";
+  import { startReminderService } from "$features/reminders/ReminderService";
+
+  onMount(() => {
+    startReminderService();
+  });
 
   // Handle routing location
   export let url = "";
@@ -22,6 +29,7 @@
 <Router url={url || undefined}>
   <div class="flex flex-col min-h-screen bg-slate-50">
     <Navbar />
+    <NotificationToast />
     <SignupTypeModal />
     <main class="flex-1">
       <Route path="/" component={Landing} />

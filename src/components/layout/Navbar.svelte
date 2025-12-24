@@ -10,9 +10,23 @@
   import { user, logout, isSignupModalOpen } from "$lib/store";
   import Icon from "$ui/Icon.svelte";
   import { navigate } from "$features/routing/router";
+  import { notifications } from "$features/reminders/notifications";
+  import NotificationList from "$features/reminders/NotificationList.svelte";
 
   let isMenuOpen = false;
   let isProfileMenuOpen = false;
+  let isNotificationsOpen = false;
+
+  $: unreadCount = $notifications.filter((n) => !n.read).length;
+
+  function toggleNotifications(event) {
+    if (event) event.stopPropagation();
+    isNotificationsOpen = !isNotificationsOpen;
+    if (isNotificationsOpen) {
+      isProfileMenuOpen = false;
+      isMenuOpen = false;
+    }
+  }
 
   function toggleMenu() {
     isMenuOpen = !isMenuOpen;
@@ -114,6 +128,28 @@
       {/if}
 
       {#if $user}
+        <div class="relative">
+          <button
+            on:click={toggleNotifications}
+            class="p-2 text-white/70 hover:text-white hover:bg-white/5 rounded-full transition-all relative"
+          >
+            <Icon name="bell" size={20} />
+            {#if unreadCount > 0}
+              <span
+                class="absolute top-1 right-1 w-4 h-4 bg-secondary text-[#000921] text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-[#000921]"
+              >
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            {/if}
+          </button>
+
+          {#if isNotificationsOpen}
+            <div class="absolute right-0 mt-4 z-50">
+              <NotificationList onClose={() => (isNotificationsOpen = false)} />
+            </div>
+          {/if}
+        </div>
+
         <div class="relative">
           <button
             id="profile-button"
