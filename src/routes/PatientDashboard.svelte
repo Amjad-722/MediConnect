@@ -9,8 +9,10 @@
         appointments,
         cancelAppointment,
         getPatientStats,
+        updateAppointment,
     } from "$features/appointments/appointments";
     import { records } from "$features/medical-records/records";
+    import Modal from "$ui/Modal.svelte";
 
     onMount(() => {
         if (!$user || $user.role !== "patient") {
@@ -100,6 +102,38 @@
         if (confirm("Are you sure you want to cancel this appointment?")) {
             cancelAppointment(id);
         }
+    }
+
+    // Edit Modal State
+    let showEditModal = false;
+    let editingAppointment = null;
+    let editForm = {
+        date: "",
+        time: "",
+        reason: "",
+    };
+
+    function openEditModal(apt) {
+        editingAppointment = apt;
+        editForm = {
+            date: apt.date,
+            time: apt.time,
+            reason: apt.reason,
+        };
+        showEditModal = true;
+    }
+
+    function handleUpdateAppointment() {
+        if (!editForm.date || !editForm.time || !editForm.reason) return;
+
+        updateAppointment(editingAppointment.id, {
+            date: editForm.date,
+            time: editForm.time,
+            reason: editForm.reason,
+        });
+
+        showEditModal = false;
+        editingAppointment = null;
     }
 </script>
 
@@ -531,6 +565,17 @@
                                                 </button>
                                                 {#if apt.status === "Pending" || apt.status === "Confirmed"}
                                                     <button
+                                                        class="p-2 text-gray-400 hover:text-secondary hover:bg-blue-50 rounded-lg transition-all"
+                                                        on:click={() =>
+                                                            openEditModal(apt)}
+                                                        title="Edit Appointment"
+                                                    >
+                                                        <Icon
+                                                            name="edit"
+                                                            size={18}
+                                                        />
+                                                    </button>
+                                                    <button
                                                         class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                                         on:click={() =>
                                                             handleCancel(
@@ -563,6 +608,79 @@
         onClose={closeViewModal}
         onCancel={handleCancel}
     />
+
+    <!-- Appointment Edit Modal (Previously added invalid import tag removed) -->
+    <Modal
+        isOpen={showEditModal}
+        title="Edit Appointment"
+        on:close={() => (showEditModal = false)}
+    >
+        {#if editingAppointment}
+            <div class="space-y-6">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">Doctor</p>
+                    <p class="font-bold text-gray-900">
+                        {editingAppointment.doctorName}
+                    </p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            for="dashEditDate"
+                            class="block text-sm font-bold text-gray-700 mb-2"
+                            >Date</label
+                        >
+                        <input
+                            id="dashEditDate"
+                            type="date"
+                            bind:value={editForm.date}
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium"
+                        />
+                    </div>
+                    <div>
+                        <label
+                            for="dashEditTime"
+                            class="block text-sm font-bold text-gray-700 mb-2"
+                            >Time</label
+                        >
+                        <input
+                            id="dashEditTime"
+                            type="text"
+                            bind:value={editForm.time}
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium"
+                            placeholder="e.g. 09:00 AM"
+                        />
+                    </div>
+                </div>
+                <div>
+                    <label
+                        for="dashEditReason"
+                        class="block text-sm font-bold text-gray-700 mb-2"
+                        >Reason for Visit</label
+                    >
+                    <textarea
+                        id="dashEditReason"
+                        rows="3"
+                        bind:value={editForm.reason}
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium resize-none"
+                    ></textarea>
+                </div>
+                <div
+                    class="flex justify-end gap-3 pt-4 border-t border-gray-100"
+                >
+                    <button
+                        class="px-5 py-2.5 rounded-xl font-bold text-gray-500 hover:bg-gray-50 transition-all"
+                        on:click={() => (showEditModal = false)}
+                    >
+                        Cancel
+                    </button>
+                    <Button variant="primary" onClick={handleUpdateAppointment}>
+                        Save Changes
+                    </Button>
+                </div>
+            </div>
+        {/if}
+    </Modal>
 {/if}
 
 <style>

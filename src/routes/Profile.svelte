@@ -8,6 +8,7 @@
     import {
         getAppointmentsByPatient,
         cancelAppointment,
+        updateAppointment,
     } from "$features/appointments/appointments";
     import MedicalRecords from "$features/medical-records/MedicalRecords.svelte";
 
@@ -173,6 +174,42 @@
             default:
                 return "bg-gray-100 text-gray-800";
         }
+    }
+    // Appointment Editing state
+    let showEditModal = false;
+    let editingAppointment = null;
+    let editForm = {
+        date: "",
+        time: "",
+        reason: "",
+    };
+
+    function openEditModal(apt) {
+        editingAppointment = apt;
+        editForm = {
+            date: apt.date,
+            time: apt.time,
+            reason: apt.reason,
+        };
+        showEditModal = true;
+    }
+
+    function handleUpdateAppointment() {
+        if (!editForm.date || !editForm.time || !editForm.reason) return;
+
+        updateAppointment(editingAppointment.id, {
+            date: editForm.date,
+            time: editForm.time,
+            reason: editForm.reason,
+        });
+
+        // Refresh list
+        appointments = getAppointmentsByPatient($user.email);
+        showEditModal = false;
+        editingAppointment = null;
+
+        successMessage = "Appointment updated successfully!";
+        setTimeout(() => (successMessage = ""), 3000);
     }
 </script>
 
@@ -639,6 +676,15 @@
                                                     </span>
                                                     {#if apt.status === "Pending" || apt.status === "Confirmed"}
                                                         <button
+                                                            class="text-secondary hover:text-blue-600 text-sm font-bold hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors"
+                                                            on:click={() =>
+                                                                openEditModal(
+                                                                    apt,
+                                                                )}
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button
                                                             class="text-red-500 hover:text-red-600 text-sm font-bold hover:bg-red-50 px-3 py-2 rounded-lg transition-colors"
                                                             on:click={() => {
                                                                 if (
@@ -743,6 +789,86 @@
                     {:else if activeSection === "records" && $user.role === "patient"}
                         <MedicalRecords />
                     {/if}
+
+                    <!-- Appointment Edit Modal -->
+                    <Modal
+                        isOpen={showEditModal}
+                        title="Edit Appointment"
+                        on:close={() => (showEditModal = false)}
+                    >
+                        {#if editingAppointment}
+                            <div class="space-y-6">
+                                <div>
+                                    <p class="text-sm text-gray-500 mb-1">
+                                        Doctor
+                                    </p>
+                                    <p class="font-bold text-gray-900">
+                                        {editingAppointment.doctorName}
+                                    </p>
+                                </div>
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-2 gap-4"
+                                >
+                                    <div>
+                                        <label
+                                            for="editDate"
+                                            class="block text-sm font-bold text-gray-700 mb-2"
+                                            >Date</label
+                                        >
+                                        <input
+                                            id="editDate"
+                                            type="date"
+                                            bind:value={editForm.date}
+                                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label
+                                            for="editTime"
+                                            class="block text-sm font-bold text-gray-700 mb-2"
+                                            >Time</label
+                                        >
+                                        <input
+                                            id="editTime"
+                                            type="text"
+                                            bind:value={editForm.time}
+                                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium"
+                                            placeholder="e.g. 09:00 AM"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label
+                                        for="editReason"
+                                        class="block text-sm font-bold text-gray-700 mb-2"
+                                        >Reason for Visit</label
+                                    >
+                                    <textarea
+                                        id="editReason"
+                                        rows="3"
+                                        bind:value={editForm.reason}
+                                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium resize-none"
+                                    ></textarea>
+                                </div>
+                                <div
+                                    class="flex justify-end gap-3 pt-4 border-t border-gray-100"
+                                >
+                                    <button
+                                        class="px-5 py-2.5 rounded-xl font-bold text-gray-500 hover:bg-gray-50 transition-all"
+                                        on:click={() => (showEditModal = false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <Button
+                                        variant="primary"
+                                        onClick={handleUpdateAppointment}
+                                    >
+                                        Save Changes
+                                    </Button>
+                                </div>
+                            </div>
+                        {/if}
+                    </Modal>
 
                     {#if activeSection === "availability" && $user.role === "doctor"}
                         <form

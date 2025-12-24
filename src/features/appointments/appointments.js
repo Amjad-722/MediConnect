@@ -84,6 +84,17 @@ export function updateAppointmentStatus(appointmentId, newStatus) {
 }
 
 /**
+ * Update appointment details
+ */
+export function updateAppointment(appointmentId, updatedData) {
+    appointments.update(current =>
+        current.map(apt =>
+            apt.id === appointmentId ? { ...apt, ...updatedData } : apt
+        )
+    );
+}
+
+/**
  * Cancel an appointment
  */
 export function cancelAppointment(appointmentId) {
