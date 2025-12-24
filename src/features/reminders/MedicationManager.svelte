@@ -82,10 +82,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label
+                            for="medName"
                             class="block text-sm font-bold text-gray-700 mb-2"
                             >Medication Name</label
                         >
                         <input
+                            id="medName"
                             type="text"
                             bind:value={newMed.name}
                             placeholder="e.g. Amoxicillin, Vitamin D"
@@ -95,10 +97,12 @@
                     </div>
                     <div>
                         <label
+                            for="medDosage"
                             class="block text-sm font-bold text-gray-700 mb-2"
                             >Dosage</label
                         >
                         <input
+                            id="medDosage"
                             type="text"
                             bind:value={newMed.dosage}
                             placeholder="e.g. 500mg, 1 tablet"
@@ -108,10 +112,12 @@
                     </div>
                     <div>
                         <label
+                            for="medFreq"
                             class="block text-sm font-bold text-gray-700 mb-2"
                             >Frequency</label
                         >
                         <select
+                            id="medFreq"
                             bind:value={newMed.frequency}
                             class="w-full px-5 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium text-sm text-gray-900"
                         >
@@ -123,14 +129,30 @@
                     </div>
                     <div>
                         <label
+                            for="medTime"
                             class="block text-sm font-bold text-gray-700 mb-2"
                             >Reminder Time</label
                         >
                         <input
+                            id="medTime"
                             type="time"
                             bind:value={newMed.time}
                             class="w-full px-5 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium text-sm"
                         />
+                    </div>
+                    <div class="md:col-span-2">
+                        <label
+                            for="medNotes"
+                            class="block text-sm font-bold text-gray-700 mb-2"
+                            >Notes (Optional)</label
+                        >
+                        <textarea
+                            id="medNotes"
+                            bind:value={newMed.notes}
+                            rows="2"
+                            placeholder="e.g. Take with food, after breakfast"
+                            class="w-full px-5 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none font-medium text-sm resize-none"
+                        ></textarea>
                     </div>
                 </div>
                 <div class="flex justify-end pt-4">
