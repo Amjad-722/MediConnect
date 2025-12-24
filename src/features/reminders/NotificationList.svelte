@@ -35,13 +35,15 @@
         >
             <h3 class="text-base font-bold text-gray-900">Notifications</h3>
             {#if $notifications.some((n) => !n.read)}
-                <button
-                    on:click={markAllAsRead}
-                    class="flex items-center gap-1.5 text-xs font-bold text-primary hover:opacity-80 transition-opacity"
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={markAllAsRead}
+                    className="p-1 h-auto text-primary font-bold hover:bg-primary/5 border-none"
                 >
-                    <Icon name="check" size={14} />
+                    <Icon name="check" size={14} className="mr-1.5" />
                     Mark all as read
-                </button>
+                </Button>
             {/if}
         </div>
 
@@ -122,21 +124,25 @@
                                     class="flex gap-3 mt-2 opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
                                     {#if !notification.read}
-                                        <button
-                                            on:click={() =>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() =>
                                                 markAsRead(notification.id)}
-                                            class="text-[10px] font-bold text-primary hover:underline"
+                                            className="p-0 h-auto text-[10px] font-bold text-primary hover:underline hover:bg-transparent border-none"
                                         >
                                             Mark as read
-                                        </button>
+                                        </Button>
                                     {/if}
-                                    <button
-                                        on:click={() =>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() =>
                                             removeNotification(notification.id)}
-                                        class="text-[10px] font-bold text-red-500 hover:underline"
+                                        className="p-0 h-auto text-[10px] font-bold text-red-500 hover:underline hover:bg-transparent border-none"
                                     >
                                         Delete
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         </div>
@@ -148,24 +154,34 @@
         <!-- Footer -->
         <div class="p-4 bg-white border-t border-gray-50 space-y-2">
             {#if $notifications.length > 0}
-                <button
-                    class="w-full py-2.5 text-xs font-bold bg-gray-50 text-gray-600 rounded-xl hover:bg-gray-100 transition-all text-center"
-                    on:click={onClose}
+                <Button
+                    variant="ghost"
+                    fullWidth
+                    size="sm"
+                    onClick={onClose}
+                    className="py-2.5 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-xl"
                 >
                     Show all
-                </button>
-                <button
-                    class="w-full py-2 text-[10px] font-bold text-gray-400 hover:text-red-500 transition-colors uppercase tracking-wider"
-                    on:click={clearAllNotifications}
+                </Button>
+                <Button
+                    variant="ghost"
+                    fullWidth
+                    size="sm"
+                    onClick={clearAllNotifications}
+                    className="py-2 text-[10px] font-bold text-gray-400 hover:text-red-500 uppercase tracking-wider hover:bg-transparent"
                 >
                     Clear all notifications
-                </button>
+                </Button>
             {:else}
-                <button
-                    class="w-full py-2 text-xs font-bold text-gray-400 cursor-default"
+                <Button
+                    variant="ghost"
+                    fullWidth
+                    size="sm"
+                    disabled
+                    className="py-2 text-gray-400 opacity-100"
                 >
                     Settings
-                </button>
+                </Button>
             {/if}
         </div>
     </div>

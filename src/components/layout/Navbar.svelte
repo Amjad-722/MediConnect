@@ -144,10 +144,12 @@
 
       {#if $user}
         <div class="relative">
-          <button
+          <Button
             id="notification-button"
-            on:click={toggleNotifications}
-            class="p-2 text-white/70 hover:text-white hover:bg-white/5 rounded-full transition-all relative"
+            variant="ghost"
+            size="sm"
+            onClick={toggleNotifications}
+            className="p-2 text-white/70 hover:text-white hover:bg-white/5 rounded-full relative min-w-0"
           >
             <Icon name="bell" size={20} />
             {#if unreadCount > 0}
@@ -157,7 +159,7 @@
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             {/if}
-          </button>
+          </Button>
 
           {#if isNotificationsOpen}
             <div id="notification-dropdown" class="absolute right-0 mt-4 z-50">

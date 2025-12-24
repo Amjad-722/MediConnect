@@ -3,6 +3,7 @@
     import { fly } from "svelte/transition";
     import { notifications, removeNotification } from "./notifications";
     import Icon from "$ui/Icon.svelte";
+    import Button from "$ui/Button.svelte";
 
     let toasts = [];
 
@@ -42,12 +43,14 @@
                     {toast.message}
                 </p>
             </div>
-            <button
-                on:click={() => dismiss(toast.id)}
-                class="text-gray-400 hover:text-gray-600 transition-colors"
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => dismiss(toast.id)}
+                className="p-1 min-w-0 h-auto text-gray-400 hover:text-gray-600"
             >
                 <Icon name="x" size={16} />
-            </button>
+            </Button>
         </div>
     {/each}
 </div>

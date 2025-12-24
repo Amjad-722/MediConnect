@@ -219,12 +219,14 @@
                                 </div>
                             </div>
                         </div>
-                        <button
-                            on:click={() => removeMed(med.id)}
-                            class="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeMed(med.id)}
+                            className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50"
                         >
                             <Icon name="trash" size={18} />
-                        </button>
+                        </Button>
                     </div>
                 </div>
             {/each}
