@@ -6,6 +6,7 @@
 
     let email = "";
     let password = "";
+    let showPassword = false;
     let isLoading = false;
     let errorMessage = "";
 
@@ -93,16 +94,67 @@
                         class="block text-sm font-medium text-gray-700 mb-1"
                         >Password</label
                     >
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        bind:value={password}
-                        autocomplete="current-password"
-                        required
-                        class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
-                        placeholder="••••••••"
-                    />
+                    <div class="relative">
+                        <input
+                            id="password"
+                            name="password"
+                            type={showPassword ? "text" : "password"}
+                            bind:value={password}
+                            autocomplete="current-password"
+                            required
+                            class="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm pr-10"
+                            placeholder="••••••••"
+                        />
+                        <button
+                            type="button"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                            on:click={() => (showPassword = !showPassword)}
+                            aria-label={showPassword
+                                ? "Hide password"
+                                : "Show password"}
+                        >
+                            {#if showPassword}
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    ><path
+                                        d="M9.88 9.88a3 3 0 1 0 4.24 4.24"
+                                    /><path
+                                        d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
+                                    /><path
+                                        d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
+                                    /><line
+                                        x1="2"
+                                        x2="22"
+                                        y1="2"
+                                        y2="22"
+                                    /></svg
+                                >
+                            {:else}
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    ><path
+                                        d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"
+                                    /><circle cx="12" cy="12" r="3" /></svg
+                                >
+                            {/if}
+                        </button>
+                    </div>
                 </div>
             </div>
 
