@@ -7,20 +7,35 @@
     let email = "";
     let password = "";
     let isLoading = false;
+    let errorMessage = "";
 
     async function handleLogin() {
         isLoading = true;
-        // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        errorMessage = "";
 
-        if (email.includes("doctor")) {
-            login(email, { role: "doctor" });
-            navigate("/doctor-dashboard", { replace: true });
-        } else {
-            login(email);
-            navigate("/", { replace: true });
+        try {
+            const result = await login(email, password);
+
+            if (result.success) {
+                // Determine redirect based on role
+                // The user store will be updated by the store's internal listener
+                // We'll wait a bit for the store to update or we can check the result
+                if (result.user) {
+                    // We need to know the role to redirect correctly
+                    // For now, redirect to home which will handle routing based on user state
+                    navigate("/", { replace: true });
+                }
+            } else {
+                errorMessage =
+                    result.error ||
+                    "Login failed. Please check your credentials.";
+            }
+        } catch (error) {
+            errorMessage = "An unexpected error occurred. Please try again.";
+            console.error(error);
+        } finally {
+            isLoading = false;
         }
-        isLoading = false;
     }
 </script>
 
@@ -42,6 +57,17 @@
                 </Link>
             </p>
         </div>
+
+        {#if errorMessage}
+            <div
+                class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200"
+                role="alert"
+            >
+                <span class="font-medium">Error!</span>
+                {errorMessage}
+            </div>
+        {/if}
+
         <form class="mt-8 space-y-6" on:submit|preventDefault={handleLogin}>
             <div class="space-y-4">
                 <div>

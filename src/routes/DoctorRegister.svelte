@@ -1,7 +1,7 @@
 <script>
     import Button from "$ui/Button.svelte";
     import Link from "$features/routing/Link.svelte";
-    import { login } from "$lib/store";
+    import { signup } from "$lib/store";
     import { navigate } from "$features/routing/router";
 
     let firstName = "";
@@ -11,6 +11,7 @@
     let specialty = "";
     let licenseNumber = "";
     let isLoading = false;
+    let errorMessage = "";
 
     const specialties = [
         "Cardiologist",
@@ -25,18 +26,28 @@
 
     async function handleRegister() {
         isLoading = true;
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        errorMessage = "";
 
-        // Register as a doctor (in a real app, this would likely require approval)
-        login(email, {
-            name: `Dr. ${firstName} ${lastName}`,
-            role: "doctor",
-            specialty,
-            licenseNumber,
-        });
+        try {
+            const result = await signup(email, password, {
+                name: `Dr. ${firstName} ${lastName}`,
+                role: "doctor",
+                specialty,
+                licenseNumber,
+            });
 
-        navigate("/", { replace: true });
-        isLoading = false;
+            if (result.success) {
+                navigate("/", { replace: true });
+            } else {
+                errorMessage =
+                    result.error || "Registration failed. Please try again.";
+            }
+        } catch (error) {
+            errorMessage = "An unexpected error occurred. Please try again.";
+            console.error(error);
+        } finally {
+            isLoading = false;
+        }
     }
 </script>
 
@@ -58,6 +69,17 @@
                 </Link>
             </p>
         </div>
+
+        {#if errorMessage}
+            <div
+                class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200"
+                role="alert"
+            >
+                <span class="font-medium">Error!</span>
+                {errorMessage}
+            </div>
+        {/if}
+
         <form class="mt-8 space-y-6" on:submit|preventDefault={handleRegister}>
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">

@@ -1,27 +1,108 @@
 import { writable } from 'svelte/store';
+import { supabase } from '../../lib/supabaseClient';
 
 // Check if we're in the browser
 const browser = typeof window !== 'undefined';
 
-// Get initial appointments from localStorage if available
-const storedAppointments = browser ? localStorage.getItem('appointments') : null;
-const initialAppointments = storedAppointments ? JSON.parse(storedAppointments) : [];
-
 // Create the appointments store
-export const appointments = writable(initialAppointments);
-
-// Subscribe to store changes and update localStorage
-if (browser) {
-    appointments.subscribe(value => {
-        localStorage.setItem('appointments', JSON.stringify(value));
-    });
-}
+export const appointments = writable([]);
 
 /**
- * Generate a unique appointment ID
+ * Initialize appointments from Supabase and set up real-time subscription
  */
-function generateId() {
-    return `APT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+async function initializeAppointments() {
+    if (!browser) return;
+
+    try {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Fetch user's role
+        const { data: userProfile } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+        if (!userProfile) return;
+
+        // Fetch appointments based on role
+        let query = supabase
+            .from('appointments')
+            .select(`
+                *,
+                doctor:doctor_id(name, email),
+                patient:patient_id(name, email)
+            `)
+            .order('date', { ascending: true });
+
+        if (userProfile.role === 'doctor') {
+            query = query.eq('doctor_id', user.id);
+        } else {
+            query = query.eq('patient_id', user.id);
+        }
+
+        const { data, error } = await query;
+
+        if (error) throw error;
+
+        // Format appointments to match existing structure
+        const formattedAppointments = data?.map(apt => ({
+            id: apt.id,
+            doctorId: apt.doctor_id,
+            doctorName: apt.doctor?.name || '',
+            patientName: apt.patient?.name || '',
+            patientEmail: apt.patient?.email || '',
+            date: apt.date,
+            day: apt.day,
+            time: apt.time,
+            type: apt.type,
+            reason: apt.reason,
+            status: apt.status,
+            createdAt: apt.created_at,
+            notes: apt.notes || ''
+        })) || [];
+
+        appointments.set(formattedAppointments);
+
+        // Set up real-time subscription
+        const channel = supabase
+            .channel('appointments_changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'appointments',
+                    filter: userProfile.role === 'doctor'
+                        ? `doctor_id=eq.${user.id}`
+                        : `patient_id=eq.${user.id}`
+                },
+                () => {
+                    // Reload appointments on any change
+                    initializeAppointments();
+                }
+            )
+            .subscribe();
+
+    } catch (error) {
+        console.error('Error initializing appointments:', error);
+    }
+}
+
+// Initialize appointments when auth state changes
+if (browser) {
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN') {
+            initializeAppointments();
+        } else if (event === 'SIGNED_OUT') {
+            appointments.set([]);
+        }
+    });
+
+    // Initialize on load
+    initializeAppointments();
 }
 
 /**
@@ -51,133 +132,294 @@ function getNextDateForDay(dayName) {
 /**
  * Create a new appointment
  */
-export function createAppointment(appointmentData) {
-    const newAppointment = {
-        id: generateId(),
-        doctorId: appointmentData.doctorId,
-        doctorName: appointmentData.doctorName,
-        patientName: appointmentData.patientName,
-        patientEmail: appointmentData.patientEmail,
-        date: appointmentData.date || getNextDateForDay(appointmentData.day),
-        day: appointmentData.day,
-        time: appointmentData.time,
-        type: appointmentData.type || 'In-Person',
-        reason: appointmentData.reason || 'General Consultation',
-        status: 'Pending',
-        createdAt: new Date().toISOString(),
-        notes: appointmentData.notes || ''
-    };
+export async function createAppointment(appointmentData) {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
 
-    appointments.update(current => [...current, newAppointment]);
-    return newAppointment;
+        const appointmentDate = appointmentData.date || getNextDateForDay(appointmentData.day);
+
+        const { data, error } = await supabase
+            .from('appointments')
+            .insert({
+                doctor_id: appointmentData.doctorId,
+                patient_id: user.id,
+                date: appointmentDate,
+                day: appointmentData.day,
+                time: appointmentData.time,
+                type: appointmentData.type || 'In-Person',
+                reason: appointmentData.reason || 'General Consultation',
+                status: 'Pending',
+                notes: appointmentData.notes || ''
+            })
+            .select(`
+                *,
+                doctor:doctor_id(name, email),
+                patient:patient_id(name, email)
+            `)
+            .single();
+
+        if (error) throw error;
+
+        // Format and return the new appointment
+        const newAppointment = {
+            id: data.id,
+            doctorId: data.doctor_id,
+            doctorName: data.doctor?.name || appointmentData.doctorName,
+            patientName: data.patient?.name || '',
+            patientEmail: data.patient?.email || '',
+            date: data.date,
+            day: data.day,
+            time: data.time,
+            type: data.type,
+            reason: data.reason,
+            status: data.status,
+            createdAt: data.created_at,
+            notes: data.notes || ''
+        };
+
+        // Update local store
+        appointments.update(current => [...current, newAppointment]);
+
+        return newAppointment;
+    } catch (error) {
+        console.error('Error creating appointment:', error);
+        throw error;
+    }
 }
 
 /**
  * Update appointment status
  */
-export function updateAppointmentStatus(appointmentId, newStatus) {
-    appointments.update(current =>
-        current.map(apt =>
-            apt.id === appointmentId ? { ...apt, status: newStatus } : apt
-        )
-    );
+export async function updateAppointmentStatus(appointmentId, newStatus) {
+    try {
+        const { error } = await supabase
+            .from('appointments')
+            .update({ status: newStatus })
+            .eq('id', appointmentId);
+
+        if (error) throw error;
+
+        // Update local store
+        appointments.update(current =>
+            current.map(apt =>
+                apt.id === appointmentId ? { ...apt, status: newStatus } : apt
+            )
+        );
+    } catch (error) {
+        console.error('Error updating appointment status:', error);
+        throw error;
+    }
 }
 
 /**
  * Update appointment details
  */
-export function updateAppointment(appointmentId, updatedData) {
-    appointments.update(current =>
-        current.map(apt =>
-            apt.id === appointmentId ? { ...apt, ...updatedData } : apt
-        )
-    );
+export async function updateAppointment(appointmentId, updatedData) {
+    try {
+        const { error } = await supabase
+            .from('appointments')
+            .update({
+                date: updatedData.date,
+                time: updatedData.time,
+                day: updatedData.day,
+                type: updatedData.type,
+                reason: updatedData.reason,
+                notes: updatedData.notes
+            })
+            .eq('id', appointmentId);
+
+        if (error) throw error;
+
+        // Update local store
+        appointments.update(current =>
+            current.map(apt =>
+                apt.id === appointmentId ? { ...apt, ...updatedData } : apt
+            )
+        );
+    } catch (error) {
+        console.error('Error updating appointment:', error);
+        throw error;
+    }
 }
 
 /**
  * Cancel an appointment
  */
 export function cancelAppointment(appointmentId) {
-    updateAppointmentStatus(appointmentId, 'Cancelled');
+    return updateAppointmentStatus(appointmentId, 'Cancelled');
 }
 
 /**
  * Get appointments for a specific doctor
  */
-export function getAppointmentsByDoctor(doctorId) {
-    let result = [];
-    appointments.subscribe(apts => {
-        result = apts.filter(apt => apt.doctorId === doctorId);
-    })();
-    return result;
+export async function getAppointmentsByDoctor(doctorId) {
+    try {
+        const { data, error } = await supabase
+            .from('appointments')
+            .select(`
+                *,
+                doctor:doctor_id(name, email),
+                patient:patient_id(name, email)
+            `)
+            .eq('doctor_id', doctorId);
+
+        if (error) throw error;
+
+        return data?.map(apt => ({
+            id: apt.id,
+            doctorId: apt.doctor_id,
+            doctorName: apt.doctor?.name || '',
+            patientName: apt.patient?.name || '',
+            patientEmail: apt.patient?.email || '',
+            date: apt.date,
+            day: apt.day,
+            time: apt.time,
+            type: apt.type,
+            reason: apt.reason,
+            status: apt.status,
+            createdAt: apt.created_at,
+            notes: apt.notes || ''
+        })) || [];
+    } catch (error) {
+        console.error('Error fetching doctor appointments:', error);
+        return [];
+    }
 }
 
 /**
  * Get appointments for a specific patient
  */
-export function getAppointmentsByPatient(patientEmail) {
-    let result = [];
-    appointments.subscribe(apts => {
-        result = apts.filter(apt => apt.patientEmail === patientEmail);
-    })();
-    return result;
+export async function getAppointmentsByPatient(patientId) {
+    try {
+        const { data, error } = await supabase
+            .from('appointments')
+            .select(`
+                *,
+                doctor:doctor_id(name, email),
+                patient:patient_id(name, email)
+            `)
+            .eq('patient_id', patientId);
+
+        if (error) throw error;
+
+        return data?.map(apt => ({
+            id: apt.id,
+            doctorId: apt.doctor_id,
+            doctorName: apt.doctor?.name || '',
+            patientName: apt.patient?.name || '',
+            patientEmail: apt.patient?.email || '',
+            date: apt.date,
+            day: apt.day,
+            time: apt.time,
+            type: apt.type,
+            reason: apt.reason,
+            status: apt.status,
+            createdAt: apt.created_at,
+            notes: apt.notes || ''
+        })) || [];
+    } catch (error) {
+        console.error('Error fetching patient appointments:', error);
+        return [];
+    }
 }
 
 /**
  * Get appointment statistics for a doctor
  */
-export function getDoctorStats(doctorId) {
-    let apts = [];
-    appointments.subscribe(current => {
-        apts = current.filter(apt => apt.doctorId === doctorId);
-    })();
+export async function getDoctorStats(doctorId) {
+    try {
+        const { data: apts, error } = await supabase
+            .from('appointments')
+            .select('*')
+            .eq('doctor_id', doctorId);
 
-    const now = new Date();
-    const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        if (error) throw error;
 
-    return {
-        total: apts.length,
-        pending: apts.filter(apt => apt.status === 'Pending').length,
-        confirmed: apts.filter(apt => apt.status === 'Confirmed').length,
-        completed: apts.filter(apt => apt.status === 'Completed').length,
-        cancelled: apts.filter(apt => apt.status === 'Cancelled').length,
-        upcomingThisWeek: apts.filter(apt => {
-            const aptDate = new Date(apt.date);
-            return aptDate >= now && aptDate <= weekFromNow &&
-                (apt.status === 'Pending' || apt.status === 'Confirmed');
-        }).length,
-        uniquePatients: new Set(apts.map(apt => apt.patientEmail)).size
-    };
+        const now = new Date();
+        const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+        return {
+            total: apts?.length || 0,
+            pending: apts?.filter(apt => apt.status === 'Pending').length || 0,
+            confirmed: apts?.filter(apt => apt.status === 'Confirmed').length || 0,
+            completed: apts?.filter(apt => apt.status === 'Completed').length || 0,
+            cancelled: apts?.filter(apt => apt.status === 'Cancelled').length || 0,
+            upcomingThisWeek: apts?.filter(apt => {
+                const aptDate = new Date(apt.date);
+                return aptDate >= now && aptDate <= weekFromNow &&
+                    (apt.status === 'Pending' || apt.status === 'Confirmed');
+            }).length || 0,
+            uniquePatients: new Set(apts?.map(apt => apt.patient_id) || []).size
+        };
+    } catch (error) {
+        console.error('Error fetching doctor stats:', error);
+        return {
+            total: 0,
+            pending: 0,
+            confirmed: 0,
+            completed: 0,
+            cancelled: 0,
+            upcomingThisWeek: 0,
+            uniquePatients: 0
+        };
+    }
 }
 
 /**
  * Get appointment statistics for a patient
  */
-export function getPatientStats(patientEmail) {
-    let apts = [];
-    appointments.subscribe(current => {
-        apts = current.filter(apt => apt.patientEmail === patientEmail);
-    })();
+export async function getPatientStats(patientId) {
+    try {
+        const { data: apts, error } = await supabase
+            .from('appointments')
+            .select('*')
+            .eq('patient_id', patientId);
 
-    const now = new Date();
+        if (error) throw error;
 
-    return {
-        total: apts.length,
-        upcoming: apts.filter(apt => {
-            const aptDate = new Date(apt.date);
-            return aptDate >= now && (apt.status === 'Pending' || apt.status === 'Confirmed');
-        }).length,
-        completed: apts.filter(apt => apt.status === 'Completed').length,
-        cancelled: apts.filter(apt => apt.status === 'Cancelled').length,
-        pending: apts.filter(apt => apt.status === 'Pending').length
-    };
+        const now = new Date();
+
+        return {
+            total: apts?.length || 0,
+            upcoming: apts?.filter(apt => {
+                const aptDate = new Date(apt.date);
+                return aptDate >= now && (apt.status === 'Pending' || apt.status === 'Confirmed');
+            }).length || 0,
+            completed: apts?.filter(apt => apt.status === 'Completed').length || 0,
+            cancelled: apts?.filter(apt => apt.status === 'Cancelled').length || 0,
+            pending: apts?.filter(apt => apt.status === 'Pending').length || 0
+        };
+    } catch (error) {
+        console.error('Error fetching patient stats:', error);
+        return {
+            total: 0,
+            upcoming: 0,
+            completed: 0,
+            cancelled: 0,
+            pending: 0
+        };
+    }
 }
 
 /**
  * Delete an appointment (for admin purposes)
  */
-export function deleteAppointment(appointmentId) {
-    appointments.update(current =>
-        current.filter(apt => apt.id !== appointmentId)
-    );
+export async function deleteAppointment(appointmentId) {
+    try {
+        const { error } = await supabase
+            .from('appointments')
+            .delete()
+            .eq('id', appointmentId);
+
+        if (error) throw error;
+
+        // Update local store
+        appointments.update(current =>
+            current.filter(apt => apt.id !== appointmentId)
+        );
+    } catch (error) {
+        console.error('Error deleting appointment:', error);
+        throw error;
+    }
 }

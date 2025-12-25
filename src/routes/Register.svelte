@@ -1,7 +1,7 @@
 <script>
     import Button from "$ui/Button.svelte";
     import Link from "$features/routing/Link.svelte";
-    import { login } from "$lib/store";
+    import { signup } from "$lib/store";
     import { navigate } from "$features/routing/router";
 
     let firstName = "";
@@ -9,14 +9,30 @@
     let email = "";
     let password = "";
     let isLoading = false;
+    let errorMessage = "";
 
     async function handleRegister() {
         isLoading = true;
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        errorMessage = "";
 
-        login(email, { name: `${firstName} ${lastName}` });
-        navigate("/", { replace: true });
-        isLoading = false;
+        try {
+            const result = await signup(email, password, {
+                name: `${firstName} ${lastName}`,
+                role: "patient", // Default role for standard register page
+            });
+
+            if (result.success) {
+                navigate("/", { replace: true });
+            } else {
+                errorMessage =
+                    result.error || "Registration failed. Please try again.";
+            }
+        } catch (error) {
+            errorMessage = "An unexpected error occurred. Please try again.";
+            console.error(error);
+        } finally {
+            isLoading = false;
+        }
     }
 </script>
 
@@ -38,6 +54,17 @@
                 </Link>
             </p>
         </div>
+
+        {#if errorMessage}
+            <div
+                class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200"
+                role="alert"
+            >
+                <span class="font-medium">Error!</span>
+                {errorMessage}
+            </div>
+        {/if}
+
         <form class="mt-8 space-y-6" on:submit|preventDefault={handleRegister}>
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-4">
