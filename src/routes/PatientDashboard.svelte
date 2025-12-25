@@ -612,6 +612,9 @@
                                                                 size={18}
                                                             />
                                                         </button>
+                                                    {/if}
+
+                                                    {#if apt.status === "Pending" || apt.status === "Confirmed" || apt.status === "Completed"}
                                                         <button
                                                             class="p-2 text-gray-400 hover:text-primary hover:bg-blue-50 rounded-lg transition-all"
                                                             on:click={() =>
@@ -623,6 +626,9 @@
                                                                 size={18}
                                                             />
                                                         </button>
+                                                    {/if}
+
+                                                    {#if apt.status === "Pending" || apt.status === "Confirmed"}
                                                         <button
                                                             class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                                             on:click={() =>

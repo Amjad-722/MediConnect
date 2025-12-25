@@ -17,6 +17,7 @@
     "vite": "^7.2.4"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.89.0",
     "svelte-routing": "^2.13.0"
   }
 }
