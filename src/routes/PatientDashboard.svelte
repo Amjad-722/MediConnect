@@ -13,6 +13,8 @@
     } from "$features/appointments/appointments";
     import { records } from "$features/medical-records/records";
     import MedicationManager from "$features/reminders/MedicationManager.svelte";
+    import ChatInterface from "$features/messaging/ChatInterface.svelte";
+    import PrescriptionManager from "$features/prescriptions/PrescriptionManager.svelte";
     import Modal from "$ui/Modal.svelte";
 
     onMount(() => {
@@ -135,6 +137,20 @@
 
         showEditModal = false;
         editingAppointment = null;
+    }
+
+    // Chat State
+    let showChat = false;
+    let activeChatAppointment = null;
+
+    function openChat(apt) {
+        activeChatAppointment = apt;
+        showChat = true;
+    }
+
+    function closeChat() {
+        showChat = false;
+        activeChatAppointment = null;
     }
 </script>
 
@@ -428,7 +444,7 @@
 
                     <!-- Filter Tabs -->
                     <div class="flex flex-wrap gap-2 p-1 bg-gray-50 rounded-xl">
-                        {#each ["all", "pending", "confirmed", "completed", "cancelled", "reminders"] as tab}
+                        {#each ["all", "pending", "confirmed", "completed", "cancelled", "reminders", "prescriptions"] as tab}
                             <button
                                 class="px-4 py-2 rounded-lg text-sm font-bold transition-all {activeTab ===
                                 tab
@@ -448,6 +464,10 @@
                 {#if activeTab === "reminders"}
                     <div class="p-6 md:p-8">
                         <MedicationManager />
+                    </div>
+                {:else if activeTab === "prescriptions"}
+                    <div class="p-6 md:p-8">
+                        <PrescriptionManager mode="viewer" />
                     </div>
                 {:else}
                     <div class="overflow-x-auto">
@@ -593,6 +613,17 @@
                                                             />
                                                         </button>
                                                         <button
+                                                            class="p-2 text-gray-400 hover:text-primary hover:bg-blue-50 rounded-lg transition-all"
+                                                            on:click={() =>
+                                                                openChat(apt)}
+                                                            title="Message Doctor"
+                                                        >
+                                                            <Icon
+                                                                name="message-circle"
+                                                                size={18}
+                                                            />
+                                                        </button>
+                                                        <button
                                                             class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                                             on:click={() =>
                                                                 handleCancel(
@@ -619,6 +650,13 @@
         </div>
     </div>
 
+    {#if showChat && activeChatAppointment}
+        <ChatInterface
+            appointmentId={activeChatAppointment.id}
+            otherPartyName={activeChatAppointment.doctorName}
+            onClose={closeChat}
+        />
+    {/if}
     <!-- Appointment Details Modal -->
     <AppointmentDetailsModal
         appointment={selectedAppointment}
