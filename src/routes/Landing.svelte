@@ -8,14 +8,6 @@
   import Testimonials from "$features/landing/Testimonials.svelte";
   import { user, isSignupModalOpen } from "$lib/store";
   import { navigate } from "$features/routing/router";
-
-  $: if ($user && $user.role) {
-    if (window.location.pathname === "/") {
-      const path =
-        $user.role === "doctor" ? "/doctor-dashboard" : "/patient-dashboard";
-      navigate(path, { replace: true });
-    }
-  }
 </script>
 
 <div class="overflow-x-hidden">
