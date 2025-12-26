@@ -1,5 +1,5 @@
 <script>
-    import { doctors } from "$features/doctors/data";
+    import { doctorsStore, getDoctorById } from "$features/doctors/data";
     import Button from "$ui/Button.svelte";
     import Icon from "$ui/Icon.svelte";
     import { user } from "$lib/store";
@@ -13,11 +13,28 @@
     export let id;
 
     let doctor;
-    $: if (id === "me" && $user && $user.role === "doctor") {
-        doctor = $user;
-    } else {
-        doctor = doctors.find((d) => d.id == id);
+    let loading = true;
+
+    async function loadDoctor() {
+        if (id === "me" && $user && $user.role === "doctor") {
+            doctor = $user;
+            loading = false;
+        } else {
+            // Try store first
+            const inStore = $doctorsStore.find((d) => d.id === id);
+            if (inStore) {
+                doctor = inStore;
+                loading = false;
+            } else {
+                loading = true;
+                const doc = await getDoctorById(id);
+                if (doc) doctor = doc;
+                loading = false;
+            }
+        }
     }
+
+    $: if (id) loadDoctor();
 
     let showModal = false;
     let selectedDate = "";

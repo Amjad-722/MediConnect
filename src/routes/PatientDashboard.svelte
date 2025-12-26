@@ -8,7 +8,7 @@
     import {
         appointments,
         cancelAppointment,
-        getPatientStats,
+        computePatientStats,
         updateAppointment,
     } from "$features/appointments/appointments";
     import { records } from "$features/medical-records/records";
@@ -55,7 +55,7 @@
 
     // Get statistics
     $: stats = $user
-        ? getPatientStats($user.email)
+        ? computePatientStats(patientAppointments)
         : {
               total: 0,
               upcoming: 0,

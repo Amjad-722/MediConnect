@@ -51,6 +51,7 @@ async function initializeAppointments() {
         const formattedAppointments = data?.map(apt => ({
             id: apt.id,
             doctorId: apt.doctor_id,
+            patientId: apt.patient_id,
             doctorName: apt.doctor?.name || '',
             patientName: apt.patient?.name || '',
             patientEmail: apt.patient?.email || '',
@@ -165,6 +166,7 @@ export async function createAppointment(appointmentData) {
         const newAppointment = {
             id: data.id,
             doctorId: data.doctor_id,
+            patientId: data.patient_id,
             doctorName: data.doctor?.name || appointmentData.doctorName,
             patientName: data.patient?.name || '',
             patientEmail: data.patient?.email || '',
@@ -325,6 +327,28 @@ export async function getAppointmentsByPatient(patientId) {
 }
 
 /**
+ * Synchronously calculate stats for a doctor from an appointments array
+ */
+export function computeDoctorStats(apts) {
+    const now = new Date();
+    const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    return {
+        total: apts?.length || 0,
+        pending: apts?.filter(apt => apt.status === 'Pending').length || 0,
+        confirmed: apts?.filter(apt => apt.status === 'Confirmed').length || 0,
+        completed: apts?.filter(apt => apt.status === 'Completed').length || 0,
+        cancelled: apts?.filter(apt => apt.status === 'Cancelled').length || 0,
+        upcomingThisWeek: apts?.filter(apt => {
+            const aptDate = new Date(apt.date);
+            return aptDate >= now && aptDate <= weekFromNow &&
+                (apt.status === 'Pending' || apt.status === 'Confirmed');
+        }).length || 0,
+        uniquePatients: new Set(apts?.map(apt => apt.patient_id) || []).size
+    };
+}
+
+/**
  * Get appointment statistics for a doctor
  */
 export async function getDoctorStats(doctorId) {
@@ -336,22 +360,7 @@ export async function getDoctorStats(doctorId) {
 
         if (error) throw error;
 
-        const now = new Date();
-        const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-        return {
-            total: apts?.length || 0,
-            pending: apts?.filter(apt => apt.status === 'Pending').length || 0,
-            confirmed: apts?.filter(apt => apt.status === 'Confirmed').length || 0,
-            completed: apts?.filter(apt => apt.status === 'Completed').length || 0,
-            cancelled: apts?.filter(apt => apt.status === 'Cancelled').length || 0,
-            upcomingThisWeek: apts?.filter(apt => {
-                const aptDate = new Date(apt.date);
-                return aptDate >= now && aptDate <= weekFromNow &&
-                    (apt.status === 'Pending' || apt.status === 'Confirmed');
-            }).length || 0,
-            uniquePatients: new Set(apts?.map(apt => apt.patient_id) || []).size
-        };
+        return computeDoctorStats(apts);
     } catch (error) {
         console.error('Error fetching doctor stats:', error);
         return {
@@ -367,6 +376,24 @@ export async function getDoctorStats(doctorId) {
 }
 
 /**
+ * Synchronously calculate stats for a patient from an appointments array
+ */
+export function computePatientStats(apts) {
+    const now = new Date();
+
+    return {
+        total: apts?.length || 0,
+        upcoming: apts?.filter(apt => {
+            const aptDate = new Date(apt.date);
+            return aptDate >= now && (apt.status === 'Pending' || apt.status === 'Confirmed');
+        }).length || 0,
+        completed: apts?.filter(apt => apt.status === 'Completed').length || 0,
+        cancelled: apts?.filter(apt => apt.status === 'Cancelled').length || 0,
+        pending: apts?.filter(apt => apt.status === 'Pending').length || 0
+    };
+}
+
+/**
  * Get appointment statistics for a patient
  */
 export async function getPatientStats(patientId) {
@@ -378,18 +405,7 @@ export async function getPatientStats(patientId) {
 
         if (error) throw error;
 
-        const now = new Date();
-
-        return {
-            total: apts?.length || 0,
-            upcoming: apts?.filter(apt => {
-                const aptDate = new Date(apt.date);
-                return aptDate >= now && (apt.status === 'Pending' || apt.status === 'Confirmed');
-            }).length || 0,
-            completed: apts?.filter(apt => apt.status === 'Completed').length || 0,
-            cancelled: apts?.filter(apt => apt.status === 'Cancelled').length || 0,
-            pending: apts?.filter(apt => apt.status === 'Pending').length || 0
-        };
+        return computePatientStats(apts);
     } catch (error) {
         console.error('Error fetching patient stats:', error);
         return {

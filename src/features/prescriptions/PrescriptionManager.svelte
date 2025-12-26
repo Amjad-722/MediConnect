@@ -11,11 +11,13 @@
     import { fade, slide, scale } from "svelte/transition";
 
     export let appointmentId = null;
+    export let patientId = null;
     export let patientEmail = null;
     export let patientName = null;
     export let doctorId = null;
     export let doctorName = null;
     export let mode = "viewer"; // 'issuer' or 'viewer'
+    export let onClose = null;
 
     let showSuccess = false;
     let newPrescription = {
@@ -47,6 +49,7 @@
 
         issuePrescription({
             appointmentId,
+            patientId,
             patientEmail,
             patientName,
             doctorId: $user.id,
@@ -63,7 +66,10 @@
         });
 
         showSuccess = true;
-        setTimeout(() => (showSuccess = false), 3000);
+        setTimeout(() => {
+            showSuccess = false;
+            if (onClose) onClose();
+        }, 2000);
         resetForm();
     }
 

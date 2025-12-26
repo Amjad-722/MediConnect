@@ -1,7 +1,7 @@
 <script>
     import Button from "$ui/Button.svelte";
     import Link from "$features/routing/Link.svelte";
-    import { login } from "$lib/store";
+    import { user, login } from "$lib/store";
     import { navigate } from "$features/routing/router";
 
     let email = "";
@@ -9,6 +9,16 @@
     let showPassword = false;
     let isLoading = false;
     let errorMessage = "";
+
+    $: if ($user && $user.role) {
+        const targetPath =
+            $user.role === "doctor"
+                ? "/doctor-dashboard"
+                : "/patient-dashboard";
+        if (window.location.pathname !== targetPath) {
+            navigate(targetPath, { replace: true });
+        }
+    }
 
     async function handleLogin() {
         isLoading = true;
@@ -18,13 +28,12 @@
             const result = await login(email, password);
 
             if (result.success) {
-                // Determine redirect based on role
-                // The user store will be updated by the store's internal listener
-                // We'll wait a bit for the store to update or we can check the result
-                if (result.user) {
-                    // We need to know the role to redirect correctly
-                    // For now, redirect to home which will handle routing based on user state
-                    navigate("/", { replace: true });
+                if (result.role) {
+                    const targetPath =
+                        result.role === "doctor"
+                            ? "/doctor-dashboard"
+                            : "/patient-dashboard";
+                    navigate(targetPath, { replace: true });
                 }
             } else {
                 errorMessage =

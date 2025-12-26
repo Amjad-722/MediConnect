@@ -9,6 +9,9 @@ export const user = writable(null);
 export const isSignupModalOpen = writable(false);
 export const authLoading = writable(true);
 
+// Internal flag to prevent race conditions during signup
+let isSigningUp = false;
+
 // Default doctor fields for new doctor accounts
 export const defaultDoctorFields = {
     bio: "",
@@ -50,70 +53,157 @@ async function initializeAuth() {
 /**
  * Load user profile from database
  */
-async function loadUserProfile(userId) {
+async function loadUserProfile(userId, email = null) {
+    // Create a timeout promise
+    const timeout = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Profile load timeout')), 5000); // 5s timeout
+    });
+
     try {
-        // Fetch user profile
-        const { data: userProfile, error: userError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', userId)
-            .single();
-
-        if (userError) throw userError;
-
-        // If doctor, fetch doctor profile and availability
-        if (userProfile.role === 'doctor') {
-            const { data: doctorProfile } = await supabase
-                .from('doctor_profiles')
+        // Fetch user profile with timeout race
+        const profileLoadPromise = (async () => {
+            // Fetch user profile
+            const { data: userProfile, error: userError } = await supabase
+                .from('users')
                 .select('*')
-                .eq('user_id', userId)
+                .eq('id', userId)
                 .single();
 
-            const { data: availability } = await supabase
-                .from('doctor_availability')
-                .select('*')
-                .eq('doctor_id', userId);
+            // Handle missing user record (Self-Healing)
+            if (userError && (userError.code === 'PGRST116' || userError.message.includes('JSON object requested, multiple (or no) rows returned'))) {
+                console.warn("User profile missing, attempting self-healing...");
 
-            // Format availability to match existing structure
-            const formattedAvailability = availability?.reduce((acc, slot) => {
-                const existing = acc.find(a => a.day === slot.day);
-                if (existing) {
-                    existing.slots.push({ start: slot.start_time, end: slot.end_time });
-                } else {
-                    acc.push({
-                        day: slot.day,
-                        slots: [{ start: slot.start_time, end: slot.end_time }]
-                    });
+                if (!email) {
+                    // Try to get email from session if not provided
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (user) email = user.email;
                 }
-                return acc;
-            }, []) || [];
 
-            user.set({
-                id: userProfile.id,
-                email: userProfile.email,
-                name: userProfile.name,
-                role: userProfile.role,
-                ...doctorProfile,
-                specialty: doctorProfile?.specialty,
-                bio: doctorProfile?.bio || "",
-                education: doctorProfile?.education || "",
-                clinicAddress: doctorProfile?.clinic_address || "",
-                about: doctorProfile?.about || "",
-                profilePic: doctorProfile?.profile_pic || "",
-                bannerImage: doctorProfile?.banner_image || "",
-                clinicMapUrl: doctorProfile?.clinic_map_url || "",
-                availability: formattedAvailability.length > 0 ? formattedAvailability : defaultDoctorFields.availability
-            });
-        } else {
-            user.set({
-                id: userProfile.id,
-                email: userProfile.email,
-                name: userProfile.name,
-                role: userProfile.role
-            });
-        }
+                if (email) {
+                    // Create basic user profile
+                    // Default to 'doctor' if we don't know, or maybe 'patient'. 
+                    // Since the user said "I made my doctor profile", they expect to be a doctor.
+                    // But usually we set 'patient' by default. 
+                    // However, we can check if they are trying to access doctor dashboard? No.
+                    // Let's safe default to 'patient' BUT check if we can infer anything.
+                    // For safety, let's create as 'patient' - they can't be a doctor without the complex doctor profile anyway.
+                    // Wait, the user said "I made my doctor profile". 
+                    // If I recreate as patient, they might be confused.
+                    // BUT, if the row is missing, we lost that data anyway.
+
+                    const { error: insertError } = await supabase.from('users').insert({
+                        id: userId,
+                        email: email,
+                        name: email.split('@')[0],
+                        role: 'patient' // Safe default, user can contact support or we can add UI to switch
+                    });
+
+                    if (insertError) throw insertError;
+
+                    // Recursive call to load the newly created profile
+                    return await loadUserProfile(userId, email);
+                }
+            }
+
+            if (userError) throw userError;
+
+            // If doctor, fetch doctor profile and availability
+            if (userProfile.role === 'doctor') {
+                let doctorProfileData = null;
+                let availabilityData = [];
+
+                const { data: doctorProfile, error: doctorError } = await supabase
+                    .from('doctor_profiles')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .single();
+
+                // Self-heal doctor profile if missing
+                if (doctorError && (doctorError.code === 'PGRST116' || doctorError.message.includes('JSON object requested, multiple (or no) rows returned'))) {
+                    console.warn("Doctor profile missing, attempting self-healing...");
+
+                    const { error: insertDocError } = await supabase.from('doctor_profiles').insert({
+                        user_id: userId,
+                        specialty: '',
+                        bio: defaultDoctorFields.bio,
+                        education: defaultDoctorFields.education,
+                        clinic_address: defaultDoctorFields.clinicAddress,
+                        about: defaultDoctorFields.about,
+                        profile_pic: defaultDoctorFields.profilePic,
+                        banner_image: defaultDoctorFields.bannerImage,
+                        clinic_map_url: defaultDoctorFields.clinicMapUrl
+                    });
+
+                    if (insertDocError) throw insertDocError;
+
+                    // Re-fetch
+                    const { data: newDocProfile } = await supabase
+                        .from('doctor_profiles')
+                        .select('*')
+                        .eq('user_id', userId)
+                        .single();
+
+                    doctorProfileData = newDocProfile;
+                } else {
+                    doctorProfileData = doctorProfile;
+                }
+
+                const { data: availability } = await supabase
+                    .from('doctor_availability')
+                    .select('*')
+                    .eq('doctor_id', userId);
+
+                availabilityData = availability || [];
+
+                // Format availability to match existing structure
+                const formattedAvailability = availabilityData.reduce((acc, slot) => {
+                    const existing = acc.find(a => a.day === slot.day);
+                    if (existing) {
+                        existing.slots.push({ start: slot.start_time, end: slot.end_time });
+                    } else {
+                        acc.push({
+                            day: slot.day,
+                            slots: [{ start: slot.start_time, end: slot.end_time }]
+                        });
+                    }
+                    return acc;
+                }, []) || [];
+
+                const userData = {
+                    id: userProfile.id,
+                    email: userProfile.email,
+                    name: userProfile.name,
+                    role: userProfile.role,
+                    ...doctorProfileData,
+                    specialty: doctorProfileData?.specialty,
+                    bio: doctorProfileData?.bio || "",
+                    education: doctorProfileData?.education || "",
+                    clinicAddress: doctorProfileData?.clinic_address || "",
+                    about: doctorProfileData?.about || "",
+                    profilePic: doctorProfileData?.profile_pic || "",
+                    bannerImage: doctorProfileData?.banner_image || "",
+                    clinicMapUrl: doctorProfileData?.clinic_map_url || "",
+                    availability: formattedAvailability.length > 0 ? formattedAvailability : defaultDoctorFields.availability
+                };
+                user.set(userData);
+                return userData;
+            } else {
+                const userData = {
+                    id: userProfile.id,
+                    email: userProfile.email,
+                    name: userProfile.name,
+                    role: userProfile.role
+                };
+                user.set(userData);
+                return userData;
+            }
+        })();
+
+        return await Promise.race([profileLoadPromise, timeout]);
+
     } catch (error) {
         console.error('Error loading user profile:', error);
+        return null;
     }
 }
 
@@ -123,7 +213,11 @@ async function loadUserProfile(userId) {
 if (browser) {
     supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
-            await loadUserProfile(session.user.id);
+            // Only load profile if we are not currently in the middle of a signup process
+            // This prevents race conditions where loadUserProfile runs before profile creation
+            if (!isSigningUp) {
+                await loadUserProfile(session.user.id, session.user.email);
+            }
         } else if (event === 'SIGNED_OUT') {
             user.set(null);
         }
@@ -137,6 +231,7 @@ if (browser) {
  * Sign up a new user
  */
 export async function signup(email, password, userDetails = {}) {
+    isSigningUp = true;
     try {
         // Sign up with Supabase Auth
         const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -160,7 +255,39 @@ export async function signup(email, password, userDetails = {}) {
                 role: userDetails.role || 'patient'
             });
 
-        if (profileError) throw profileError;
+        if (profileError) {
+            // Handle duplicate key error (User already exists)
+            if (profileError.code === '23505') { // Unique violation
+                console.warn("User already exists, checking if upgrade is needed...");
+
+                // Fetch existing user to check role
+                const { data: existingUser } = await supabase
+                    .from('users')
+                    .select('role')
+                    .eq('id', authData.user.id)
+                    .single();
+
+                // If existing user is 'patient' and we are trying to sign up as 'doctor'
+                if (existingUser && existingUser.role === 'patient' && userDetails.role === 'doctor') {
+                    console.log("Upgrading patient to doctor...");
+
+                    // Update role to doctor
+                    const { error: updateError } = await supabase
+                        .from('users')
+                        .update({ role: 'doctor' })
+                        .eq('id', authData.user.id);
+
+                    if (updateError) throw updateError;
+
+                    // Proceed to create doctor profile (logic below will handle this)
+                } else {
+                    // If already a doctor, or just trying to sign up again as patient
+                    return { success: false, error: "Account already exists with this email. Please log in." };
+                }
+            } else {
+                throw profileError;
+            }
+        }
 
         // If doctor, create doctor profile and availability
         if (userDetails.role === 'doctor') {
@@ -197,10 +324,15 @@ export async function signup(email, password, userDetails = {}) {
             if (availError) throw availError;
         }
 
+        // Manually load the profile now that we are done
+        await loadUserProfile(authData.user.id, email);
+
         return { success: true, user: authData.user };
     } catch (error) {
         console.error('Signup error:', error);
         return { success: false, error: error.message };
+    } finally {
+        isSigningUp = false;
     }
 }
 
@@ -216,8 +348,23 @@ export async function login(email, password) {
 
         if (error) throw error;
 
-        // User profile will be loaded by onAuthStateChange listener
-        return { success: true, user: data.user };
+        // Load user profile immediately so it's ready when we return
+        // Use default profile from auth data if loading fails
+        let profile = null;
+        try {
+            profile = await loadUserProfile(data.user.id, data.user.email);
+        } catch (e) {
+            console.error("Profile load error caught in login:", e);
+        }
+
+        if (!profile) {
+            // Fallback: If profile fails to load, try to at least return basic auth info
+            // This prevents the UI from hanging. Login.svelte will check result.role.
+            // If missing, it will display an error, but at least not hang.
+            return { success: false, error: "Profile load failed. Please try again." };
+        }
+
+        return { success: true, user: data.user, role: profile.role };
     } catch (error) {
         console.error('Login error:', error);
         return { success: false, error: error.message };

@@ -9,7 +9,7 @@
     import {
         appointments,
         updateAppointmentStatus,
-        getDoctorStats,
+        computeDoctorStats,
     } from "$features/appointments/appointments";
     import ChatInterface from "$features/messaging/ChatInterface.svelte";
     import PrescriptionManager from "$features/prescriptions/PrescriptionManager.svelte";
@@ -49,7 +49,7 @@
 
     // Get statistics
     $: stats = $user
-        ? getDoctorStats($user.id)
+        ? computeDoctorStats(doctorAppointments)
         : {
               total: 0,
               pending: 0,
@@ -477,6 +477,7 @@
             <PrescriptionManager
                 mode="issuer"
                 appointmentId={selectedAptForRx.id}
+                patientId={selectedAptForRx.patientId}
                 patientEmail={selectedAptForRx.patientEmail}
                 patientName={selectedAptForRx.patientName}
                 onClose={closePrescribeModal}
