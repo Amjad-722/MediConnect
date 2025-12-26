@@ -248,7 +248,7 @@
                     class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-white/70 rounded-xl hover:bg-white/5 hover:text-white transition-all"
                     on:click={closeProfileMenu}
                   >
-                    <Icon name="grid" size={18} className="text-secondary/60" />
+                    <Icon name="user" size={18} className="text-secondary/60" />
                     Doctor Dashboard
                   </Link>
                 {:else if $user.role === "patient"}
@@ -257,7 +257,7 @@
                     class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-white/70 rounded-xl hover:bg-white/5 hover:text-white transition-all"
                     on:click={closeProfileMenu}
                   >
-                    <Icon name="grid" size={18} className="text-secondary/60" />
+                    <Icon name="user" size={18} className="text-secondary/60" />
                     Patient Dashboard
                   </Link>
                 {/if}
