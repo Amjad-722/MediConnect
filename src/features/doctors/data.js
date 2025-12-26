@@ -1,154 +1,159 @@
-export const doctors = [
-    {
-        id: 1,
-        name: "Dr. Sarah Smith",
-        specialty: "Cardiologist",
-        location: "New York, NY",
-        rating: 4.9,
-        reviews: 120,
-        bio: "Dr. Sarah Smith is a board-certified cardiologist with over 15 years of experience in treating complex heart conditions. She is dedicated to providing personalized care to her patients.",
-        education: "MD from Harvard Medical School",
-        experience: "15+ Years",
-        languages: ["English", "Spanish"],
-        about: "Dr. Smith specializes in preventative cardiology and heart failure management. She believes in a holistic approach to heart health.",
-        clinicAddress: "123 Heart Ave, New York, NY 10001",
-        availability: [
-            {
-                day: "Mon",
-                slots: [{ start: "09:00 AM", end: "05:00 PM" }],
-            },
-            {
-                day: "Tue",
-                slots: [{ start: "11:00 AM", end: "04:00 PM" }],
-            },
-            {
-                day: "Thu",
-                slots: [{ start: "09:00 AM", end: "03:00 PM" }],
-            },
-        ],
-    },
-    {
-        id: 2,
-        name: "Dr. Michael Chen",
-        specialty: "Dermatologist",
-        location: "San Francisco, CA",
-        rating: 4.8,
-        reviews: 95,
-        bio: "Dr. Michael Chen is a leading dermatologist known for his expertise in both cosmetic and medical dermatology.",
-        education: "MD from Stanford University",
-        experience: "12 Years",
-        languages: ["English", "Mandarin"],
-        about: "Dr. Chen focuses on skin cancer prevention and advanced cosmetic procedures. He is passionate about helping patients achieve healthy skin.",
-        clinicAddress: "456 Skin Blvd, San Francisco, CA 94101",
-        availability: [
-            {
-                day: "Wed",
-                slots: [{ start: "10:00 AM", end: "05:00 PM" }],
-            },
-            {
-                day: "Fri",
-                slots: [{ start: "09:00 AM", end: "01:00 PM" }],
-            },
-        ],
-    },
-    {
-        id: 3,
-        name: "Dr. Emily Johnson",
-        specialty: "Pediatrician",
-        location: "Chicago, IL",
-        rating: 4.9,
-        reviews: 150,
-        bio: "Dr. Emily Johnson loves working with children and interacting with families to ensure the best health outcomes for kids.",
-        education: "MD from John Hopkins University",
-        experience: "10 Years",
-        languages: ["English", "French"],
-        about: "Dr. Johnson provides comprehensive pediatric care from newborns to adolescents. She has a special interest in developmental pediatrics.",
-        clinicAddress: "789 Kids Way, Chicago, IL 60601",
-        availability: [
-            {
-                day: "Mon",
-                slots: [{ start: "08:30 AM", end: "12:30 PM" }],
-            },
-            {
-                day: "Tue",
-                slots: [{ start: "09:00 AM", end: "05:00 PM" }],
-            },
-            {
-                day: "Thu",
-                slots: [{ start: "10:00 AM", end: "04:00 PM" }],
-            },
-        ],
-    },
-    {
-        id: 4,
-        name: "Dr. David Wilson",
-        specialty: "Neurologist",
-        location: "Houston, TX",
-        rating: 4.7,
-        reviews: 80,
-        bio: "Dr. David Wilson is specializing in neurological disorders including migraine, epilepsy, and stroke.",
-        education: "MD from Baylor College of Medicine",
-        experience: "18 Years",
-        languages: ["English"],
-        about: "Dr. Wilson is committed to using the latest research and technology to diagnose and treat neurological conditions effectively.",
-        clinicAddress: "321 Brain Ln, Houston, TX 77001",
-        availability: [
-            {
-                day: "Wed",
-                slots: [{ start: "09:00 AM", end: "02:00 PM" }],
-            },
-            {
-                day: "Fri",
-                slots: [{ start: "11:00 AM", end: "04:00 PM" }],
-            },
-        ],
-    },
-    {
-        id: 5,
-        name: "Dr. Jessica Brown",
-        specialty: "Orthopedic Surgeon",
-        location: "Miami, FL",
-        rating: 4.9,
-        reviews: 110,
-        bio: "Dr. Jessica Brown is an expert in sports medicine and joint replacement surgery.",
-        education: "MD from University of Miami",
-        experience: "14 Years",
-        languages: ["English", "Spanish", "Portuguese"],
-        about: "Dr. Brown helps athletes and active individuals return to their peak performance through advanced surgical and non-surgical treatments.",
-        clinicAddress: "654 Bone St, Miami, FL 33101",
-        availability: [
-            {
-                day: "Mon",
-                slots: [{ start: "08:00 AM", end: "01:00 PM" }],
-            },
-            {
-                day: "Wed",
-                slots: [{ start: "02:00 PM", end: "06:00 PM" }],
-            },
-        ],
-    },
-    {
-        id: 6,
-        name: "Dr. Robert Taylor",
-        specialty: "Ophthalmologist",
-        location: "Seattle, WA",
-        rating: 4.8,
-        reviews: 90,
-        bio: "Dr. Robert Taylor specializes in cataract surgery and glaucoma management.",
-        education: "MD from University of Washington",
-        experience: "20 Years",
-        languages: ["English"],
-        about: "Dr. Taylor is dedicated to preserving and restoring vision. He utilizes state-of-the-art diagnostic and surgical techniques.",
-        clinicAddress: "987 Vision Ct, Seattle, WA 98101",
-        availability: [
-            {
-                day: "Tue",
-                slots: [{ start: "09:00 AM", end: "02:00 PM" }],
-            },
-            {
-                day: "Thu",
-                slots: [{ start: "10:00 AM", end: "05:00 PM" }],
-            },
-        ],
-    },
-];
+import { writable } from 'svelte/store';
+import { supabase } from '../../lib/supabaseClient';
+
+// Store for the list of doctors
+export const doctorsStore = writable([]);
+export const doctorsLoading = writable(false);
+
+/**
+ * Initialize doctors data from Supabase
+ */
+export async function initDoctors() {
+    doctorsLoading.set(true);
+    try {
+        // Fetch doctor profiles with user information
+        const { data: profiles, error: profileError } = await supabase
+            .from('doctor_profiles')
+            .select(`
+                *,
+                user:user_id(name, email)
+            `);
+
+        if (profileError) throw profileError;
+
+        // Fetch all availability records
+        const { data: availability, error: availError } = await supabase
+            .from('doctor_availability')
+            .select('*');
+
+        if (availError) throw availError;
+
+        // Fetch review counts and averages (simplified for now, ideally a view or separate query)
+        const { data: reviewsData, error: reviewsError } = await supabase
+            .from('reviews')
+            .select('doctor_id, rating');
+
+        // Group reviews by doctor
+        const reviewStats = (reviewsData || []).reduce((acc, rev) => {
+            if (!acc[rev.doctor_id]) {
+                acc[rev.doctor_id] = { total: 0, count: 0 };
+            }
+            acc[rev.doctor_id].total += rev.rating;
+            acc[rev.doctor_id].count += 1;
+            return acc;
+        }, {});
+
+        // Combine and format data
+        const formattedDoctors = profiles.map(profile => {
+            // Filter and format availability for this doctor
+            const doctorsAvail = availability.filter(a => a.doctor_id === profile.user_id);
+            const formattedAvail = doctorsAvail.reduce((acc, slot) => {
+                const existing = acc.find(a => a.day === slot.day);
+                if (existing) {
+                    existing.slots.push({ start: slot.start_time, end: slot.end_time });
+                } else {
+                    acc.push({
+                        day: slot.day,
+                        slots: [{ start: slot.start_time, end: slot.end_time }]
+                    });
+                }
+                return acc;
+            }, []);
+
+            const stats = reviewStats[profile.user_id] || { total: 0, count: 0 };
+            const avgRating = stats.count > 0 ? (stats.total / stats.count).toFixed(1) : '5.0';
+
+            return {
+                id: profile.user_id,
+                name: profile.user?.name || 'Unknown Doctor',
+                specialty: profile.specialty || 'General Practitioner',
+                location: profile.clinic_address || 'Clinic',
+                rating: parseFloat(avgRating),
+                reviews: stats.count,
+                bio: profile.bio || '',
+                education: profile.education || '',
+                experience: profile.experience || 'Experienced',
+                languages: profile.languages || ['English'],
+                about: profile.about || '',
+                clinicAddress: profile.clinic_address || '',
+                availability: formattedAvail,
+                profilePic: profile.profile_pic,
+                bannerImage: profile.banner_image,
+                clinicMapUrl: profile.clinic_map_url
+            };
+        });
+
+        doctorsStore.set(formattedDoctors);
+    } catch (error) {
+        console.error('Error loading doctors from Supabase:', error);
+    } finally {
+        doctorsLoading.set(false);
+    }
+}
+
+/**
+ * Get a single doctor by ID
+ */
+export async function getDoctorById(id) {
+    // If it's a UUID, it's a real doctor from DB
+    const { data: profile, error } = await supabase
+        .from('doctor_profiles')
+        .select(`
+            *,
+            user:user_id(name, email)
+        `)
+        .eq('user_id', id)
+        .single();
+
+    if (error || !profile) return null;
+
+    const { data: availability } = await supabase
+        .from('doctor_availability')
+        .select('*')
+        .eq('doctor_id', id);
+
+    // Format availability
+    const formattedAvail = (availability || []).reduce((acc, slot) => {
+        const existing = acc.find(a => a.day === slot.day);
+        if (existing) {
+            existing.slots.push({ start: slot.start_time, end: slot.end_time });
+        } else {
+            acc.push({
+                day: slot.day,
+                slots: [{ start: slot.start_time, end: slot.end_time }]
+            });
+        }
+        return acc;
+    }, []);
+
+    const { data: reviews } = await supabase
+        .from('reviews')
+        .select('rating')
+        .eq('doctor_id', id);
+
+    const totalRating = reviews?.reduce((acc, r) => acc + r.rating, 0) || 0;
+    const count = reviews?.length || 0;
+    const avgRating = count > 0 ? (totalRating / count).toFixed(1) : '5.0';
+
+    return {
+        id: profile.user_id,
+        name: profile.user?.name || 'Unknown Doctor',
+        specialty: profile.specialty,
+        location: profile.clinic_address,
+        rating: parseFloat(avgRating),
+        reviews: count,
+        bio: profile.bio,
+        education: profile.education,
+        experience: profile.experience,
+        languages: profile.languages || [],
+        about: profile.about,
+        clinicAddress: profile.clinic_address,
+        availability: formattedAvail,
+        profilePic: profile.profile_pic,
+        bannerImage: profile.banner_image,
+        clinicMapUrl: profile.clinic_map_url
+    };
+}
+
+// Initial load
+initDoctors();

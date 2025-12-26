@@ -1,0 +1,16 @@
+{
+    "mcpServers": {
+        "svelte": {
+            "command": "@sveltejs/mcp"
+        },
+        "supabase": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@supabase/mcp-server-supabase@latest",
+                "--access-token",
+                "sbp_9d034e7c3d393f0d6db0f359535e68a4beeba8db"
+            ]
+        }
+    }
+}

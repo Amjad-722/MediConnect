@@ -1,57 +1,102 @@
-import { writable, derived } from 'svelte/store';
-
-// Check if we're in the browser
-const browser = typeof window !== 'undefined';
-
-// Initial data for reviews (mock data to start with)
-const mockReviews = [
-    {
-        id: 'rev1',
-        doctorId: 1,
-        patientName: 'John Doe',
-        rating: 5,
-        comment: 'Dr. Sarah is amazing! Very attentive and professional.',
-        date: '2023-11-15T10:30:00Z'
-    },
-    {
-        id: 'rev2',
-        doctorId: 1,
-        patientName: 'Emily Clark',
-        rating: 4,
-        comment: 'Great experience, though the wait time was a bit long.',
-        date: '2023-12-01T14:45:00Z'
-    }
-];
-
-// Get initial reviews from localStorage or use mock data
-const storedReviews = browser ? localStorage.getItem('medi_reviews') : null;
-const initialReviews = storedReviews ? JSON.parse(storedReviews) : mockReviews;
+import { writable } from 'svelte/store';
+import { supabase } from '../../lib/supabaseClient';
 
 // Create the reviews store
-export const reviews = writable(initialReviews);
+export const reviews = writable([]);
+export const reviewsLoading = writable(false);
 
-// Subscribe to store changes and update localStorage
-if (browser) {
-    reviews.subscribe(value => {
-        localStorage.setItem('medi_reviews', JSON.stringify(value));
-    });
+/**
+ * Initialize reviews from Supabase and set up real-time subscription
+ */
+export async function initReviews() {
+    reviewsLoading.set(true);
+    try {
+        const { data, error } = await supabase
+            .from('reviews')
+            .select(`
+                *,
+                patient:patient_id(name)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        const formattedReviews = data?.map(rev => ({
+            id: rev.id,
+            doctorId: rev.doctor_id,
+            patientId: rev.patient_id,
+            patientName: rev.patient?.name || 'Anonymous',
+            rating: rev.rating,
+            comment: rev.comment,
+            date: rev.created_at
+        })) || [];
+
+        reviews.set(formattedReviews);
+
+        // Set up real-time subscription
+        const channel = supabase
+            .channel('reviews_changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'reviews'
+                },
+                () => {
+                    // Reload reviews on any change
+                    initReviews();
+                }
+            )
+            .subscribe();
+
+    } catch (error) {
+        console.error('Error initializing reviews:', error);
+    } finally {
+        reviewsLoading.set(false);
+    }
 }
 
 /**
  * Add a new review
  */
-export function addReview(reviewData) {
-    const newReview = {
-        id: `REV-${Date.now()}`,
-        doctorId: reviewData.doctorId,
-        patientName: reviewData.patientName,
-        rating: reviewData.rating,
-        comment: reviewData.comment,
-        date: new Date().toISOString()
-    };
+export async function addReview(reviewData) {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
 
-    reviews.update(current => [newReview, ...current]);
-    return newReview;
+        const { data, error } = await supabase
+            .from('reviews')
+            .insert({
+                doctor_id: reviewData.doctorId,
+                patient_id: user.id,
+                rating: reviewData.rating,
+                comment: reviewData.comment
+            })
+            .select(`
+                *,
+                patient:patient_id(name)
+            `)
+            .single();
+
+        if (error) throw error;
+
+        const newReview = {
+            id: data.id,
+            doctorId: data.doctor_id,
+            patientId: data.patient_id,
+            patientName: data.patient?.name || 'Anonymous',
+            rating: data.rating,
+            comment: data.comment,
+            date: data.created_at
+        };
+
+        reviews.update(current => [newReview, ...current]);
+        return newReview;
+    } catch (error) {
+        console.error('Error adding review:', error);
+        throw error;
+    }
 }
 
 /**
@@ -60,7 +105,6 @@ export function addReview(reviewData) {
 export function getReviewsByDoctor(doctorId) {
     let result = [];
     reviews.subscribe(allReviews => {
-        // Handle both string and number IDs
         result = allReviews.filter(r => String(r.doctorId) === String(doctorId));
     })();
     return result;
@@ -83,4 +127,9 @@ export function getDoctorRatingStats(doctorId, baseRating = 0, baseCount = 0) {
         rating: Number(avg.toFixed(1)),
         count: docReviews.length
     };
+}
+
+// Initial load
+if (typeof window !== 'undefined') {
+    initReviews();
 }

@@ -131,13 +131,13 @@
       {#if $user && $user.role === "doctor"}
         <Link
           to="/doctor-dashboard"
-          class="hidden sm:block text-xs font-bold text-secondary uppercase tracking-widest hover:text-white transition-colors"
+          class="hidden sm:block text-xs font-bold text-white/80 uppercase tracking-widest hover:text-white transition-colors"
           >Dashboard</Link
         >
       {:else if $user && $user.role === "patient"}
         <Link
           to="/patient-dashboard"
-          class="hidden sm:block text-xs font-bold text-secondary uppercase tracking-widest hover:text-white transition-colors"
+          class="hidden sm:block text-xs font-bold text-white/80 uppercase tracking-widest hover:text-white transition-colors"
           >Dashboard</Link
         >
       {/if}
@@ -248,7 +248,7 @@
                     class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-white/70 rounded-xl hover:bg-white/5 hover:text-white transition-all"
                     on:click={closeProfileMenu}
                   >
-                    <Icon name="grid" size={18} className="text-secondary/60" />
+                    <Icon name="user" size={18} className="text-secondary/60" />
                     Doctor Dashboard
                   </Link>
                 {:else if $user.role === "patient"}
@@ -257,7 +257,7 @@
                     class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-white/70 rounded-xl hover:bg-white/5 hover:text-white transition-all"
                     on:click={closeProfileMenu}
                   >
-                    <Icon name="grid" size={18} className="text-secondary/60" />
+                    <Icon name="user" size={18} className="text-secondary/60" />
                     Patient Dashboard
                   </Link>
                 {/if}
@@ -329,8 +329,11 @@
           {#if $user.role === "doctor"}
             <Link
               to="/doctor-dashboard"
-              class="block py-4 px-5 font-bold text-center text-[#000921] bg-secondary rounded-2xl transition-all"
-              on:click={toggleMenu}>Doctor Dashboard</Link
+              class="flex items-center justify-center gap-2 py-4 px-5 font-bold text-center text-[#000921] bg-secondary rounded-2xl transition-all"
+              on:click={toggleMenu}
+            >
+              <Icon name="grid" size={20} />
+              Doctor Dashboard</Link
             >
           {:else if $user.role === "patient"}
             <Link

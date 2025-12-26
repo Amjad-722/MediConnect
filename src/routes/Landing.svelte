@@ -6,7 +6,8 @@
   import HowItWorks from "$features/landing/HowItWorks.svelte";
   import Stats from "$features/landing/Stats.svelte";
   import Testimonials from "$features/landing/Testimonials.svelte";
-  import { isSignupModalOpen } from "$lib/store";
+  import { user, isSignupModalOpen } from "$lib/store";
+  import { navigate } from "$features/routing/router";
 </script>
 
 <div class="overflow-x-hidden">

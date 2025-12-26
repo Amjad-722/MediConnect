@@ -1,6 +1,6 @@
 <script>
     import DoctorCard from "$features/doctors/DoctorCard.svelte";
-    import { doctors } from "$features/doctors/data";
+    import { doctorsStore, initDoctors } from "$features/doctors/data";
     import Card from "$ui/Card.svelte";
     import Input from "$ui/Input.svelte";
     import Select from "$ui/Select.svelte";
@@ -12,32 +12,7 @@
     let selectedSpecialty = "All";
 
     // Create a combined list of doctors including the logged-in user if they are a doctor
-    $: allDoctors = (() => {
-        /** @type {any[]} */
-        let list = [...doctors];
-        if ($user && $user.role === "doctor") {
-            const userAsDoctor = {
-                id: "me", // Special ID for the logged-in user
-                name: $user.name,
-                specialty: $user.specialty || "General",
-                location: $user.clinicAddress || "Unknown Location",
-                rating: 5.0, // New doctors start with a perfect score!
-                reviews: 0,
-                bio: $user.bio || "",
-                education: $user.education || "",
-                experience: "New",
-                languages: ["English"], // Default
-                about: $user.about || "",
-                clinicAddress: $user.clinicAddress || "",
-                availability: $user.availability || [],
-                profilePic: $user.profilePic,
-                bannerImage: $user.bannerImage,
-            };
-            // Place the logged-in user first for visibility
-            list = [userAsDoctor, ...list];
-        }
-        return list;
-    })();
+    $: allDoctors = $doctorsStore;
 
     $: specialties = ["All", ...new Set(allDoctors.map((d) => d.specialty))];
 

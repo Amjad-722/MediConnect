@@ -1,12 +1,17 @@
 <script>
     import Button from "$ui/Button.svelte";
     import Icon from "$ui/Icon.svelte";
-    import { user, defaultDoctorFields } from "$lib/store";
+    import {
+        user,
+        defaultDoctorFields,
+        logout,
+        updateUserProfile,
+    } from "$lib/store";
     import { navigate } from "$features/routing/router";
-    import { onMount } from "svelte";
+    import { onMount, onDestroy } from "svelte";
     import Modal from "$ui/Modal.svelte";
     import {
-        getAppointmentsByPatient,
+        appointments as appointmentsStore,
         cancelAppointment,
         updateAppointment,
     } from "$features/appointments/appointments";
@@ -14,12 +19,23 @@
 
     let isLoading = false;
     let successMessage = "";
+    let errorMessage = "";
     let showProfilePicModal = false;
     let selectedDay = "";
     let activeSection = "details";
+    let appointments = [];
 
-    function handleLogout() {
-        user.set(null);
+    // Subscribe to appointments store
+    const unsubscribeAppointments = appointmentsStore.subscribe((value) => {
+        appointments = value;
+    });
+
+    onDestroy(() => {
+        unsubscribeAppointments();
+    });
+
+    async function handleLogout() {
+        await logout();
         navigate("/login");
     }
 
@@ -78,18 +94,25 @@
     async function handleSave() {
         isLoading = true;
         successMessage = "";
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        errorMessage = "";
 
-        // Create a new object reference to ensure Svelte store triggers subscribers
-        // and localStorage sync works correctly.
-        user.set({ ...$user });
+        try {
+            const result = await updateUserProfile($user);
 
-        successMessage = "Profile updated successfully!";
-        isLoading = false;
-
-        setTimeout(() => {
-            successMessage = "";
-        }, 3000);
+            if (result.success) {
+                successMessage = "Profile updated successfully!";
+                setTimeout(() => {
+                    successMessage = "";
+                }, 3000);
+            } else {
+                errorMessage = result.error || "Failed to update profile.";
+            }
+        } catch (error) {
+            errorMessage = "An unexpected error occurred.";
+            console.error(error);
+        } finally {
+            isLoading = false;
+        }
     }
 
     function addSlot(dayIndex) {
@@ -154,11 +177,8 @@
         }
     }
 
-    // New Appointments Logic
-    let appointments = [];
-    $: if ($user) {
-        appointments = getAppointmentsByPatient($user.email);
-    }
+    // Appointments logic using store subscription
+    // Already handled by the subscription above
 
     function getStatusColor(status) {
         switch (status?.toLowerCase()) {
@@ -194,22 +214,24 @@
         showEditModal = true;
     }
 
-    function handleUpdateAppointment() {
+    async function handleUpdateAppointment() {
         if (!editForm.date || !editForm.time || !editForm.reason) return;
 
-        updateAppointment(editingAppointment.id, {
-            date: editForm.date,
-            time: editForm.time,
-            reason: editForm.reason,
-        });
+        try {
+            await updateAppointment(editingAppointment.id, {
+                date: editForm.date,
+                time: editForm.time,
+                reason: editForm.reason,
+            });
 
-        // Refresh list
-        appointments = getAppointmentsByPatient($user.email);
-        showEditModal = false;
-        editingAppointment = null;
+            showEditModal = false;
+            editingAppointment = null;
 
-        successMessage = "Appointment updated successfully!";
-        setTimeout(() => (successMessage = ""), 3000);
+            successMessage = "Appointment updated successfully!";
+            setTimeout(() => (successMessage = ""), 3000);
+        } catch (error) {
+            errorMessage = "Failed to update appointment.";
+        }
     }
 </script>
 
@@ -347,6 +369,15 @@
                             on:submit|preventDefault={handleSave}
                             class="space-y-8 animate-fade-in"
                         >
+                            {#if errorMessage}
+                                <div
+                                    class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200"
+                                    role="alert"
+                                >
+                                    <span class="font-medium">Error!</span>
+                                    {errorMessage}
+                                </div>
+                            {/if}
                             <!-- ... content ... -->
                             <!-- Profile Banner -->
                             {#if $user.role === "doctor"}
@@ -582,6 +613,16 @@
                                 My Appointments
                             </h2>
 
+                            {#if errorMessage}
+                                <div
+                                    class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200"
+                                    role="alert"
+                                >
+                                    <span class="font-medium">Error!</span>
+                                    {errorMessage}
+                                </div>
+                            {/if}
+
                             {#if appointments.length === 0}
                                 <div
                                     class="text-center py-12 bg-gray-50 rounded-2xl border border-dashed border-gray-200"
@@ -717,6 +758,15 @@
                             on:submit|preventDefault={handleSave}
                             class="space-y-8 animate-fade-in"
                         >
+                            {#if errorMessage}
+                                <div
+                                    class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200"
+                                    role="alert"
+                                >
+                                    <span class="font-medium">Error!</span>
+                                    {errorMessage}
+                                </div>
+                            {/if}
                             <h2 class="text-2xl font-bold text-[#000921]">
                                 Change Password
                             </h2>
@@ -875,6 +925,15 @@
                             on:submit|preventDefault={handleSave}
                             class="space-y-8 animate-fade-in"
                         >
+                            {#if errorMessage}
+                                <div
+                                    class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200"
+                                    role="alert"
+                                >
+                                    <span class="font-medium">Error!</span>
+                                    {errorMessage}
+                                </div>
+                            {/if}
                             <div class="flex items-center justify-between">
                                 <h2 class="text-2xl font-bold text-[#000921]">
                                     Manage Availability

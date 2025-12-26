@@ -1,54 +1,129 @@
 import { writable } from 'svelte/store';
+import { supabase } from '../../lib/supabaseClient';
 
-const browser = typeof window !== 'undefined';
-const storedPrescriptions = browser ? localStorage.getItem('prescriptions') : null;
-const initialPrescriptions = storedPrescriptions ? JSON.parse(storedPrescriptions) : [];
+export const prescriptions = writable([]);
+export const prescriptionsLoading = writable(false);
 
-export const prescriptions = writable(initialPrescriptions);
+/**
+ * Initialize prescriptions from Supabase
+ */
+export async function initPrescriptions() {
+    prescriptionsLoading.set(true);
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
-if (browser) {
-    prescriptions.subscribe(value => {
-        localStorage.setItem('prescriptions', JSON.stringify(value));
-    });
+        const { data, error } = await supabase
+            .from('prescriptions')
+            .select(`
+                *,
+                doctor:doctor_id(name),
+                patient:patient_id(name, email)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        const formatted = data?.map(rx => ({
+            id: rx.id,
+            appointmentId: rx.appointment_id,
+            patientId: rx.patient_id,
+            patientName: rx.patient?.name || 'Unknown Patient',
+            patientEmail: rx.patient?.email || '',
+            doctorId: rx.doctor_id,
+            doctorName: rx.doctor?.name || 'Unknown Doctor',
+            medications: rx.medications || [],
+            issuedAt: rx.created_at,
+            status: rx.status,
+            notes: rx.notes || ''
+        })) || [];
+
+        prescriptions.set(formatted);
+    } catch (error) {
+        console.error('Error initializing prescriptions:', error);
+    } finally {
+        prescriptionsLoading.set(false);
+    }
 }
 
 /**
  * Issue a new prescription
  */
-export function issuePrescription(prescriptionData) {
-    const newPrescription = {
-        id: `RX-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        appointmentId: prescriptionData.appointmentId,
-        patientEmail: prescriptionData.patientEmail,
-        patientName: prescriptionData.patientName,
-        doctorId: prescriptionData.doctorId,
-        doctorName: prescriptionData.doctorName,
-        medications: prescriptionData.medications || [], // array of { name, dosage, instructions }
-        issuedAt: new Date().toISOString(),
-        status: 'Active', // Active, Ordered, Completed, Expired
-        notes: prescriptionData.notes || ''
-    };
+export async function issuePrescription(prescriptionData) {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
 
-    prescriptions.update(current => [...current, newPrescription]);
-    return newPrescription;
+        const { data, error } = await supabase
+            .from('prescriptions')
+            .insert({
+                appointment_id: prescriptionData.appointmentId,
+                doctor_id: user.id,
+                patient_id: prescriptionData.patientId,
+                medications: prescriptionData.medications,
+                status: 'Active',
+                notes: prescriptionData.notes
+            })
+            .select(`
+                *,
+                doctor:doctor_id(name),
+                patient:patient_id(name, email)
+            `)
+            .single();
+
+        if (error) throw error;
+
+        const newRx = {
+            id: data.id,
+            appointmentId: data.appointment_id,
+            patientId: data.patient_id,
+            patientName: data.patient?.name || 'Unknown Patient',
+            patientEmail: data.patient?.email || '',
+            doctorId: data.doctor_id,
+            doctorName: data.doctor?.name || 'Unknown Doctor',
+            medications: data.medications || [],
+            issuedAt: data.created_at,
+            status: data.status,
+            notes: data.notes || ''
+        };
+
+        prescriptions.update(current => [newRx, ...current]);
+        return newRx;
+    } catch (error) {
+        console.error('Error issuing prescription:', error);
+        throw error;
+    }
 }
 
 /**
- * Update prescription status (e.g., when ordered)
+ * Update prescription status
  */
-export function updatePrescriptionStatus(id, newStatus) {
-    prescriptions.update(current =>
-        current.map(rx => rx.id === id ? { ...rx, status: newStatus } : rx)
-    );
+export async function updatePrescriptionStatus(id, newStatus) {
+    try {
+        const { error } = await supabase
+            .from('prescriptions')
+            .update({ status: newStatus })
+            .eq('id', id);
+
+        if (error) throw error;
+
+        prescriptions.update(current =>
+            current.map(rx => rx.id === id ? { ...rx, status: newStatus } : rx)
+        );
+    } catch (error) {
+        console.error('Error updating prescription status:', error);
+        throw error;
+    }
 }
 
 /**
  * Get prescriptions for a specific patient
  */
-export function getPrescriptionsByPatient(patientEmail) {
+export function getPrescriptionsByPatient(patientId) {
     let result = [];
     prescriptions.subscribe(rxs => {
-        result = rxs.filter(rx => rx.patientEmail === patientEmail);
+        // Filter by patient ID (UUID)
+        result = rxs.filter(rx => rx.patientId === patientId);
     })();
     return result;
 }
@@ -62,4 +137,9 @@ export function getPrescriptionsByDoctor(doctorId) {
         result = rxs.filter(rx => rx.doctorId === doctorId);
     })();
     return result;
+}
+
+// Initial load
+if (typeof window !== 'undefined') {
+    initPrescriptions();
 }
