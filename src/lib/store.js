@@ -56,7 +56,7 @@ async function initializeAuth() {
 async function loadUserProfile(userId, email = null) {
     // Create a timeout promise
     const timeout = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Profile load timeout')), 5000); // 5s timeout
+        setTimeout(() => reject(new Error('Profile load timeout')), 8000); // 8s timeout
     });
 
     try {
@@ -98,7 +98,12 @@ async function loadUserProfile(userId, email = null) {
                         role: 'patient' // Safe default, user can contact support or we can add UI to switch
                     });
 
-                    if (insertError) throw insertError;
+                    if (insertError) {
+                        // Ignore duplicate key error - it means another process (race condition) already created it
+                        if (insertError.code !== '23505') {
+                            throw insertError;
+                        }
+                    }
 
                     // Recursive call to load the newly created profile
                     return await loadUserProfile(userId, email);
@@ -134,7 +139,11 @@ async function loadUserProfile(userId, email = null) {
                         clinic_map_url: defaultDoctorFields.clinicMapUrl
                     });
 
-                    if (insertDocError) throw insertDocError;
+                    if (insertDocError) {
+                        if (insertDocError.code !== '23505') {
+                            throw insertDocError;
+                        }
+                    }
 
                     // Re-fetch
                     const { data: newDocProfile } = await supabase

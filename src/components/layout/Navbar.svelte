@@ -131,13 +131,13 @@
       {#if $user && $user.role === "doctor"}
         <Link
           to="/doctor-dashboard"
-          class="hidden sm:block text-xs font-bold text-secondary uppercase tracking-widest hover:text-white transition-colors"
+          class="hidden sm:block text-xs font-bold text-white/80 uppercase tracking-widest hover:text-white transition-colors"
           >Dashboard</Link
         >
       {:else if $user && $user.role === "patient"}
         <Link
           to="/patient-dashboard"
-          class="hidden sm:block text-xs font-bold text-secondary uppercase tracking-widest hover:text-white transition-colors"
+          class="hidden sm:block text-xs font-bold text-white/80 uppercase tracking-widest hover:text-white transition-colors"
           >Dashboard</Link
         >
       {/if}
