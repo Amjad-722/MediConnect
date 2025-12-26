@@ -329,8 +329,11 @@
           {#if $user.role === "doctor"}
             <Link
               to="/doctor-dashboard"
-              class="block py-4 px-5 font-bold text-center text-[#000921] bg-secondary rounded-2xl transition-all"
-              on:click={toggleMenu}>Doctor Dashboard</Link
+              class="flex items-center justify-center gap-2 py-4 px-5 font-bold text-center text-[#000921] bg-secondary rounded-2xl transition-all"
+              on:click={toggleMenu}
+            >
+              <Icon name="grid" size={20} />
+              Doctor Dashboard</Link
             >
           {:else if $user.role === "patient"}
             <Link
