@@ -134,8 +134,8 @@
 </script>
 
 {#if $user}
-    <div class="min-h-screen bg-slate-50 pt-28 sm:pt-36 pb-12">
-        <div class="container mx-auto px-4 max-w-6xl">
+    <div class="min-h-screen bg-slate-50 pt-24 pb-12">
+        <div class="container mx-auto px-4 max-w-7xl">
             <div class="flex justify-between items-center mb-8">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>

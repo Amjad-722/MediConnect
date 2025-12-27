@@ -155,8 +155,8 @@
 </script>
 
 {#if $user}
-    <div class="min-h-screen bg-slate-50 pt-28 sm:pt-36 pb-12">
-        <div class="container mx-auto px-4 max-w-6xl">
+    <div class="min-h-screen bg-slate-50 pt-24 pb-12">
+        <div class="container mx-auto px-4 max-w-7xl">
             <!-- Welcome Header -->
             <div
                 class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4"
