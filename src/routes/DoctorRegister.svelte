@@ -45,7 +45,7 @@
             });
 
             if (result.success) {
-                navigate("/", { replace: true });
+                navigate("/profile", { replace: true });
             } else {
                 errorMessage =
                     result.error || "Registration failed. Please try again.";

@@ -1,9 +1,11 @@
 <script>
     import { currentPath } from "./router.js";
     export let path;
-    export let component;
+    /** @type {any} */
+    export let component = undefined;
 
     let params = {};
+    let match = false;
 
     $: {
         if (path.includes(":")) {
@@ -35,8 +37,6 @@
             params = {};
         }
     }
-
-    let match = false;
 </script>
 
 {#if match}

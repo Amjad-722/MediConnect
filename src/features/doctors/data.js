@@ -92,6 +92,11 @@ export async function initDoctors() {
 }
 
 /**
+ * Alias for initDoctors to refresh the store
+ */
+export const refreshDoctors = initDoctors;
+
+/**
  * Get a single doctor by ID
  */
 export async function getDoctorById(id) {
@@ -157,3 +162,18 @@ export async function getDoctorById(id) {
 
 // Initial load
 initDoctors();
+
+// Set up real-time subscription for doctor profiles
+if (typeof window !== 'undefined') {
+    supabase
+        .channel('doctor_profiles_changes')
+        .on('postgres_changes', {
+            event: '*',
+            schema: 'public',
+            table: 'doctor_profiles'
+        }, () => {
+            console.log('Doctor profiles changed, refreshing store...');
+            initDoctors();
+        })
+        .subscribe();
+}
