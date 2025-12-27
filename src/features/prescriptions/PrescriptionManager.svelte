@@ -14,8 +14,6 @@
     export let patientId = null;
     export let patientEmail = null;
     export let patientName = null;
-    export let doctorId = null;
-    export let doctorName = null;
     export let mode = "viewer"; // 'issuer' or 'viewer'
     export let onClose = null;
 
@@ -127,10 +125,12 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label
+                                    for="med-name-{i}"
                                     class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"
                                     >Medication Name</label
                                 >
                                 <input
+                                    id="med-name-{i}"
                                     bind:value={med.name}
                                     placeholder="e.g. Amoxicillin"
                                     class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary transition-all text-sm"
@@ -138,10 +138,12 @@
                             </div>
                             <div>
                                 <label
+                                    for="med-dosage-{i}"
                                     class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"
                                     >Dosage</label
                                 >
                                 <input
+                                    id="med-dosage-{i}"
                                     bind:value={med.dosage}
                                     placeholder="e.g. 500mg, twice a day"
                                     class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary transition-all text-sm"
@@ -150,10 +152,12 @@
                         </div>
                         <div>
                             <label
+                                for="med-instructions-{i}"
                                 class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"
                                 >Special Instructions</label
                             >
                             <input
+                                id="med-instructions-{i}"
                                 bind:value={med.instructions}
                                 placeholder="e.g. Take after meals"
                                 class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl outline-none focus:border-primary transition-all text-sm"
@@ -174,10 +178,12 @@
 
                 <div class="pt-4">
                     <label
+                        for="doctor-notes"
                         class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"
                         >Doctor's Notes</label
                     >
                     <textarea
+                        id="doctor-notes"
                         bind:value={newPrescription.notes}
                         rows="2"
                         placeholder="Additional notes for the patient or pharmacist..."

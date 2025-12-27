@@ -1,6 +1,7 @@
 <script>
     import { user } from "$lib/store";
     import { addReview } from "$features/doctors/reviews";
+    import { navigate } from "$features/routing/router";
     import Icon from "$ui/Icon.svelte";
     import Button from "$ui/Button.svelte";
 

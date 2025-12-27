@@ -16,6 +16,7 @@
         updateAppointment,
     } from "$features/appointments/appointments";
     import MedicalRecords from "$features/medical-records/MedicalRecords.svelte";
+    import { refreshDoctors } from "$features/doctors/data";
 
     let isLoading = false;
     let successMessage = "";
@@ -101,6 +102,9 @@
 
             if (result.success) {
                 successMessage = "Profile updated successfully!";
+                if ($user.role === "doctor") {
+                    await refreshDoctors();
+                }
                 setTimeout(() => {
                     successMessage = "";
                 }, 3000);
@@ -736,10 +740,7 @@
                                                                     cancelAppointment(
                                                                         apt.id,
                                                                     );
-                                                                    appointments =
-                                                                        getAppointmentsByPatient(
-                                                                            $user.email,
-                                                                        );
+                                                                    // Appointments will be updated via store subscription
                                                                 }
                                                             }}
                                                         >
